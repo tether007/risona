@@ -1,0 +1,544 @@
+{{ 'section-image-banner.css' | asset_url | stylesheet_tag }}
+
+<style>
+  /* ── RISONA SLIDESHOW BANNER ── */
+  :root {
+    --risona-red: #6B1212;
+    --risona-red-mid: #8B1A1A;
+    --risona-gold: #C9A96E;
+    --risona-cream: #FAF6F1;
+    --risona-dark: #1a0808;
+    --risona-white: #ffffff;
+  }
+
+  .risona-slideshow {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    background: var(--risona-dark);
+    min-height: 520px;
+  }
+
+  /* ── SLIDES ── */
+  .risona-slide {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: stretch;
+    opacity: 0;
+    transition: opacity 0.9s cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: none;
+    z-index: 0;
+  }
+  .risona-slide.is-active {
+    opacity: 1;
+    pointer-events: auto;
+    position: relative;
+    z-index: 1;
+  }
+  .risona-slide.is-prev {
+    opacity: 0;
+    z-index: 0;
+  }
+
+  /* ── SLIDE MEDIA ── */
+  .risona-slide__media {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+  }
+  .risona-slide__media img,
+  .risona-slide__media .placeholder-svg {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transform: scale(1.05);
+    transition: transform 6s ease-out;
+  }
+  .risona-slide.is-active .risona-slide__media img {
+    transform: scale(1);
+  }
+
+  /* ── OVERLAY ── */
+  .risona-slide__overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      105deg,
+      rgba(107, 18, 18, 0.72) 0%,
+      rgba(26, 8, 8, 0.55) 40%,
+      rgba(0, 0, 0, 0.25) 100%
+    );
+    z-index: 1;
+  }
+
+  /* ── CONTENT ── */
+  .risona-slide__content {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    min-height: 520px;
+    display: flex;
+    align-items: center;
+    padding: 60px 5vw;
+  }
+
+  .risona-slide__inner {
+    max-width: 560px;
+    opacity: 0;
+    transform: translateY(28px);
+    transition: opacity 0.7s ease 0.4s, transform 0.7s ease 0.4s;
+  }
+  .risona-slide.is-active .risona-slide__inner {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ── EYEBROW ── */
+  .risona-slide__eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  .risona-slide__eyebrow-line {
+    width: 32px;
+    height: 1px;
+    background: var(--risona-gold);
+  }
+  .risona-slide__eyebrow-text {
+    font-family: 'Raleway', sans-serif;
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--risona-gold);
+    font-weight: 400;
+  }
+
+  /* ── HEADING ── */
+  .risona-slide__heading {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(36px, 5vw, 64px);
+    font-weight: 300;
+    line-height: 1.1;
+    color: var(--risona-white);
+    margin: 0 0 12px;
+    letter-spacing: 0.02em;
+  }
+  .risona-slide__heading em {
+    font-style: italic;
+    color: var(--risona-gold);
+  }
+
+  /* ── SUBTEXT ── */
+  .risona-slide__text {
+    font-family: 'Raleway', sans-serif;
+    font-size: 13px;
+    letter-spacing: 0.12em;
+    color: rgba(255,255,255,0.75);
+    font-weight: 300;
+    margin-bottom: 32px;
+    line-height: 1.7;
+  }
+
+  /* ── BUTTONS ── */
+  .risona-slide__buttons {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+  .risona-btn-primary {
+    display: inline-block;
+    padding: 13px 32px;
+    background: var(--risona-red);
+    color: var(--risona-white);
+    font-family: 'Raleway', sans-serif;
+    font-size: 10px;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    font-weight: 500;
+    text-decoration: none;
+    border: 1px solid var(--risona-red);
+    transition: background 0.25s, color 0.25s, border-color 0.25s;
+    cursor: pointer;
+  }
+  .risona-btn-primary:hover {
+    background: transparent;
+    color: var(--risona-white);
+    border-color: var(--risona-gold);
+  }
+  .risona-btn-secondary {
+    display: inline-block;
+    padding: 13px 32px;
+    background: transparent;
+    color: var(--risona-white);
+    font-family: 'Raleway', sans-serif;
+    font-size: 10px;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    font-weight: 400;
+    text-decoration: none;
+    border: 1px solid rgba(255,255,255,0.4);
+    transition: border-color 0.25s, color 0.25s;
+  }
+  .risona-btn-secondary:hover {
+    border-color: var(--risona-gold);
+    color: var(--risona-gold);
+  }
+
+  /* ── LOGO WATERMARK ── */
+  .risona-slide__logo {
+    position: absolute;
+    bottom: 36px;
+    right: 5vw;
+    z-index: 2;
+    opacity: 0.18;
+    pointer-events: none;
+  }
+  .risona-slide__logo svg {
+    width: 120px;
+    height: auto;
+  }
+
+  /* ── PROGRESS BAR ── */
+  .risona-progress {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 2px;
+    background: var(--risona-gold);
+    z-index: 10;
+    width: 0%;
+    transition: width linear;
+    opacity: 0.7;
+  }
+
+  /* ── SLIDE COUNTER ── */
+  .risona-counter {
+    position: absolute;
+    top: 28px;
+    right: 5vw;
+    z-index: 10;
+    font-family: 'Raleway', sans-serif;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: rgba(255,255,255,0.5);
+  }
+  .risona-counter__current {
+    color: var(--risona-gold);
+    font-size: 13px;
+  }
+
+  /* ── DECORATIVE CORNER ── */
+  .risona-corner {
+    position: absolute;
+    top: 20px;
+    left: 5vw;
+    z-index: 10;
+    width: 40px;
+    height: 40px;
+    pointer-events: none;
+  }
+  .risona-corner::before,
+  .risona-corner::after {
+    content: '';
+    position: absolute;
+    background: var(--risona-gold);
+    opacity: 0.5;
+  }
+  .risona-corner::before { top: 0; left: 0; width: 100%; height: 1px; }
+  .risona-corner::after  { top: 0; left: 0; width: 1px; height: 100%; }
+
+  /* ── MOBILE ── */
+  @media screen and (max-width: 749px) {
+    .risona-slideshow { min-height: 420px; }
+    .risona-slide__content { min-height: 420px; padding: 40px 6vw; }
+    .risona-slide__inner { max-width: 100%; }
+    .risona-slide__logo { display: none; }
+  }
+</style>
+
+{%- liquid
+  assign slide_interval = 3000
+-%}
+
+<div
+  class="risona-slideshow"
+  id="RisonaSlideshow-{{ section.id }}"
+  data-interval="{{ slide_interval }}"
+  role="region"
+  aria-label="RISONA featured banner"
+>
+  <div class="risona-corner"></div>
+
+  <div class="risona-counter">
+    <span class="risona-counter__current">01</span>
+    <span> / </span>
+    <span class="risona-counter__total">03</span>
+  </div>
+
+  <!-- SLIDE 1 -->
+  <div class="risona-slide is-active" data-slide="0">
+    {%- if section.settings.image != blank -%}
+      <div class="risona-slide__media">
+        {%- assign image_height = section.settings.image.width | divided_by: section.settings.image.aspect_ratio -%}
+        {{
+          section.settings.image
+          | image_url: width: 3840
+          | image_tag:
+            width: section.settings.image.width,
+            height: image_height,
+            sizes: '100vw',
+            widths: '750, 1100, 1500, 1780, 2000',
+            fetchpriority: 'high',
+            alt: section.settings.image.alt | default: shop.name
+        }}
+      </div>
+    {%- else -%}
+      <div class="risona-slide__media">
+        {{ 'hero-apparel-1' | placeholder_svg_tag: 'placeholder-svg' }}
+      </div>
+    {%- endif -%}
+    <div class="risona-slide__overlay"></div>
+    <div class="risona-slide__content page-width">
+      <div class="risona-slide__inner">
+        <div class="risona-slide__eyebrow">
+          <span class="risona-slide__eyebrow-line"></span>
+          <span class="risona-slide__eyebrow-text">New Collection</span>
+        </div>
+        {%- for block in section.blocks -%}
+          {%- case block.type -%}
+            {%- when 'heading' -%}
+              <h2 class="risona-slide__heading">{{ block.settings.heading }}</h2>
+            {%- when 'text' -%}
+              <p class="risona-slide__text">{{ block.settings.text }}</p>
+            {%- when 'buttons' -%}
+              <div class="risona-slide__buttons">
+                {%- if block.settings.button_label_1 != blank -%}
+                  <a href="{{ block.settings.button_link_1 | default: '#' }}" class="risona-btn-primary">
+                    {{ block.settings.button_label_1 }}
+                  </a>
+                {%- endif -%}
+                {%- if block.settings.button_label_2 != blank -%}
+                  <a href="{{ block.settings.button_link_2 | default: '#' }}" class="risona-btn-secondary">
+                    {{ block.settings.button_label_2 }}
+                  </a>
+                {%- endif -%}
+              </div>
+          {%- endcase -%}
+        {%- endfor -%}
+      </div>
+    </div>
+    <!-- RISONA logo watermark SVG -->
+    <div class="risona-slide__logo">
+      <svg viewBox="0 0 220 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <text x="0" y="46" font-family="'Cormorant Garamond', serif" font-size="48" font-weight="300" letter-spacing="8" fill="white">RISONA</text>
+      </svg>
+    </div>
+  </div>
+
+  <!-- SLIDE 2 — static luxury slide -->
+  <div class="risona-slide" data-slide="1">
+    {%- if section.settings.image_2 != blank -%}
+      <div class="risona-slide__media">
+        {%- assign image_height_2 = section.settings.image_2.width | divided_by: section.settings.image_2.aspect_ratio -%}
+        {{
+          section.settings.image_2
+          | image_url: width: 3840
+          | image_tag:
+            width: section.settings.image_2.width,
+            height: image_height_2,
+            sizes: '100vw',
+            widths: '750, 1100, 1500, 1780, 2000',
+            alt: section.settings.image_2.alt | default: shop.name
+        }}
+      </div>
+    {%- else -%}
+      <div class="risona-slide__media" style="background: linear-gradient(135deg, #6B1212 0%, #2a0808 100%); position:absolute; inset:0;"></div>
+    {%- endif -%}
+    <div class="risona-slide__overlay"></div>
+    <div class="risona-slide__content page-width">
+      <div class="risona-slide__inner">
+        <div class="risona-slide__eyebrow">
+          <span class="risona-slide__eyebrow-line"></span>
+          <span class="risona-slide__eyebrow-text">Anti-Tarnish Promise</span>
+        </div>
+        <h2 class="risona-slide__heading">Jewels That <em>Endure</em></h2>
+        <p class="risona-slide__text">Crafted to resist tarnish and rust — designed for the woman who never compromises.</p>
+        <div class="risona-slide__buttons">
+          <a href="/collections/all" class="risona-btn-primary">Explore Now</a>
+        </div>
+      </div>
+    </div>
+    <div class="risona-slide__logo">
+      <svg viewBox="0 0 220 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <text x="0" y="46" font-family="'Cormorant Garamond', serif" font-size="48" font-weight="300" letter-spacing="8" fill="white">RISONA</text>
+      </svg>
+    </div>
+  </div>
+
+  <!-- SLIDE 3 — static luxury slide -->
+  <div class="risona-slide" data-slide="2">
+    <div class="risona-slide__media" style="background: linear-gradient(120deg, #1a0808 0%, #6B1212 60%, #8B1A1A 100%); position:absolute; inset:0;">
+      <div style="position:absolute;inset:0;background-image:radial-gradient(circle at 70% 50%, rgba(201,169,110,0.12) 0%, transparent 60%);"></div>
+    </div>
+    <div class="risona-slide__overlay" style="background: linear-gradient(105deg, rgba(26,8,8,0.6) 0%, rgba(107,18,18,0.3) 100%);"></div>
+    <div class="risona-slide__content page-width">
+      <div class="risona-slide__inner">
+        <div class="risona-slide__eyebrow">
+          <span class="risona-slide__eyebrow-line"></span>
+          <span class="risona-slide__eyebrow-text">For Her</span>
+        </div>
+        <h2 class="risona-slide__heading">The <em>Ruby Hour</em><br>Collection</h2>
+        <p class="risona-slide__text">Timelessly feminine. Uncompromisingly durable. Only at RISONA.</p>
+        <div class="risona-slide__buttons">
+          <a href="/collections/new" class="risona-btn-primary">Shop Collection</a>
+          <a href="/pages/about" class="risona-btn-secondary">Our Story</a>
+        </div>
+      </div>
+    </div>
+    <div class="risona-slide__logo">
+      <svg viewBox="0 0 220 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <text x="0" y="46" font-family="'Cormorant Garamond', serif" font-size="48" font-weight="300" letter-spacing="8" fill="white">RISONA</text>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Progress bar -->
+  <div class="risona-progress" id="RisonaProgress-{{ section.id }}"></div>
+</div>
+
+<script>
+(function() {
+  const wrap     = document.getElementById('RisonaSlideshow-{{ section.id }}');
+  if (!wrap) return;
+
+  const slides   = wrap.querySelectorAll('.risona-slide');
+  const progress = document.getElementById('RisonaProgress-{{ section.id }}');
+  const counter  = wrap.querySelector('.risona-counter__current');
+  const total    = slides.length;
+  const interval = parseInt(wrap.dataset.interval) || 1500;
+  let current = 0;
+
+  function pad(n) { return n < 10 ? '0' + n : '' + n; }
+
+  function goTo(index) {
+    slides[current].classList.remove('is-active');
+    slides[current].classList.add('is-prev');
+    setTimeout(() => slides[current] && slides[current].classList.remove('is-prev'), 1000);
+    current = (index + total) % total;
+    slides[current].classList.add('is-active');
+    if (counter) counter.textContent = pad(current + 1);
+    startProgress();
+  }
+
+  function next() { goTo(current + 1); }
+
+  function startProgress() {
+    if (progress) {
+      progress.style.transition = 'none';
+      progress.style.width = '0%';
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          progress.style.transition = `width ${interval}ms linear`;
+          progress.style.width = '100%';
+        });
+      });
+    }
+  }
+
+  // Boot — pure auto-play, no user controls
+  setInterval(next, interval);
+  startProgress();
+})();
+</script>
+
+{% schema %}
+{
+  "name": "RISONA Slideshow Banner",
+  "tag": "section",
+  "class": "section",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Slide 1 image"
+    },
+    {
+      "type": "image_picker",
+      "id": "image_2",
+      "label": "Slide 2 image"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "name": "Heading",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "inline_richtext",
+          "id": "heading",
+          "default": "Crafted to Last Forever",
+          "label": "Heading"
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "name": "Text",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "inline_richtext",
+          "id": "text",
+          "default": "Anti-tarnish jewellery designed for the modern woman.",
+          "label": "Text"
+        }
+      ]
+    },
+    {
+      "type": "buttons",
+      "name": "Buttons",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "button_label_1",
+          "default": "Shop Now",
+          "label": "Button 1 label"
+        },
+        {
+          "type": "url",
+          "id": "button_link_1",
+          "label": "Button 1 link"
+        },
+        {
+          "type": "text",
+          "id": "button_label_2",
+          "default": "Explore Collection",
+          "label": "Button 2 label"
+        },
+        {
+          "type": "url",
+          "id": "button_link_2",
+          "label": "Button 2 link"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "RISONA Slideshow Banner",
+      "blocks": [
+        { "type": "heading" },
+        { "type": "text" },
+        { "type": "buttons" }
+      ]
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,912 @@
+{{ 'component-card.css' | asset_url | stylesheet_tag }}
+{{ 'component-price.css' | asset_url | stylesheet_tag }}
+{{ 'component-slider.css' | asset_url | stylesheet_tag }}
+{{ 'template-collection.css' | asset_url | stylesheet_tag }}
+
+{% if section.settings.image_shape == 'blob' %}
+  {{ 'mask-blobs.css' | asset_url | stylesheet_tag }}
+{%- endif -%}
+
+{%- unless section.settings.quick_add == 'none' -%}
+  {{ 'quick-add.css' | asset_url | stylesheet_tag }}
+  <script src="{{ 'product-form.js' | asset_url }}" defer="defer"></script>
+{%- endunless -%}
+
+{%- if section.settings.quick_add == 'standard' -%}
+  <script src="{{ 'quick-add.js' | asset_url }}" defer="defer"></script>
+{%- endif -%}
+
+{%- if section.settings.quick_add == 'bulk' -%}
+  <script src="{{ 'quick-add-bulk.js' | asset_url }}" defer="defer"></script>
+  <script src="{{ 'quantity-popover.js' | asset_url }}" defer="defer"></script>
+  <script src="{{ 'price-per-item.js' | asset_url }}" defer="defer"></script>
+  <script src="{{ 'quick-order-list.js' | asset_url }}" defer="defer"></script>
+{%- endif -%}
+
+
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+  const sections = document.querySelectorAll(
+    '.shopify-section, .risona-category-section, .risona-bond-section, .risona-products-section'
+  );
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('fade-visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, {
+    threshold: 0.12
+  });
+
+  sections.forEach((section) => {
+    section.classList.add('fade-section');
+
+    const children = section.querySelectorAll(
+      'h1, h2, h3, p, a, .grid__item, .risona-cat, .risona-bond, .card-wrapper'
+    );
+
+    children.forEach((child) => {
+      child.classList.add('fade-child');
+    });
+
+    observer.observe(section);
+  });
+
+});
+</script>
+
+<style>
+  /* ════════════════════════════════
+   GLOBAL SECTION FADE-IN
+════════════════════════════════ */
+.fade-section {
+  opacity: 0;
+  transform: translateY(40px);
+  transition:
+    opacity 0.9s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: opacity, transform;
+}
+
+.fade-section.fade-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Slight stagger for inner elements */
+.fade-section .fade-child {
+  opacity: 0;
+  transform: translateY(18px);
+  transition:
+    opacity 0.7s ease,
+    transform 0.7s ease;
+}
+
+.fade-section.fade-visible .fade-child {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.fade-section.fade-visible .fade-child:nth-child(1) { transition-delay: 0.08s; }
+.fade-section.fade-visible .fade-child:nth-child(2) { transition-delay: 0.16s; }
+.fade-section.fade-visible .fade-child:nth-child(3) { transition-delay: 0.24s; }
+.fade-section.fade-visible .fade-child:nth-child(4) { transition-delay: 0.32s; }
+.fade-section.fade-visible .fade-child:nth-child(5) { transition-delay: 0.40s; }
+  /* ── RISONA TOKENS ── */
+  :root {
+    --risona-red: #6B1212;
+    --risona-red-light: #fdf0f0;
+    --risona-gold: #C9A96E;
+    --risona-dark: #1a0808;
+    --risona-muted: #7a3535;
+    --risona-border: #f0e0e0;
+  }
+
+  /* ════════════════════════════════
+     CATEGORY STRIP
+  ════════════════════════════════ */
+  .risona-category-section {
+    padding: 40px 0 20px;
+    background: #fff;
+    border-bottom: 0.5px solid var(--risona-border);
+  }
+  .risona-category-section__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 3rem;
+    margin-bottom: 24px;
+  }
+  .risona-section-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 28px;
+    font-weight: 300;
+    letter-spacing: 0.12em;
+    color: var(--risona-dark);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .risona-section-title::before {
+    content: '';
+    display: block;
+    width: 28px;
+    height: 1px;
+    background: var(--risona-gold);
+  }
+  .risona-section-viewall {
+    font-family: 'Raleway', sans-serif;
+    font-size: 10px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--risona-muted);
+    text-decoration: none;
+    border-bottom: 1px solid var(--risona-border);
+    padding-bottom: 2px;
+    transition: color 0.2s, border-color 0.2s;
+  }
+  .risona-section-viewall:hover {
+    color: var(--risona-red);
+    border-color: var(--risona-red);
+  }
+  .risona-category-strip {
+    display: flex;
+    gap: 18px;
+    overflow-x: auto;
+    padding: 0 3rem 16px;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    scroll-behavior: smooth;
+  }
+  .risona-category-strip::-webkit-scrollbar { display: none; }
+  .risona-cat {
+    flex: 0 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    text-decoration: none;
+  }
+  .risona-cat__img-wrap {
+    width: 130px;
+    height: 130px;
+    border-radius: 22px;
+    overflow: hidden;
+    border: 1.5px solid var(--risona-border);
+    background: var(--risona-red-light);
+    position: relative;
+    transition: border-color 0.25s, box-shadow 0.25s, transform 0.25s;
+  }
+  .risona-cat:hover .risona-cat__img-wrap {
+    border-color: var(--risona-gold);
+    box-shadow: 0 6px 24px rgba(107,18,18,0.13);
+    transform: translateY(-3px);
+  }
+  .risona-cat__img-wrap img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+  }
+  .risona-cat:hover .risona-cat__img-wrap img { transform: scale(1.07); }
+  .risona-cat__label {
+    font-family: 'Raleway', sans-serif;
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--risona-dark);
+    font-weight: 400;
+    text-align: center;
+    transition: color 0.2s;
+  }
+  .risona-cat:hover .risona-cat__label { color: var(--risona-red); }
+  .risona-cat__placeholder {
+    width: 100%; height: 100%;
+    display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(135deg, var(--risona-red-light), #f5d5d5);
+  }
+  .risona-cat__placeholder svg {
+    width: 40px; height: 40px;
+    stroke: var(--risona-muted); fill: none;
+    stroke-width: 1.2; opacity: 0.6;
+  }
+
+
+
+  /* ════════════════════════════════
+     PRODUCT CARDS — HOVER SLIDE + FADE IN
+  ════════════════════════════════ */
+
+  /* Fade-in on scroll */
+  .risona-fade-item {
+    opacity: 0;
+    transform: translateY(22px);
+    transition: opacity 0.55s ease, transform 0.55s ease;
+  }
+  .risona-fade-item.risona-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Override card image area to enable slide effect */
+  .risona-product-grid .card-wrapper .card__media,
+  .risona-product-grid .card-wrapper .media {
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* Primary image slides left on hover, secondary slides in from right */
+  .risona-product-grid .card-wrapper:hover .card__media .motion-reduce:first-child,
+  .risona-product-grid .card-wrapper:hover .media img:first-child {
+    transform: translateX(-100%);
+  }
+  .risona-product-grid .card-wrapper .card__media .motion-reduce,
+  .risona-product-grid .card-wrapper .media img {
+    transition: transform 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .risona-product-grid .card-wrapper .card__media .motion-reduce:last-child,
+  .risona-product-grid .card-wrapper .media img:last-child {
+    position: absolute;
+    inset: 0;
+    transform: translateX(100%);
+    width: 100%; height: 100%;
+    object-fit: cover;
+  }
+  .risona-product-grid .card-wrapper:hover .card__media .motion-reduce:last-child,
+  .risona-product-grid .card-wrapper:hover .media img:last-child {
+    transform: translateX(0);
+  }
+
+  /* Card subtle lift */
+  .risona-product-grid .card-wrapper {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  .risona-product-grid .card-wrapper:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 32px rgba(107,18,18,0.1);
+  }
+
+  /* ════════════════════════════════
+     FEATURED PRODUCTS SECTION
+  ════════════════════════════════ */
+  .risona-products-section {
+    padding: 48px 0;
+    background: #fff;
+  }
+  .risona-products-section__header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    padding: 0 3rem;
+    margin-bottom: 32px;
+  }
+  .risona-products-eyebrow {
+    font-family: 'Raleway', sans-serif;
+    font-size: 10px;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--risona-gold);
+    margin-bottom: 6px;
+  }
+  .risona-viewall-btn {
+    display: inline-block;
+    padding: 10px 28px;
+    border: 1px solid var(--risona-red);
+    color: var(--risona-red);
+    font-family: 'Raleway', sans-serif;
+    font-size: 10px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    text-decoration: none;
+    font-weight: 400;
+    transition: background 0.25s, color 0.25s;
+  }
+  .risona-viewall-btn:hover {
+    background: var(--risona-red);
+    color: #fff;
+  }
+
+  .section-{{ section.id }}-padding {
+    padding-top: {{ section.settings.padding_top | times: 0.75 | round: 0 }}px;
+    padding-bottom: {{ section.settings.padding_bottom | times: 0.75 | round: 0 }}px;
+  }
+  @media screen and (min-width: 750px) {
+    .section-{{ section.id }}-padding {
+      padding-top: {{ section.settings.padding_top }}px;
+      padding-bottom: {{ section.settings.padding_bottom }}px;
+    }
+  }
+
+  @media screen and (max-width: 749px) {
+    .risona-category-section__header,
+    .risona-products-section__header { padding: 0 1.5rem; }
+    .risona-category-strip,
+    .risona-bond-strip { padding: 0 1.5rem 16px; }
+    .risona-cat__img-wrap { width: 100px; height: 100px; border-radius: 16px; }
+    .risona-bond__img-wrap { width: 120px; height: 145px; }
+    .risona-section-title { font-size: 22px; }
+    .risona-bond-strip { justify-content: flex-start; flex-wrap: nowrap; }
+  }
+
+    /* ════════════════════════════════
+     SHOP BY BOND STRIP
+  ════════════════════════════════ */
+  .risona-bond-section {
+    padding: 48px 0 32px;
+    background: #faf8f5;
+    border-bottom: 0.5px solid var(--risona-border);
+  }
+  .risona-bond-section__header {
+    text-align: center;
+    margin-bottom: 28px;
+  }
+  .risona-bond-eyebrow {
+    font-family: 'Raleway', sans-serif;
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--risona-gold);
+    margin-bottom: 6px;
+  }
+  .risona-bond-strip {
+    display: flex;
+    gap: 20px;
+    overflow-x: auto;
+    padding: 0 3rem 12px;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .risona-bond-strip::-webkit-scrollbar { display: none; }
+  .risona-bond {
+    flex: 0 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+  }
+  .risona-bond__img-wrap {
+    width: 150px;
+    height: 180px;
+    border-radius: 20px;
+    overflow: hidden;
+    background: #ede8e0;
+    border: 1.5px solid var(--risona-border);
+    position: relative;
+    transition: border-color 0.25s, box-shadow 0.25s, transform 0.25s;
+  }
+  .risona-bond:hover .risona-bond__img-wrap {
+    border-color: var(--risona-gold);
+    box-shadow: 0 8px 28px rgba(107,18,18,0.12);
+    transform: translateY(-4px);
+  }
+  .risona-bond__img-wrap img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+  }
+  .risona-bond:hover .risona-bond__img-wrap img { transform: scale(1.05); }
+  .risona-bond__placeholder {
+    width: 100%; height: 100%;
+    display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(160deg, #ede8e0 0%, #d9c9c0 100%);
+  }
+  .risona-bond__placeholder svg {
+    width: 44px; height: 44px;
+    stroke: var(--risona-muted); fill: none;
+    stroke-width: 1.2; opacity: 0.5;
+  }
+  .risona-bond__label {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 15px;
+    font-weight: 400;
+    letter-spacing: 0.1em;
+    color: var(--risona-dark);
+    text-align: center;
+    transition: color 0.2s;
+  }
+  .risona-bond:hover .risona-bond__label { color: var(--risona-red); }
+</style>
+
+
+
+{%- liquid
+  assign products_to_display = section.settings.collection.all_products_count
+  if section.settings.collection.all_products_count > section.settings.products_to_show
+    assign products_to_display = section.settings.products_to_show
+    assign more_in_collection = true
+  endif
+  assign columns_mobile_int = section.settings.columns_mobile | plus: 0
+  assign columns_desktop_int = section.settings.columns_desktop | plus: 0
+  assign show_mobile_slider = false
+  if section.settings.swipe_on_mobile and products_to_display > columns_mobile_int
+    assign show_mobile_slider = true
+  endif
+  assign max_columns_to_show = columns_mobile_int
+  if columns_desktop_int > columns_mobile_int
+    assign max_columns_to_show = columns_desktop_int
+  endif
+  assign show_desktop_slider = false
+  if section.settings.enable_desktop_slider and products_to_display > section.settings.columns_desktop
+    assign show_desktop_slider = true
+  endif
+-%}
+
+<!-- ══════════════════════════════════
+     PART 1 — CATEGORY STRIP
+══════════════════════════════════ -->
+<div class="risona-category-section">
+  <div class="risona-category-section__header">
+    <h2 class="risona-section-title">Shop by Category</h2>
+    <a href="/collections/all" class="risona-section-viewall">View All</a>
+  </div>
+  <div class="risona-category-strip">
+    {%- assign cat_blocks_count = 0 -%}
+    {%- for block in section.blocks -%}
+      {%- if block.type == 'category' -%}
+        {%- assign cat_blocks_count = cat_blocks_count | plus: 1 -%}
+        <a href="{{ block.settings.category_link | default: '/collections/all' }}" class="risona-cat" {{ block.shopify_attributes }}>
+          <div class="risona-cat__img-wrap">
+            {%- if block.settings.category_image != blank -%}
+              {{ block.settings.category_image | image_url: width: 300 | image_tag: width: 130, height: 130, alt: block.settings.category_name, loading: 'lazy' }}
+            {%- else -%}
+              <div class="risona-cat__placeholder">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2C8 2 5 5 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-4-3-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+              </div>
+            {%- endif -%}
+          </div>
+          <span class="risona-cat__label">{{ block.settings.category_name | default: 'Category' }}</span>
+        </a>
+      {%- endif -%}
+    {%- endfor -%}
+    {%- if cat_blocks_count == 0 -%}
+      {%- assign default_cats = 'Rings,Earrings,Bracelets,Necklaces,Pendants,Anklets,Ring Sets,Nose Pins' | split: ',' -%}
+      {%- for cat in default_cats -%}
+        <a href="/collections/{{ cat | downcase | replace: ' ', '-' }}" class="risona-cat">
+          <div class="risona-cat__img-wrap">
+            <div class="risona-cat__placeholder">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2C8 2 5 5 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-4-3-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+            </div>
+          </div>
+          <span class="risona-cat__label">{{ cat }}</span>
+        </a>
+      {%- endfor -%}
+    {%- endif -%}
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     PART 2 — SHOP BY BOND
+══════════════════════════════════ -->
+<div class="risona-bond-section">
+  <div class="risona-bond-section__header">
+    <div class="risona-bond-eyebrow">Gift with intention</div>
+    <h2 class="risona-section-title" style="justify-content:center;">Shop by Bond</h2>
+  </div>
+  <div class="risona-bond-strip">
+    {%- assign bond_blocks_count = 0 -%}
+    {%- for block in section.blocks -%}
+      {%- if block.type == 'bond' -%}
+        {%- assign bond_blocks_count = bond_blocks_count | plus: 1 -%}
+        <a href="{{ block.settings.bond_link | default: '/collections/all' }}" class="risona-bond" {{ block.shopify_attributes }}>
+          <div class="risona-bond__img-wrap">
+            {%- if block.settings.bond_image != blank -%}
+              {{ block.settings.bond_image | image_url: width: 400 | image_tag: width: 150, height: 180, alt: block.settings.bond_name, loading: 'lazy' }}
+            {%- else -%}
+              <div class="risona-bond__placeholder">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+              </div>
+            {%- endif -%}
+          </div>
+          <span class="risona-bond__label">{{ block.settings.bond_name | default: 'Bond' }}</span>
+        </a>
+      {%- endif -%}
+    {%- endfor -%}
+    {%- if bond_blocks_count == 0 -%}
+      {%- assign default_bonds = 'Mother,Sister,Best Friend,Daughter,Wife,Bridesmaid' | split: ',' -%}
+      {%- for bond in default_bonds -%}
+        <a href="/collections/gifts-for-{{ bond | downcase | replace: ' ', '-' }}" class="risona-bond">
+          <div class="risona-bond__img-wrap">
+            <div class="risona-bond__placeholder">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            </div>
+          </div>
+          <span class="risona-bond__label">{{ bond }}</span>
+        </a>
+      {%- endfor -%}
+    {%- endif -%}
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     PART 3 — FEATURED PRODUCTS
+══════════════════════════════════ -->
+<div class="color-{{ section.settings.color_scheme }} isolate gradient risona-products-section">
+  <div
+    class="collection{% if section.settings.quick_add == 'bulk' %} collection-quick-add-bulk{% endif %} section-{{ section.id }}-padding{% if section.settings.full_width %} collection--full-width{% endif %}"
+    id="collection-{{ section.id }}"
+    data-id="{{ section.id }}"
+  >
+    <div class="risona-products-section__header">
+      <div>
+        <div class="risona-products-eyebrow">Anti-Tarnish · Anti-Rust · Always Radiant</div>
+        <div class="collection__title title-wrapper title-wrapper--no-top-margin" style="margin:0;padding:0;">
+          {%- if section.settings.title != blank -%}
+            <h2 class="title inline-richtext {{ section.settings.heading_size }} risona-section-title" style="margin:0;">{{ section.settings.title }}</h2>
+          {%- endif -%}
+          {%- if section.settings.description != blank or section.settings.show_description and section.settings.collection.description != empty -%}
+            <div class="collection__description {{ section.settings.description_style }} rte" style="margin-top:6px;">
+              {%- if section.settings.show_description -%}{{ section.settings.collection.description }}{%- else -%}{{ section.settings.description }}{%- endif %}
+            </div>
+          {%- endif -%}
+        </div>
+      </div>
+      {%- if section.settings.show_view_all and more_in_collection -%}
+        <a href="{{ section.settings.collection.url }}" class="risona-viewall-btn small-hide">View All</a>
+      {%- endif -%}
+    </div>
+
+    <slider-component class="slider-mobile-gutter{% if section.settings.full_width %} slider-component-full-width{% endif %}{% if show_mobile_slider == false %} page-width{% endif %}{% if show_desktop_slider == false and section.settings.full_width == false %} page-width-desktop{% endif %}{% if show_desktop_slider %} slider-component-desktop{% endif %}">
+      <ul
+        id="Slider-{{ section.id }}"
+        data-id="{{ section.id }}"
+        class="grid product-grid contains-card contains-card--product{% if settings.card_style == 'standard' %} contains-card--standard{% endif %} grid--{{ section.settings.columns_desktop }}-col-desktop{% if section.settings.collection == blank %} grid--2-col-tablet-down{% else %} grid--{{ section.settings.columns_mobile }}-col-tablet-down{% endif %}{% if show_mobile_slider or show_desktop_slider %} slider{% if show_desktop_slider %} slider--desktop{% endif %}{% if show_mobile_slider %} slider--tablet grid--peek{% endif %}{% endif %} risona-product-grid"
+        role="list"
+        aria-label="{{ 'general.slider.name' | t }}"
+      >
+        {% assign skip_card_product_styles = false %}
+        {%- if section.settings.collection.products.size > 0 -%}
+          {% assign lazy_load = false %}
+          {% paginate section.settings.collection.products by section.settings.products_to_show %}
+            {%- for product in section.settings.collection.products limit: section.settings.products_to_show -%}
+              {% if lazy_load == false and forloop.index > max_columns_to_show %}
+                {% assign lazy_load = true %}
+              {% endif %}
+              <li
+                id="Slide-{{ section.id }}-{{ forloop.index }}"
+                class="grid__item{% if show_mobile_slider or show_desktop_slider %} slider__slide{% endif %} risona-fade-item"
+                style="transition-delay: {{ forloop.index | times: 80 }}ms;"
+              >
+                {% render 'card-product',
+                  card_product: product,
+                  media_aspect_ratio: section.settings.image_ratio,
+                  image_shape: section.settings.image_shape,
+                  lazy_load: lazy_load,
+                  show_secondary_image: section.settings.show_secondary_image,
+                  show_vendor: section.settings.show_vendor,
+                  show_rating: section.settings.show_rating,
+                  skip_styles: skip_card_product_styles,
+                  section_id: section.id,
+                  quick_add: section.settings.quick_add
+                %}
+              </li>
+              {%- assign skip_card_product_styles = true -%}
+            {%- endfor -%}
+          {% endpaginate %}
+        {%- else -%}
+          {%- for i in (1..section.settings.columns_desktop) -%}
+            <li class="grid__item risona-fade-item" style="transition-delay: {{ forloop.index | times: 80 }}ms;">
+              {% liquid
+                assign ridx = forloop.rindex
+                case ridx
+                  when 5
+                    assign ridx = 1
+                  when 6
+                    assign ridx = 2
+                endcase
+              %}
+              {%- assign placeholder_image = 'product-apparel-' | append: ridx -%}
+              {% render 'card-product',
+                show_vendor: section.settings.show_vendor,
+                media_aspect_ratio: section.settings.image_ratio,
+                image_shape: section.settings.image_shape,
+                lazy_load: false,
+                placeholder_image: placeholder_image
+              %}
+            </li>
+          {%- endfor -%}
+        {%- endif -%}
+      </ul>
+
+      {%- if show_mobile_slider or show_desktop_slider -%}
+        <div class="slider-buttons">
+          <button type="button" class="slider-button slider-button--prev" name="previous" aria-label="{{ 'general.slider.previous_slide' | t }}" aria-controls="Slider-{{ section.id }}">
+            <span class="svg-wrapper">{{- 'icon-caret.svg' | inline_asset_content -}}</span>
+          </button>
+          <div class="slider-counter caption">
+            <span class="slider-counter--current">1</span>
+            <span aria-hidden="true"> / </span>
+            <span class="visually-hidden">{{ 'general.slider.of' | t }}</span>
+            <span class="slider-counter--total">{{ products_to_display }}</span>
+          </div>
+          <button type="button" class="slider-button slider-button--next" name="next" aria-label="{{ 'general.slider.next_slide' | t }}" aria-controls="Slider-{{ section.id }}">
+            <span class="svg-wrapper">{{- 'icon-caret.svg' | inline_asset_content -}}</span>
+          </button>
+        </div>
+      {%- endif -%}
+    </slider-component>
+
+    {%- if section.settings.show_view_all and more_in_collection -%}
+      <div class="center collection__view-all medium-hide large-up-hide" style="margin-top:24px;">
+        <a href="{{ section.settings.collection.url }}" class="risona-viewall-btn">View All</a>
+      </div>
+    {%- endif -%}
+    {% if section.settings.image_shape == 'arch' %}{{ 'mask-arch.svg' | inline_asset_content }}{%- endif -%}
+  </div>
+</div>
+
+<!-- Scroll fade-in observer -->
+<script>
+(function() {
+  var items = document.querySelectorAll('.risona-fade-item');
+  if (!items.length) return;
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('risona-visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.12 });
+  items.forEach(function(item) { observer.observe(item); });
+})();
+</script>
+
+{% schema %}
+{
+  "name": "RISONA — Shop Sections",
+  "tag": "section",
+  "class": "section",
+  "disabled_on": { "groups": ["header", "footer"] },
+  "settings": [
+    {
+      "type": "header",
+      "content": "Featured Products"
+    },
+    {
+      "type": "collection",
+      "id": "collection",
+      "label": "Collection"
+    },
+    {
+      "type": "range",
+      "id": "products_to_show",
+      "min": 2, "max": 25, "step": 1, "default": 4,
+      "label": "Products to show"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "title",
+      "default": "Featured Jewels",
+      "label": "Section heading"
+    },
+    {
+      "type": "select",
+      "id": "heading_size",
+      "options": [
+        { "value": "h2", "label": "Small" },
+        { "value": "h1", "label": "Medium" },
+        { "value": "h0", "label": "Large" },
+        { "value": "hxl", "label": "Extra large" },
+        { "value": "hxxl", "label": "XX Large" }
+      ],
+      "default": "h1",
+      "label": "Heading size"
+    },
+    {
+      "type": "richtext",
+      "id": "description",
+      "label": "Description"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_description",
+      "label": "Show collection description",
+      "default": false
+    },
+    {
+      "type": "select",
+      "id": "description_style",
+      "label": "Description style",
+      "options": [
+        { "value": "body",      "label": "Body" },
+        { "value": "subtitle",  "label": "Subtitle" },
+        { "value": "uppercase", "label": "Uppercase" }
+      ],
+      "default": "body"
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "range",
+      "id": "columns_desktop",
+      "min": 1, "max": 6, "step": 1, "default": 4,
+      "label": "Columns (desktop)"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_desktop_slider",
+      "label": "Enable desktop slider",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "full_width",
+      "label": "Full width",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "show_view_all",
+      "default": true,
+      "label": "Show View All button"
+    },
+    {
+      "type": "select",
+      "id": "view_all_style",
+      "label": "View All style",
+      "options": [
+        { "value": "link",    "label": "Link" },
+        { "value": "outline", "label": "Outline" },
+        { "value": "solid",   "label": "Solid" }
+      ],
+      "default": "outline"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "header",
+      "content": "Product cards"
+    },
+    {
+      "type": "select",
+      "id": "image_ratio",
+      "options": [
+        { "value": "adapt",    "label": "Adapt to image" },
+        { "value": "portrait", "label": "Portrait" },
+        { "value": "square",   "label": "Square" }
+      ],
+      "default": "adapt",
+      "label": "Image ratio"
+    },
+    {
+      "type": "select",
+      "id": "image_shape",
+      "options": [
+        { "value": "default",       "label": "Default" },
+        { "value": "arch",          "label": "Arch" },
+        { "value": "blob",          "label": "Blob" },
+        { "value": "chevronleft",   "label": "Chevron left" },
+        { "value": "chevronright",  "label": "Chevron right" },
+        { "value": "diamond",       "label": "Diamond" },
+        { "value": "parallelogram", "label": "Parallelogram" },
+        { "value": "round",         "label": "Round" }
+      ],
+      "default": "default",
+      "label": "Image shape"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_secondary_image",
+      "default": true,
+      "label": "Show second image on hover"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_vendor",
+      "default": false,
+      "label": "Show vendor"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_rating",
+      "default": false,
+      "label": "Show product rating"
+    },
+    {
+      "type": "select",
+      "id": "quick_add",
+      "default": "none",
+      "label": "Quick add",
+      "options": [
+        { "value": "none",     "label": "None" },
+        { "value": "standard", "label": "Standard" },
+        { "value": "bulk",     "label": "Bulk" }
+      ]
+    },
+    {
+      "type": "header",
+      "content": "Mobile"
+    },
+    {
+      "type": "select",
+      "id": "columns_mobile",
+      "default": "2",
+      "label": "Columns (mobile)",
+      "options": [
+        { "value": "1", "label": "1 column" },
+        { "value": "2", "label": "2 columns" }
+      ]
+    },
+    {
+      "type": "checkbox",
+      "id": "swipe_on_mobile",
+      "default": false,
+      "label": "Enable swipe on mobile"
+    },
+    {
+      "type": "header",
+      "content": "Section padding"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0, "max": 100, "step": 4, "unit": "px",
+      "label": "Padding top",
+      "default": 36
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0, "max": 100, "step": 4, "unit": "px",
+      "label": "Padding bottom",
+      "default": 36
+    }
+  ],
+  "blocks": [
+    {
+      "type": "category",
+      "name": "Category",
+      "settings": [
+        { "type": "text",         "id": "category_name",  "label": "Category name",  "default": "Rings" },
+        { "type": "image_picker", "id": "category_image", "label": "Category image" },
+        { "type": "url",          "id": "category_link",  "label": "Category link"  }
+      ]
+    },
+    {
+      "type": "bond",
+      "name": "Shop by Bond",
+      "settings": [
+        { "type": "text",         "id": "bond_name",  "label": "Bond name",  "default": "Mother" },
+        { "type": "image_picker", "id": "bond_image", "label": "Bond image" },
+        { "type": "url",          "id": "bond_link",  "label": "Bond link"  }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "RISONA — Shop Sections",
+      "blocks": [
+        { "type": "category", "settings": { "category_name": "Rings" } },
+        { "type": "category", "settings": { "category_name": "Earrings" } },
+        { "type": "category", "settings": { "category_name": "Bracelets" } },
+        { "type": "category", "settings": { "category_name": "Necklaces" } },
+        { "type": "category", "settings": { "category_name": "Pendants" } },
+        { "type": "category", "settings": { "category_name": "Anklets" } },
+        { "type": "category", "settings": { "category_name": "Ring Sets" } },
+        { "type": "category", "settings": { "category_name": "Nose Pins" } },
+        { "type": "bond", "settings": { "bond_name": "Mother" } },
+        { "type": "bond", "settings": { "bond_name": "Sister" } },
+        { "type": "bond", "settings": { "bond_name": "Best Friend" } },
+        { "type": "bond", "settings": { "bond_name": "Daughter" } },
+        { "type": "bond", "settings": { "bond_name": "Wife" } },
+        { "type": "bond", "settings": { "bond_name": "Bridesmaid" } }
+      ]
+    }
+  ]
+}
+{% endschema %}
