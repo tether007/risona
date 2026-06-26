@@ -229,6 +229,47 @@
     font-size: 13px;
   }
 
+  /* ── SLIDESHOW CONTROLS ── */
+  .risona-controls {
+    position: absolute;
+    bottom: 20px;
+    left: 5vw;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .risona-controls__btn {
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.3);
+    color: var(--risona-white);
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.25s, border-color 0.25s;
+    padding: 0;
+    font-size: 0;
+  }
+  .risona-controls__btn:hover,
+  .risona-controls__btn:focus-visible {
+    background: rgba(255,255,255,0.25);
+    border-color: var(--risona-gold);
+    outline: none;
+  }
+  .risona-controls__btn svg {
+    width: 14px;
+    height: 14px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
   /* ── DECORATIVE CORNER ── */
   .risona-corner {
     position: absolute;
@@ -255,6 +296,7 @@
     .risona-slide__content { min-height: 420px; padding: 40px 6vw; }
     .risona-slide__inner { max-width: 100%; }
     .risona-slide__logo { display: none; }
+    .risona-controls { bottom: 14px; left: 4vw; }
   }
 </style>
 
@@ -404,52 +446,138 @@
     </div>
   </div>
 
+  <!-- Slideshow controls (prev / pause / next) -->
+  <div class="risona-controls">
+    <button type="button" class="risona-controls__btn risona-controls__prev" aria-label="Previous slide">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
+    </button>
+    <button type="button" class="risona-controls__btn risona-controls__pause" aria-label="Pause slideshow">
+      <svg viewBox="0 0 24 24" aria-hidden="true" class="risona-icon-pause"><line x1="10" y1="6" x2="10" y2="18"/><line x1="14" y1="6" x2="14" y2="18"/></svg>
+      <svg viewBox="0 0 24 24" aria-hidden="true" class="risona-icon-play" style="display:none"><polygon points="6 3 20 12 6 21"/></svg>
+    </button>
+    <button type="button" class="risona-controls__btn risona-controls__next" aria-label="Next slide">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
+    </button>
+  </div>
+
   <!-- Progress bar -->
   <div class="risona-progress" id="RisonaProgress-{{ section.id }}"></div>
 </div>
 
 <script>
 (function() {
-  const wrap     = document.getElementById('RisonaSlideshow-{{ section.id }}');
+  var wrap     = document.getElementById('RisonaSlideshow-{{ section.id }}');
   if (!wrap) return;
 
-  const slides   = wrap.querySelectorAll('.risona-slide');
-  const progress = document.getElementById('RisonaProgress-{{ section.id }}');
-  const counter  = wrap.querySelector('.risona-counter__current');
-  const total    = slides.length;
-  const interval = parseInt(wrap.dataset.interval) || 1500;
-  let current = 0;
+  var slides   = wrap.querySelectorAll('.risona-slide');
+  var progress = document.getElementById('RisonaProgress-{{ section.id }}');
+  var counter  = wrap.querySelector('.risona-counter__current');
+  var totalEl  = wrap.querySelector('.risona-counter__total');
+  var total    = slides.length;
+  var interval = parseInt(wrap.dataset.interval) || 3000;
+  var current  = 0;
+  var paused   = false;
+  var timer    = null;
 
+  /* Fix #6: set total counter dynamically */
   function pad(n) { return n < 10 ? '0' + n : '' + n; }
+  if (totalEl) totalEl.textContent = pad(total);
 
+  /* Fix #4: capture prev index before reassignment to avoid stale closure */
   function goTo(index) {
-    slides[current].classList.remove('is-active');
-    slides[current].classList.add('is-prev');
-    setTimeout(() => slides[current] && slides[current].classList.remove('is-prev'), 1000);
-    current = (index + total) % total;
+    var prev = current;
+    slides[prev].classList.remove('is-active');
+    slides[prev].classList.add('is-prev');
+    setTimeout(function() {
+      if (slides[prev]) slides[prev].classList.remove('is-prev');
+    }, 1000);
+    current = ((index % total) + total) % total;
     slides[current].classList.add('is-active');
     if (counter) counter.textContent = pad(current + 1);
     startProgress();
   }
 
   function next() { goTo(current + 1); }
+  function prev() { goTo(current - 1); }
 
   function startProgress() {
     if (progress) {
       progress.style.transition = 'none';
       progress.style.width = '0%';
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          progress.style.transition = `width ${interval}ms linear`;
+      requestAnimationFrame(function() {
+        requestAnimationFrame(function() {
+          progress.style.transition = 'width ' + interval + 'ms linear';
           progress.style.width = '100%';
         });
       });
     }
   }
 
-  // Boot — pure auto-play, no user controls
-  setInterval(next, interval);
-  startProgress();
+  function stopProgress() {
+    if (progress) {
+      progress.style.transition = 'none';
+      progress.style.width = '0%';
+    }
+  }
+
+  function startAutoplay() {
+    if (timer) clearInterval(timer);
+    timer = setInterval(next, interval);
+    startProgress();
+  }
+
+  function stopAutoplay() {
+    if (timer) { clearInterval(timer); timer = null; }
+    stopProgress();
+  }
+
+  /* Fix #9: Pause / prev / next controls for accessibility (WCAG 2.2.2) */
+  var pauseBtn = wrap.querySelector('.risona-controls__pause');
+  var prevBtn  = wrap.querySelector('.risona-controls__prev');
+  var nextBtn  = wrap.querySelector('.risona-controls__next');
+  var iconPause = wrap.querySelector('.risona-icon-pause');
+  var iconPlay  = wrap.querySelector('.risona-icon-play');
+
+  if (pauseBtn) {
+    pauseBtn.addEventListener('click', function() {
+      paused = !paused;
+      if (paused) {
+        stopAutoplay();
+        if (iconPause) iconPause.style.display = 'none';
+        if (iconPlay)  iconPlay.style.display  = '';
+        pauseBtn.setAttribute('aria-label', 'Play slideshow');
+      } else {
+        startAutoplay();
+        if (iconPause) iconPause.style.display = '';
+        if (iconPlay)  iconPlay.style.display  = 'none';
+        pauseBtn.setAttribute('aria-label', 'Pause slideshow');
+      }
+    });
+  }
+
+  if (prevBtn) {
+    prevBtn.addEventListener('click', function() {
+      prev();
+      if (!paused) startAutoplay();
+    });
+  }
+
+  if (nextBtn) {
+    nextBtn.addEventListener('click', function() {
+      next();
+      if (!paused) startAutoplay();
+    });
+  }
+
+  /* Keyboard: left/right arrows */
+  wrap.setAttribute('tabindex', '0');
+  wrap.addEventListener('keydown', function(e) {
+    if (e.key === 'ArrowLeft')  { prev(); if (!paused) startAutoplay(); }
+    if (e.key === 'ArrowRight') { next(); if (!paused) startAutoplay(); }
+  });
+
+  /* Boot */
+  startAutoplay();
 })();
 </script>
 

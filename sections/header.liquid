@@ -11,14 +11,12 @@
   <link rel="stylesheet" href="{{ 'component-mega-menu.css' | asset_url }}" media="print" onload="this.media='all'">
 {%- endif -%}
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Raleway:wght@300;400;500&display=swap" rel="stylesheet">
+{% comment %} Fix #12: Google Fonts moved to theme.liquid <head> for proper loading {% endcomment %}
 
 <style>
   /* ── RISONA DESIGN TOKENS ── */
   :root {
-    --risona-red: #9B1C1C;
+    --risona-red: #6B1212;
     --risona-red-deep: #7a1414;
     --risona-red-light: #fdf0f0;
     --risona-gold: #C9A96E;
@@ -303,19 +301,15 @@
   endif
 %}
 
-<!-- RISONA Announcement Bar -->
-<div class="risona-announce">
-  <div class="risona-announce__track">
-    Free shipping on orders above ₹999 <span class="sep">✦</span>
-    Anti-tarnish &amp; anti-rust — always radiant <span class="sep">✦</span>
-    New arrivals: Ruby Hour Collection <span class="sep">✦</span>
-    Crafted for women who last <span class="sep">✦</span>
-    Free shipping on orders above ₹999 <span class="sep">✦</span>
-    Anti-tarnish &amp; anti-rust — always radiant <span class="sep">✦</span>
-    New arrivals: Ruby Hour Collection <span class="sep">✦</span>
-    Crafted for women who last <span class="sep">✦</span>
+<!-- RISONA Announcement Bar (Fix #8: now editable via section settings) -->
+{%- if section.settings.marquee_text != blank -%}
+  <div class="risona-announce">
+    <div class="risona-announce__track">
+      {{ section.settings.marquee_text }} <span class="sep">✦</span>
+      {{ section.settings.marquee_text }} <span class="sep">✦</span>
+    </div>
   </div>
-</div>
+{%- endif -%}
 
 <{{ header_tag }}
   {% if header_tag == 'sticky-header' %}
@@ -507,29 +501,14 @@
     </div>
   </header>
 
-  <!-- RISONA Sub-nav Bar -->
-  <nav class="risona-subnav" aria-label="Quick links">
-    <a href="/collections/new" class="risona-subnav__item">
-      <svg class="risona-subnav__icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg>
-      New Arrivals
-    </a>
-    <a href="/collections/sale" class="risona-subnav__item">
-      <svg class="risona-subnav__icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="9" r="2"/><circle cx="15" cy="15" r="2"/><path d="M5 19L19 5"/></svg>
-      Sale
-    </a>
-    <a href="/collections/gift-sets" class="risona-subnav__item">
-      <svg class="risona-subnav__icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="8" width="18" height="4" rx="1"/><path d="M5 12v8h14v-8"/><path d="M12 8V20"/><path d="M12 8c0-2 1.5-4 3-4s2 2 0 4"/><path d="M12 8c0-2-1.5-4-3-4s-2 2 0 4"/></svg>
-      Gift Sets
-    </a>
-    <a href="/collections/anti-tarnish" class="risona-subnav__item">
-      <svg class="risona-subnav__icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-      Anti-Tarnish
-    </a>
-    <a href="/collections/best-sellers" class="risona-subnav__item">
-      <svg class="risona-subnav__icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 17l4-8 4 4 4-6 4 10"/></svg>
-      Best Sellers
-    </a>
-  </nav>
+  <!-- RISONA Sub-nav Bar (Fix #11: now dynamic via link_list setting) -->
+  {%- if section.settings.subnav_menu != blank -%}
+    <nav class="risona-subnav" aria-label="Quick links">
+      {%- for link in section.settings.subnav_menu.links -%}
+        <a href="{{ link.url }}" class="risona-subnav__item">{{ link.title }}</a>
+      {%- endfor -%}
+    </nav>
+  {%- endif -%}
 
 </{{ header_tag }}>
 
@@ -698,6 +677,27 @@
   "class": "section-header",
   "max_blocks": 3,
   "settings": [
+    {
+      "type": "header",
+      "content": "RISONA Marquee Bar"
+    },
+    {
+      "type": "textarea",
+      "id": "marquee_text",
+      "label": "Marquee text",
+      "default": "Free shipping on orders above ₹999 ✦ Anti-tarnish & anti-rust — always radiant ✦ New arrivals: Ruby Hour Collection ✦ Crafted for women who last",
+      "info": "This scrolling text appears above the header. Leave blank to hide."
+    },
+    {
+      "type": "header",
+      "content": "RISONA Sub-navigation"
+    },
+    {
+      "type": "link_list",
+      "id": "subnav_menu",
+      "label": "Sub-navigation menu",
+      "info": "Select a menu for the quick-links bar below the header. Leave blank to hide."
+    },
     {
       "type": "select",
       "id": "logo_position",
