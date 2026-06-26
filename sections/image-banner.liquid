@@ -107,7 +107,7 @@
     background: var(--risona-gold);
   }
   .risona-slide__eyebrow-text {
-    font-family: 'Raleway', sans-serif;
+    font-family: 'Cormorant Garamond', serif;
     font-size: 10px;
     letter-spacing: 0.3em;
     text-transform: uppercase;
@@ -132,7 +132,7 @@
 
   /* ── SUBTEXT ── */
   .risona-slide__text {
-    font-family: 'Raleway', sans-serif;
+    font-family: 'Cormorant Garamond', serif;
     font-size: 13px;
     letter-spacing: 0.12em;
     color: rgba(255,255,255,0.75);
@@ -152,7 +152,7 @@
     padding: 13px 32px;
     background: var(--risona-red);
     color: var(--risona-white);
-    font-family: 'Raleway', sans-serif;
+    font-family: 'Cormorant Garamond', serif;
     font-size: 10px;
     letter-spacing: 0.28em;
     text-transform: uppercase;
@@ -172,7 +172,7 @@
     padding: 13px 32px;
     background: transparent;
     color: var(--risona-white);
-    font-family: 'Raleway', sans-serif;
+    font-family: 'Cormorant Garamond', serif;
     font-size: 10px;
     letter-spacing: 0.28em;
     text-transform: uppercase;
@@ -219,7 +219,7 @@
     top: 28px;
     right: 5vw;
     z-index: 10;
-    font-family: 'Raleway', sans-serif;
+    font-family: 'Cormorant Garamond', serif;
     font-size: 10px;
     letter-spacing: 0.2em;
     color: rgba(255,255,255,0.5);
@@ -479,11 +479,9 @@
   var paused   = false;
   var timer    = null;
 
-  /* Fix #6: set total counter dynamically */
   function pad(n) { return n < 10 ? '0' + n : '' + n; }
   if (totalEl) totalEl.textContent = pad(total);
 
-  /* Fix #4: capture prev index before reassignment to avoid stale closure */
   function goTo(index) {
     var prev = current;
     slides[prev].classList.remove('is-active');
@@ -531,7 +529,6 @@
     stopProgress();
   }
 
-  /* Fix #9: Pause / prev / next controls for accessibility (WCAG 2.2.2) */
   var pauseBtn = wrap.querySelector('.risona-controls__pause');
   var prevBtn  = wrap.querySelector('.risona-controls__prev');
   var nextBtn  = wrap.querySelector('.risona-controls__next');

@@ -11,8 +11,6 @@
   <link rel="stylesheet" href="{{ 'component-mega-menu.css' | asset_url }}" media="print" onload="this.media='all'">
 {%- endif -%}
 
-{% comment %} Fix #12: Google Fonts moved to theme.liquid <head> for proper loading {% endcomment %}
-
 <style>
   /* ── RISONA DESIGN TOKENS ── */
   :root {
@@ -37,7 +35,7 @@
   .risona-announce__track {
     display: inline-block;
     animation: risona-marquee 28s linear infinite;
-    font-family: 'Raleway', sans-serif;
+    font-family: 'Cormorant Garamond', sans-serif;
     font-size: 11px;
     letter-spacing: 0.18em;
     font-weight: 400;
@@ -58,7 +56,7 @@
 
   /* ── MAIN HEADER ── */
   .header {
-    font-family: 'Raleway', sans-serif !important;
+    font-family: 'Cormorant Garamond', sans-serif !important;
     background: rgba(255, 255, 255, 0.97);
     border-bottom: 1px solid var(--risona-border);
     position: relative;
@@ -84,28 +82,17 @@
   .header__heading-link .h2,
   .header__heading-link span.h2 {
     font-family: 'Cormorant Garamond', serif !important;
-    font-size: 26px !important;
-    font-weight: 300 !important;
-    letter-spacing: 0.32em !important;
+    font-size: 34px !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.22  !important;
     color: var(--risona-dark) !important;
     text-transform: uppercase;
-  }
-  .risona-logo-tagline {
-    display: block;
-    font-family: 'Raleway', sans-serif;
-    font-size: 8px;
-    letter-spacing: 0.28em;
-    color: var(--risona-gold);
-    text-transform: uppercase;
-    font-weight: 400;
-    margin-top: 4px;
-    padding-left: 2px;
   }
 
   /* ── NAV LINKS ── */
   .header__menu-item,
   .header__active-menu-item {
-    font-family: 'Raleway', sans-serif !important;
+    font-family: 'Cormorant Garamond', serif !important;
     font-size: 11px !important;
     letter-spacing: 0.2em !important;
     text-transform: uppercase !important;
@@ -182,7 +169,7 @@
     padding: 9px 3rem;
     background: var(--risona-red-light);
     border-bottom: 0.5px solid var(--risona-border);
-    font-family: 'Raleway', sans-serif;
+    font-family: 'Cormorant Garamond', serif;
     flex-wrap: wrap;
   }
   .risona-subnav__item {
@@ -261,6 +248,127 @@
   .header__submenu {
     border-top: 2px solid var(--risona-red) !important;
   }
+
+  /* ── CUSTOM SALTY-STYLE LAYOUT FOR RISONA ── */
+  .header {
+    display: grid !important;
+    grid-template-areas: 'left-icons heading icons' !important;
+    grid-template-columns: 1fr auto 1fr !important;
+    align-items: center !important;
+    column-gap: 1.5rem !important;
+  }
+  .header__heading,
+  .header__heading-link {
+    grid-area: heading !important;
+    justify-self: center !important;
+    text-align: center !important;
+    margin: 0 auto !important;
+    padding: 0.75rem 0 !important;
+  }
+  .header__inline-menu {
+    display: none !important;
+  }
+  header-drawer {
+    display: block !important;
+    margin-left: 0 !important;
+  }
+  .header__icons {
+    grid-area: icons !important;
+    justify-self: end !important;
+    margin-right: 0 !important;
+    padding-right: 0 !important;
+  }
+  .header__icons .header__search {
+    display: none !important;
+  }
+  
+  .header__left-area {
+    grid-area: left-icons !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 1.2rem !important;
+    justify-self: start !important;
+    margin-left: 0 !important;
+  }
+  .header__category-selector {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.15em;
+    color: var(--risona-dark);
+    cursor: pointer;
+    text-transform: uppercase;
+    user-select: none;
+  }
+  .header__category-selector .category-arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--risona-red-light);
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    color: var(--risona-red);
+    transition: transform 0.2s;
+  }
+  .header__category-selector:hover .category-arrow {
+    transform: translateY(1px);
+  }
+
+  .header__search-full-width {
+    grid-column: 1 / -1;
+    width: 100%;
+    margin-top: 1.2rem;
+    margin-bottom: 0.4rem;
+  }
+  .search-bar__fields {
+    width: 100%;
+  }
+  .search-bar__field {
+    display: flex;
+    align-items: center;
+    position: relative;
+    background: #fff;
+    border: 1px solid var(--risona-border);
+    border-radius: 6px;
+    padding: 0 1.2rem;
+    height: 3.8rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .search-bar__field:focus-within {
+    border-color: var(--risona-gold);
+    box-shadow: 0 0 0 1px var(--risona-gold);
+  }
+  .search-bar__icon-left {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--risona-muted);
+    width: 1.8rem;
+    height: 1.8rem;
+    margin-right: 0.8rem;
+    flex-shrink: 0;
+  }
+  .search-bar__icon-left svg {
+    width: 1.6rem;
+    height: 1.6rem;
+  }
+  .search-bar__input.field__input {
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    height: 100% !important;
+    font-family: 'Cormorant Garamond', serif !important;
+    font-size: 13px !important;
+    color: var(--risona-dark) !important;
+    background: transparent !important;
+    width: 100%;
+  }
 </style>
 
 {%- style -%}
@@ -301,7 +409,6 @@
   endif
 %}
 
-<!-- RISONA Announcement Bar (Fix #8: now editable via section settings) -->
 {%- if section.settings.marquee_text != blank -%}
   <div class="risona-announce">
     <div class="risona-announce__track">
@@ -331,11 +438,21 @@
   -%}
 
   <header class="header header--{{ section.settings.logo_position }} header--mobile-{{ section.settings.mobile_logo_position }} page-width{% if section.settings.menu_type_desktop == 'drawer' %} drawer-menu{% endif %}{% if section.settings.menu != blank %} header--has-menu{% endif %}{% if has_app_block %} header--has-app{% endif %}{% if social_links %} header--has-social{% endif %}{% if shop.customer_accounts_enabled %} header--has-account{% endif %}{% if localization_forms %} header--has-localizations{% endif %}">
-    {%- liquid
-      if section.settings.menu != blank
-        render 'header-drawer'
-      endif
+    <div class="header__left-area">
+      {%- if section.settings.menu != blank -%}
+        {%- render 'header-drawer' -%}
+      {%- endif -%}
+      {%- if section.settings.category_label != blank -%}
+        <div class="header__category-selector">
+          <span class="category-label">{{ section.settings.category_label }}</span>
+          <span class="category-arrow">
+            <svg viewBox="0 0 24 24" width="10" height="10"><path d="M7 10l5 5 5-5H7z" fill="currentColor"/></svg>
+          </span>
+        </div>
+      {%- endif -%}
+    </div>
 
+    {%- liquid
       if section.settings.logo_position == 'top-center' or section.settings.menu == blank
         render 'header-search', input_id: 'Search-In-Modal-1'
       endif
@@ -367,7 +484,6 @@
           </div>
         {%- else -%}
           <span class="h2">{{ shop.name }}</span>
-          <span class="risona-logo-tagline">Jewels that endure</span>
         {%- endif -%}
       </a>
       {%- if request.page_type == 'index' -%}
@@ -411,7 +527,6 @@
           </div>
         {%- else -%}
           <span class="h2">{{ shop.name }}</span>
-          <span class="risona-logo-tagline">Jewels that endure</span>
         {%- endif -%}
       </a>
       {%- if request.page_type == 'index' -%}
@@ -499,12 +614,59 @@
         {%- endif -%}
       </a>
     </div>
+    <div class="header__search-full-width">
+      {%- if settings.predictive_search_enabled -%}
+        <predictive-search class="search-bar__form" data-loading-text="{{ 'accessibility.loading' | t }}">
+      {%- else -%}
+        <search-form class="search-bar__form">
+      {%- endif -%}
+      <form action="{{ routes.search_url }}" method="get" role="search" class="search search-bar__fields">
+        <div class="field search-bar__field">
+          <span class="search-bar__icon-left">
+            {{- 'icon-search.svg' | inline_asset_content -}}
+          </span>
+          <input
+            class="search__input field__input search-bar__input"
+            id="Search-In-Header-Full"
+            type="search"
+            name="q"
+            value="{{ search.terms | escape }}"
+            placeholder="Search..."
+            {%- if settings.predictive_search_enabled -%}
+              role="combobox"
+              aria-expanded="false"
+              aria-owns="predictive-search-results"
+              aria-controls="predictive-search-results"
+              aria-haspopup="listbox"
+              aria-autocomplete="list"
+              autocorrect="off"
+              autocomplete="off"
+              autocapitalize="off"
+              spellcheck="false"
+            {%- endif -%}
+          >
+          <label class="visually-hidden" for="Search-In-Header-Full">Search</label>
+          <input type="hidden" name="options[prefix]" value="last">
+        </div>
+        {%- if settings.predictive_search_enabled -%}
+          <div class="predictive-search predictive-search--header" tabindex="-1" data-predictive-search>
+            {%- render 'loading-spinner', class: 'predictive-search__loading-state' -%}
+          </div>
+          <span class="predictive-search-status visually-hidden" role="status" aria-hidden="true"></span>
+        {%- endif -%}
+      </form>
+      {%- if settings.predictive_search_enabled -%}
+        </predictive-search>
+      {%- else -%}
+        </search-form>
+      {%- endif -%}
+    </div>
   </header>
 
-  <!-- RISONA Sub-nav Bar (Fix #11: now dynamic via link_list setting) -->
-  {%- if section.settings.subnav_menu != blank -%}
+  {%- assign subnav_menu_links = linklists[section.settings.subnav_menu].links -%}
+  {%- if subnav_menu_links.size > 0 -%}
     <nav class="risona-subnav" aria-label="Quick links">
-      {%- for link in section.settings.subnav_menu.links -%}
+      {%- for link in subnav_menu_links -%}
         <a href="{{ link.url }}" class="risona-subnav__item">{{ link.title }}</a>
       {%- endfor -%}
     </nav>
@@ -693,10 +855,17 @@
       "content": "RISONA Sub-navigation"
     },
     {
-      "type": "link_list",
+      "type": "text",
       "id": "subnav_menu",
-      "label": "Sub-navigation menu",
-      "info": "Select a menu for the quick-links bar below the header. Leave blank to hide."
+      "label": "Sub-navigation menu handle",
+      "info": "Enter the handle of the menu you want to display (e.g., 'sub-navigation'). Leave blank to hide."
+    },
+    {
+      "type": "text",
+      "id": "category_label",
+      "label": "Category label next to menu",
+      "default": "WOMEN",
+      "info": "Leave blank to hide the category label next to the hamburger menu."
     },
     {
       "type": "select",
