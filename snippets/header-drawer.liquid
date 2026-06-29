@@ -3,7 +3,17 @@
 
   Usage:
   {% render 'header-drawer' %}
-{% endcomment %}
+
+  Navigation structure (section.settings.menu.links):
+    Level 1 (top links)      -> main tabs
+    Level 2 (link.links)     -> left sidebar
+    Level 3 (childlink.links)-> right-hand image grid
+
+  A link with no children at any level renders as a plain <a> instead
+  of a toggle. A top-level tab whose children are all flat (no
+  grandchildren) renders the sidebar as a simple full-width link list
+  instead of a sidebar+grid split, since there's nothing to put in a grid.
+{% endcomment %}  
 
 <header-drawer data-breakpoint="{% if section.settings.menu_type_desktop == 'drawer' %}desktop{% else %}tablet{% endif %}">
   <details id="Details-menu-drawer-container" class="menu-drawer-container">
@@ -16,124 +26,218 @@
         {{- 'icon-close.svg' | inline_asset_content -}}
       </span>
     </summary>
-    <div id="menu-drawer" class="gradient menu-drawer motion-reduce color-{{ section.settings.menu_color_scheme }}">
+    <div id="menu-drawer" class="gradient menu-drawer menu-drawer--fullscreen motion-reduce color-{{ section.settings.menu_color_scheme }}">
       <div class="menu-drawer__inner-container">
+
+        <div class="menu-drawer__head">
+          <button type="button" class="menu-drawer__close-button link focus-inset" id="MenuDrawerCloseBtn" aria-label="{{ 'accessibility.close' | t }}">
+            {{- 'icon-close.svg' | inline_asset_content -}}
+          </button>
+
+          <a href="{{ routes.root_url }}" class="menu-drawer__logo">
+            {%- if settings.logo != blank -%}
+              {{ settings.logo | image_url: width: 300 | image_tag: loading: 'eager', alt: shop.name, class: 'menu-drawer__logo-image' }}
+            {%- else -%}
+              <span class="menu-drawer__logo-text">{{ shop.name }}</span>
+            {%- endif -%}
+          </a>
+
+          <div class="menu-drawer__head-icons">
+            {%- comment -%} wishlist target reused from the existing site markup - swap if you use a different app {%- endcomment -%}
+            <a href="#flits-otp-login-root-container" class="menu-drawer__icon-link" aria-label="Wishlist">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="22" height="22">
+                <path d="M12 20s-7-4.35-9.5-8.5C1 8 2.5 4.5 6 4.5c2 0 3.5 1.2 4 2.5.5-1.3 2-2.5 4-2.5 3.5 0 5 3.5 3.5 7C19 15.65 12 20 12 20z"/>
+              </svg>
+            </a>
+            <a href="{{ routes.cart_url }}" class="menu-drawer__icon-link" aria-label="{{ 'sections.header.cart' | t | default: 'Cart' }}">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="22" height="22">
+                <path d="M6 8h12l-1 12H7L6 8z"/>
+                <path d="M9 8a3 3 0 0 1 6 0"/>
+              </svg>
+            </a>
+          </div>
+        </div>
+
         <div class="menu-drawer__navigation-container">
           <nav class="menu-drawer__navigation">
-            <ul class="menu-drawer__menu has-submenu list-menu" role="list">
-              {%- for link in section.settings.menu.links -%}
-                <li>
-                  {%- if link.links != blank -%}
-                    <details id="Details-menu-drawer-menu-item-{{ forloop.index }}">
-                      <summary
-                        id="HeaderDrawer-{{ link.handle }}"
-                        class="menu-drawer__menu-item list-menu__item link link--text focus-inset{% if link.child_active %} menu-drawer__menu-item--active{% endif %}"
-                      >
-                        {{ link.title | escape }}
-                        <span class="svg-wrapper">
-                          {{- 'icon-arrow.svg' | inline_asset_content -}}
-                        </span>
-                        <span class="svg-wrapper">
-                          {{- 'icon-caret.svg' | inline_asset_content -}}
-                        </span>
-                      </summary>
-                      <div
-                        id="link-{{ link.handle | escape }}"
-                        class="menu-drawer__submenu has-submenu gradient motion-reduce"
-                        tabindex="-1"
-                      >
-                        <div class="menu-drawer__inner-submenu">
-                          <button class="menu-drawer__close-button link link--text focus-inset" aria-expanded="true">
-                            <span class="svg-wrapper">
-                              {{- 'icon-arrow.svg' | inline_asset_content -}}
-                            </span>
-                            {{ link.title | escape }}
-                          </button>
-                          <ul class="menu-drawer__menu list-menu" role="list" tabindex="-1">
-                            {%- for childlink in link.links -%}
-                              <li>
-                                {%- if childlink.links == blank -%}
+
+            {%- assign top_links = section.settings.menu.links -%}
+
+            {%- comment -%} default active tab: prefer current/child_active, else first link that has children {%- endcomment -%}
+            {%- assign active_tab_handle = '' -%}
+            {%- assign first_tab_handle = '' -%}
+            {%- for link in top_links -%}
+              {%- if link.links != blank -%}
+                {%- if link.current or link.child_active -%}
+                  {%- assign active_tab_handle = link.handle -%}
+                {%- elsif first_tab_handle == '' -%}
+                  {%- assign first_tab_handle = link.handle -%}
+                {%- endif -%}
+              {%- endif -%}
+            {%- endfor -%}
+            {%- if active_tab_handle == '' -%}
+              {%- assign active_tab_handle = first_tab_handle -%}
+            {%- endif -%}
+
+            <div class="menu-drawer__tabs has-submenu list-menu" role="tablist">
+              {%- for link in top_links -%}
+                {%- if link.links != blank -%}
+                  <button
+                    type="button"
+                    id="HeaderDrawer-{{ link.handle }}"
+                    class="menu-drawer__tab list-menu__item link link--text focus-inset{% if link.handle == active_tab_handle %} is-active{% endif %}{% if link.current or link.child_active %} menu-drawer__menu-item--active{% endif %}"
+                    data-tab="{{ link.handle }}"
+                    role="tab"
+                    aria-selected="{% if link.handle == active_tab_handle %}true{% else %}false{% endif %}"
+                    aria-controls="MenuDrawerPanel-{{ link.handle }}"
+                  >
+                    {{ link.title | escape }}
+                  </button>
+                {%- else -%}
+                  <a
+                    id="HeaderDrawer-{{ link.handle }}"
+                    href="{{ link.url }}"
+                    class="menu-drawer__tab menu-drawer__tab--link list-menu__item link link--text focus-inset{% if link.current %} menu-drawer__menu-item--active{% endif %}"
+                    role="tab"
+                    {% if link.current %}
+                      aria-current="page"
+                    {% endif %}
+                  >
+                    {{ link.title | escape }}
+                  </a>
+                {%- endif -%}
+              {%- endfor -%}
+            </div>
+            <div class="menu-drawer__panels">
+              {%- for link in top_links -%}
+                {%- if link.links != blank -%}
+
+                  {%- comment -%} does this tab have any grandchildren to show in a grid? {%- endcomment -%}
+                  {%- assign panel_has_grid = false -%}
+                  {%- for childlink in link.links -%}
+                    {%- if childlink.links != blank -%}
+                      {%- assign panel_has_grid = true -%}
+                    {%- endif -%}
+                  {%- endfor -%}
+
+                  {%- comment -%} default active sub-tab within this panel {%- endcomment -%}
+                  {%- assign active_sub_handle = '' -%}
+                  {%- assign first_sub_handle = '' -%}
+                  {%- for childlink in link.links -%}
+                    {%- if childlink.links != blank -%}
+                      {%- if childlink.current or childlink.child_active -%}
+                        {%- assign active_sub_handle = childlink.handle -%}
+                      {%- elsif first_sub_handle == '' -%}
+                        {%- assign first_sub_handle = childlink.handle -%}
+                      {%- endif -%}
+                    {%- endif -%}
+                  {%- endfor -%}
+                  {%- if active_sub_handle == '' -%}
+                    {%- assign active_sub_handle = first_sub_handle -%}
+                  {%- endif -%}
+
+                  <div
+                    id="MenuDrawerPanel-{{ link.handle }}"
+                    class="menu-drawer__panel{% unless panel_has_grid %} menu-drawer__panel--flat{% endunless %}{% if link.handle == active_tab_handle %} is-active{% endif %}"
+                    data-panel="{{ link.handle }}"
+                    role="tabpanel"
+                    aria-labelledby="HeaderDrawer-{{ link.handle }}"
+                  >
+                    {%- if panel_has_grid -%}
+                      <ul class="menu-drawer__sidebar list-menu" role="list">
+                        {%- for childlink in link.links -%}
+                          <li
+                            class="menu-drawer__sidebar-item{% if childlink.links != blank %}{% if childlink.handle == active_sub_handle %} is-active{% endif %}{% endif %}{% if childlink.current or childlink.child_active %} menu-drawer__menu-item--active{% endif %}"
+                            {%- if childlink.links != blank %}
+                              id="HeaderDrawer-{{ link.handle }}-{{ childlink.handle }}"
+                              data-subtab="{{ childlink.handle }}"
+                              data-children="{{ childlink.links.size }}"
+                              role="tab"
+                              aria-selected="{% if childlink.handle == active_sub_handle %}true{% else %}false{% endif %}"
+                              aria-controls="MenuDrawerSubpanel-{{ link.handle }}-{{ childlink.handle }}"
+                            {%- endif %}
+                          >
+                            {%- if childlink.links == blank -%}
+                              <a
+                                id="HeaderDrawer-{{ link.handle }}-{{ childlink.handle }}"
+                                href="{{ childlink.url }}"
+                                class="link link--text focus-inset"
+                                {% if childlink.current %}
+                                  aria-current="page"
+                                {% endif %}
+                              >
+                                {{ childlink.title | escape }}
+                              </a>
+                            {%- else -%}
+                              <span>{{ childlink.title | escape }}</span>
+                              <span class="svg-wrapper">
+                                {{- 'icon-caret.svg' | inline_asset_content -}}
+                              </span>
+                            {%- endif -%}
+                          </li>
+                        {%- endfor -%}
+                      </ul>
+
+                      <div class="menu-drawer__content">
+                        {%- for childlink in link.links -%}
+                          {%- if childlink.links != blank -%}
+                            <div
+                              id="MenuDrawerSubpanel-{{ link.handle }}-{{ childlink.handle }}"
+                              class="menu-drawer__subpanel{% if childlink.handle == active_sub_handle %} is-active{% endif %}"
+                              data-subpanel="{{ childlink.handle }}"
+                              role="tabpanel"
+                            >
+                              <div class="menu-drawer__grid">
+                                {%- for grandchildlink in childlink.links -%}
+                                  {%- assign nav_image = grandchildlink.object.image -%}
                                   <a
-                                    id="HeaderDrawer-{{ link.handle }}-{{ childlink.handle }}"
-                                    href="{{ childlink.url }}"
-                                    class="menu-drawer__menu-item link link--text list-menu__item focus-inset{% if childlink.current %} menu-drawer__menu-item--active{% endif %}"
-                                    {% if childlink.current %}
+                                    id="HeaderDrawer-{{ link.handle }}-{{ childlink.handle }}-{{ grandchildlink.handle }}"
+                                    href="{{ grandchildlink.url }}"
+                                    class="menu-drawer__card link link--text focus-inset{% if grandchildlink.current %} menu-drawer__menu-item--active{% endif %}"
+                                    {% if grandchildlink.current %}
                                       aria-current="page"
                                     {% endif %}
                                   >
-                                    {{ childlink.title | escape }}
+                                    <span class="menu-drawer__card-media">
+                                      {%- if nav_image -%}
+                                        {{ nav_image | image_url: width: 200 | image_tag: loading: 'lazy', alt: grandchildlink.title, sizes: '200px', widths: '100,200,400' }}
+                                      {%- else -%}
+                                        <span class="menu-drawer__card-placeholder" aria-hidden="true"></span>
+                                      {%- endif -%}
+                                    </span>
+                                    <span class="menu-drawer__card-title">{{ grandchildlink.title | escape }}</span>
                                   </a>
-                                {%- else -%}
-                                  <details id="Details-menu-drawer-{{ link.handle }}-{{ childlink.handle }}">
-                                    <summary
-                                      id="HeaderDrawer-{{ link.handle }}-{{ childlink.handle }}"
-                                      class="menu-drawer__menu-item link link--text list-menu__item focus-inset"
-                                    >
-                                      {{ childlink.title | escape }}
-                                      <span class="svg-wrapper">
-                                        {{- 'icon-arrow.svg' | inline_asset_content -}}
-                                      </span>
-                                      <span class="svg-wrapper">
-                                        {{- 'icon-caret.svg' | inline_asset_content -}}
-                                      </span>
-                                    </summary>
-                                    <div
-                                      id="childlink-{{ childlink.handle | escape }}"
-                                      class="menu-drawer__submenu has-submenu gradient motion-reduce"
-                                    >
-                                      <button
-                                        class="menu-drawer__close-button link link--text focus-inset"
-                                        aria-expanded="true"
-                                      >
-                                        <span class="svg-wrapper">
-                                          {{- 'icon-arrow.svg' | inline_asset_content -}}
-                                        </span>
-                                        {{ childlink.title | escape }}
-                                      </button>
-                                      <ul
-                                        class="menu-drawer__menu list-menu"
-                                        role="list"
-                                        tabindex="-1"
-                                      >
-                                        {%- for grandchildlink in childlink.links -%}
-                                          <li>
-                                            <a
-                                              id="HeaderDrawer-{{ link.handle }}-{{ childlink.handle }}-{{ grandchildlink.handle }}"
-                                              href="{{ grandchildlink.url }}"
-                                              class="menu-drawer__menu-item link link--text list-menu__item focus-inset{% if grandchildlink.current %} menu-drawer__menu-item--active{% endif %}"
-                                              {% if grandchildlink.current %}
-                                                aria-current="page"
-                                              {% endif %}
-                                            >
-                                              {{ grandchildlink.title | escape }}
-                                            </a>
-                                          </li>
-                                        {%- endfor -%}
-                                      </ul>
-                                    </div>
-                                  </details>
-                                {%- endif -%}
-                              </li>
-                            {%- endfor -%}
-                          </ul>
-                        </div>
+                                {%- endfor -%}
+                              </div>
+                              <a href="{{ childlink.url }}" class="menu-drawer__show-all link">
+                                Show all {{ childlink.title | escape }}
+                              </a>
+                            </div>
+                          {%- endif -%}
+                        {%- endfor -%}
                       </div>
-                    </details>
-                  {%- else -%}
-                    <a
-                      id="HeaderDrawer-{{ link.handle }}"
-                      href="{{ link.url }}"
-                      class="menu-drawer__menu-item list-menu__item link link--text focus-inset{% if link.current %} menu-drawer__menu-item--active{% endif %}"
-                      {% if link.current %}
-                        aria-current="page"
-                      {% endif %}
-                    >
-                      {{ link.title | escape }}
-                    </a>
-                  {%- endif -%}
-                </li>
+                    {%- else -%}
+                      <ul class="menu-drawer__flat-list list-menu" role="list">
+                        {%- for childlink in link.links -%}
+                          <li class="menu-drawer__flat-item{% if childlink.current %} menu-drawer__menu-item--active{% endif %}">
+                            <a
+                              id="HeaderDrawer-{{ link.handle }}-{{ childlink.handle }}"
+                              href="{{ childlink.url }}"
+                              class="link link--text focus-inset"
+                              {% if childlink.current %}
+                                aria-current="page"
+                              {% endif %}
+                            >
+                              {{ childlink.title | escape }}
+                            </a>
+                          </li>
+                        {%- endfor -%}
+                      </ul>
+                    {%- endif -%}
+                  </div>
+                {%- endif -%}
               {%- endfor -%}
-            </ul>
+            </div>
           </nav>
           <div class="menu-drawer__utility-links">
             {%- if shop.customer_accounts_enabled -%}
@@ -293,3 +397,297 @@
     </div>
   </details>
 </header-drawer>
+
+{% style %}
+  /* ---- full-screen takeover ---- */
+  header-drawer,
+  .menu-drawer-container {
+    transform: none !important; /* don't let an ancestor become the fixed-position containing block */
+  }
+
+  #menu-drawer.menu-drawer--fullscreen {
+    position: fixed !important;
+    inset: 0 !important;
+    width: 100vw !important;
+    max-width: 100vw !important;
+    height: 100vh !important;
+    height: 100dvh !important;
+  }
+
+  #menu-drawer .menu-drawer__inner-container {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ---- head: close button / logo / wishlist+cart ---- */
+  #menu-drawer .menu-drawer__head {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.6rem 2rem;
+    border-bottom: 1px solid rgba(var(--color-foreground), 0.08);
+  }
+  #menu-drawer .menu-drawer__close-button {
+    border: none;
+    background: none;
+    cursor: pointer;
+    width: 2.4rem;
+    height: 2.4rem;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    color: rgb(var(--color-foreground));
+  }
+  #menu-drawer .menu-drawer__logo {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+  }
+  #menu-drawer .menu-drawer__logo-image {
+    max-height: 2.6rem;
+    width: auto;
+    display: block;
+  }
+  #menu-drawer .menu-drawer__logo-text {
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    font-size: 1.6rem;
+    color: rgb(var(--color-foreground));
+  }
+  #menu-drawer .menu-drawer__head-icons {
+    display: flex;
+    align-items: center;
+    gap: 1.6rem;
+  }
+  #menu-drawer .menu-drawer__icon-link {
+    display: flex;
+    color: rgb(var(--color-foreground));
+    text-decoration: none;
+  }
+
+  #menu-drawer .menu-drawer__navigation-container {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  #menu-drawer .menu-drawer__navigation {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ---- main tabs row ---- */
+  #menu-drawer .menu-drawer__tabs {
+    flex: 0 0 auto;
+    display: flex;
+    border-top: 1px solid rgb(var(--color-foreground));
+    border-bottom: 1px solid rgb(var(--color-foreground));
+  }
+  #menu-drawer .menu-drawer__tab {
+    flex: 1;
+    text-align: center;
+    padding: 1.6rem 0;
+    font-size: 1.5rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    border: none;
+    border-right: 1px solid rgb(var(--color-foreground));
+    background: rgb(var(--color-background));
+    color: rgb(var(--color-foreground));
+    cursor: pointer;
+    text-decoration: none;
+  }
+  #menu-drawer .menu-drawer__tab:last-child { border-right: none; }
+  #menu-drawer .menu-drawer__tab.is-active {
+    background: rgb(var(--color-button));
+    color: rgb(var(--color-button-text));
+  }
+
+  /* ---- panels ---- */
+  #menu-drawer .menu-drawer__panels {
+    flex: 1 1 auto;
+    min-height: 0;
+    position: relative;
+  }
+  #menu-drawer .menu-drawer__panel {
+    display: none;
+    height: 100%;
+  }
+  #menu-drawer .menu-drawer__panel.is-active {
+    display: block;
+  }
+  #menu-drawer .menu-drawer__panel.is-active:not(.menu-drawer__panel--flat) {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+  }
+
+  /* sidebar (level 2) */
+  #menu-drawer .menu-drawer__sidebar,
+  #menu-drawer .menu-drawer__flat-list {
+    list-style: none;
+    margin: 0;
+    padding: 1.2rem 0;
+    overflow-y: auto;
+  }
+  #menu-drawer .menu-drawer__sidebar {
+    background: rgba(var(--color-foreground), 0.03);
+    border-right: 1px solid rgba(var(--color-foreground), 0.08);
+  }
+  #menu-drawer .menu-drawer__sidebar-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.4rem 2rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  #menu-drawer .menu-drawer__sidebar-item a {
+    display: block;
+    width: 100%;
+    color: inherit;
+    text-decoration: none;
+  }
+  #menu-drawer .menu-drawer__sidebar-item.is-active {
+    background: rgb(var(--color-button));
+    color: rgb(var(--color-button-text));
+  }
+  #menu-drawer .menu-drawer__sidebar-item .svg-wrapper { width: 1.4rem; opacity: 0.6; }
+  #menu-drawer .menu-drawer__sidebar-item.is-active .svg-wrapper { opacity: 1; }
+
+  #menu-drawer .menu-drawer__flat-item { padding: 1.4rem 2rem; font-weight: 600; }
+  #menu-drawer .menu-drawer__flat-item a { color: inherit; text-decoration: none; }
+
+  /* content / grid (level 3) */
+  #menu-drawer .menu-drawer__content {
+    overflow-y: auto;
+    padding: 2rem 3rem 4rem;
+  }
+  #menu-drawer .menu-drawer__subpanel { display: none; }
+  #menu-drawer .menu-drawer__subpanel.is-active { display: block; }
+
+  #menu-drawer .menu-drawer__grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2rem;
+  }
+  #menu-drawer .menu-drawer__card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.8rem;
+    text-decoration: none;
+    color: rgb(var(--color-foreground));
+  }
+  #menu-drawer .menu-drawer__card-media {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    border-radius: 8px;
+    overflow: hidden;
+    background: rgba(var(--color-foreground), 0.06);
+  }
+  #menu-drawer .menu-drawer__card-media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  #menu-drawer .menu-drawer__card-placeholder {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+  #menu-drawer .menu-drawer__card-title {
+    font-size: 1.3rem;
+    font-weight: 600;
+    text-align: center;
+  }
+  #menu-drawer .menu-drawer__card:hover .menu-drawer__card-title {
+    text-decoration: underline;
+  }
+  #menu-drawer .menu-drawer__show-all {
+    display: block;
+    text-align: center;
+    margin-top: 2.4rem;
+    font-size: 1.3rem;
+    text-decoration: underline;
+  }
+
+  @media screen and (max-width: 768px) {
+    #menu-drawer .menu-drawer__panel.is-active:not(.menu-drawer__panel--flat) {
+      grid-template-columns: 38% 62%;
+    }
+    #menu-drawer .menu-drawer__content { padding: 1.6rem; }
+    #menu-drawer .menu-drawer__grid { gap: 1rem; }
+    #menu-drawer .menu-drawer__tab { font-size: 1.2rem; padding: 1.2rem 0; }
+  }
+
+  @media screen and (min-width: 990px) {
+    #menu-drawer .menu-drawer__grid { grid-template-columns: repeat(4, 1fr); }
+  }
+{% endstyle %}
+
+<script>
+  (function () {
+    var drawer = document.getElementById('menu-drawer');
+    if (!drawer) return;
+
+    var closeBtn = document.getElementById('MenuDrawerCloseBtn');
+    var detailsEl = document.getElementById('Details-menu-drawer-container');
+    if (closeBtn && detailsEl) {
+      closeBtn.addEventListener('click', function () {
+        detailsEl.removeAttribute('open');
+      });
+    }
+
+    /* level 1: main tabs */
+    var tabs = drawer.querySelectorAll('.menu-drawer__tab[data-tab]');
+    var panels = drawer.querySelectorAll('.menu-drawer__panel[data-panel]');
+
+    tabs.forEach(function (tab) {
+      tab.addEventListener('click', function () {
+        tabs.forEach(function (t) {
+          t.classList.remove('is-active');
+          t.setAttribute('aria-selected', 'false');
+        });
+        tab.classList.add('is-active');
+        tab.setAttribute('aria-selected', 'true');
+
+        panels.forEach(function (panel) {
+          panel.classList.toggle('is-active', panel.dataset.panel === tab.dataset.tab);
+        });
+      });
+    });
+
+    /* level 2: sidebar items, scoped to their own panel so two panels
+       never accidentally control each other's sub-panels */
+    panels.forEach(function (panel) {
+      var items = panel.querySelectorAll('.menu-drawer__sidebar-item[data-subtab]');
+      var subPanels = panel.querySelectorAll('.menu-drawer__subpanel[data-subpanel]');
+
+      items.forEach(function (item) {
+        var childCount = parseInt(item.dataset.children || '0', 10);
+        if (!childCount) return; // no grandchildren -> plain link, no JS needed
+
+        item.addEventListener('click', function () {
+          items.forEach(function (i) {
+            i.classList.remove('is-active');
+            i.setAttribute('aria-selected', 'false');
+          });
+          item.classList.add('is-active');
+          item.setAttribute('aria-selected', 'true');
+
+          subPanels.forEach(function (sp) {
+            sp.classList.toggle('is-active', sp.dataset.subpanel === item.dataset.subtab);
+          });
+        });
+      });
+    });
+  })();
+</script>
