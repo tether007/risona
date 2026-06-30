@@ -1,0 +1,302 @@
+<style>
+.collection-marquee{
+    overflow:hidden;
+    width:100%;
+    position:relative;
+}
+
+.collection-marquee__track{
+    display:flex;
+    gap:{{ section.settings.gap }}px;
+    width:max-content;
+    will-change:transform;
+    transform:translate3d(0,0,0);
+}
+
+{% if section.settings.pause_hover %}
+.collection-marquee:hover .collection-marquee__track{
+    animation-play-state: paused;
+}
+{% endif %}
+
+.collection-card{
+    flex:0 0 {{ section.settings.card_width }}px;
+}
+
+.collection-card a{
+    display:block;
+    text-decoration:none;
+    color:inherit;
+}
+
+.collection-card__image{
+    position:relative;
+    overflow:hidden;
+    border-radius:10px;
+    aspect-ratio:3/4;
+}
+
+.collection-card__image img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    display:block;
+    transition:.35s ease;
+}
+
+.collection-card img{
+    transition:transform .45s ease;
+}
+
+.collection-card:hover img{
+    transform:scale(1.08);
+}
+
+.collection-overlay{
+    position:absolute;
+    inset:auto 0 0;
+    padding:60px 15px 18px;
+    background:linear-gradient(
+        to top,
+        rgba(0,0,0,.72),
+        rgba(0,0,0,.22),
+        transparent
+    );
+}
+
+.collection-overlay h3{
+    margin:0;
+    color:#fff;
+    font-size:16px;
+    font-weight:600;
+    text-align:center;
+}
+
+@keyframes marquee-scroll{
+    from{
+        transform:translate3d(0,0,0);
+    }
+    to{
+        transform:translate3d(-50%,0,0);
+    }
+}   
+
+@media(max-width:990px){
+
+.collection-card{
+flex-basis:190px;
+}
+
+}
+
+@media(max-width:768px){
+
+.collection-card{
+flex-basis:170px;
+}
+
+}
+
+@media(max-width:480px){
+
+.collection-card{
+flex-basis:150px;
+}
+
+}
+
+</style>
+
+<div class="collection-marquee">
+
+    <div class="collection-marquee__track" id="marquee-track">
+
+        {% for block in section.blocks %}
+
+            <div class="collection-card" {{ block.shopify_attributes }}>
+
+                <a href="{{ block.settings.link }}">
+
+                    <div class="collection-card__image">
+
+                        {% if block.settings.image %}
+
+                            {{ block.settings.image
+                            | image_url: width: 1200
+                            | image_tag:
+                            widths: '300,500,700,900,1200',
+                            sizes: '(max-width:768px) 45vw,220px',
+                            loading: 'lazy',
+                            alt: block.settings.title
+                            }}
+
+                        {% endif %}
+
+                        <div class="collection-overlay">
+
+                            <h3>{{ block.settings.title }}</h3>
+
+                        </div>
+
+                    </div>
+
+                </a>
+
+            </div>
+
+        {% endfor %}
+
+    </div>
+
+</div>
+
+
+<script>
+(function () {
+  function initMarquee(section) {
+    const track = section.querySelector(".collection-marquee__track");
+    if (!track || track.dataset.initialized) return;
+
+    track.dataset.initialized = "true";
+
+    const originals = [...track.children];
+
+    while (track.scrollWidth < window.innerWidth * 3) {
+      originals.forEach(card => {
+        track.appendChild(card.cloneNode(true));
+      });
+    }
+
+    const speed = {{ section.settings.speed }};
+    let offset = 0;
+    let last = performance.now();
+    let paused = false;
+
+    function animate(now) {
+      const delta = (now - last) / 1000;
+      last = now;
+
+      if (!paused) {
+        offset += speed * delta;
+
+        const loopWidth = track.scrollWidth / 2;
+
+        if (offset >= loopWidth) {
+          offset -= loopWidth;
+        }
+
+        track.style.transform = `translate3d(${-offset}px,0,0)`;
+      }
+
+      requestAnimationFrame(animate);
+    }
+
+    requestAnimationFrame(animate);
+
+    {% if section.settings.pause_hover %}
+    section.addEventListener("mouseenter", () => paused = true);
+    section.addEventListener("mouseleave", () => paused = false);
+    {% endif %}
+  }
+
+  document.querySelectorAll(".collection-marquee").forEach(initMarquee);
+
+  document.addEventListener("shopify:section:load", function (e) {
+    e.target.querySelectorAll(".collection-marquee").forEach(initMarquee);
+  });
+
+})();
+</script>
+
+
+{% schema %}
+{
+  "name": "Collection Marquee",
+  "tag": "section",
+  "class": "section-collection-marquee",
+  "settings": [
+    {
+    "type": "range",
+    "id": "speed",
+    "label": "Speed",
+    "min": 20,
+    "max": 200,
+    "step": 5,
+    "default": 60,
+    "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "card_width",
+      "label": "Desktop card width",
+      "min": 180,
+      "max": 320,
+      "step": 10,
+      "default": 220,
+      "unit": "px"
+    },
+    {
+    "type": "range",
+    "id": "gap",
+    "label": "Space Between Cards",
+    "min": 0,
+    "max": 40,
+    "step": 2,
+    "default": 12,
+    "unit": "px"
+    },
+    {
+      "type": "checkbox",
+      "id": "pause_hover",
+      "label": "Pause on hover",
+      "default": true
+    }
+  ],
+  "blocks": [
+    {
+      "type": "card",
+      "name": "Collection Card",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Title",
+          "default": "Collection"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Link"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Collection Marquee",
+      "blocks": [
+        {
+          "type": "card"
+        },
+        {
+          "type": "card"
+        },
+        {
+          "type": "card"
+        },
+        {
+          "type": "card"
+        },
+        {
+          "type": "card"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}
