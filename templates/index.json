@@ -64,20 +64,64 @@
         "heading": "Shop By Category"
       }
     },
-    "custom_liquid_Nb6fAK": {
-      "type": "custom-liquid",
-      "name": "RISONA Corousel ",
+    "collection_marquee_9PgXjf": {
+      "type": "collection-marquee",
+      "blocks": {
+        "card_LbWCXg": {
+          "type": "card",
+          "settings": {
+            "title": "Collection",
+            "link": ""
+          }
+        },
+        "card_8Hcryw": {
+          "type": "card",
+          "settings": {
+            "title": "Collection",
+            "link": ""
+          }
+        },
+        "card_cxBT4Y": {
+          "type": "card",
+          "settings": {
+            "title": "Collection",
+            "link": ""
+          }
+        },
+        "card_WmfPUB": {
+          "type": "card",
+          "settings": {
+            "title": "Collection",
+            "link": ""
+          }
+        },
+        "card_qytpcr": {
+          "type": "card",
+          "settings": {
+            "title": "Collection",
+            "link": ""
+          }
+        }
+      },
+      "block_order": [
+        "card_LbWCXg",
+        "card_8Hcryw",
+        "card_cxBT4Y",
+        "card_WmfPUB",
+        "card_qytpcr"
+      ],
+      "name": "Collection Marquee",
       "settings": {
-        "custom_liquid": "<style>\n.collection-carousel-wrapper {\n  width: 100%;\n  overflow: hidden;\n  padding: 0 10px;\n}\n\n.collection-carousel-track {\n  display: flex;\n  gap: 10px;\n  width: max-content;\n  animation: marquee 20s linear infinite;\n}\n\n.collection-carousel-wrapper:hover .collection-carousel-track {\n  animation-play-state: paused;\n}\n\n.collection-card {\n  flex: 0 0 220px;\n}\n\n.collection-card a {\n  display: block;\n  text-decoration: none;\n  color: inherit;\n}\n\n.collection-image {\n  position: relative;\n  overflow: hidden;\n  border-radius: 6px;\n  aspect-ratio: 3 / 4;\n}\n\n.collection-image img {\n  width: 100%;\n  height: 100%;\n  object-fit: cover;\n  display: block;\n}\n\n.collection-overlay {\n  position: absolute;\n  inset: auto 0 0;\n  padding: 48px 12px 14px;\n  background: linear-gradient(\n    to top,\n    rgba(0,0,0,.65) 0%,\n    rgba(0,0,0,.2) 60%,\n    transparent 100%\n  );\n}\n\n.collection-overlay h3 {\n  margin: 0;\n  color: #fff;\n  font-size: 15px;\n  font-weight: 600;\n  text-align: center;\n  letter-spacing: .3px;\n}\n\n@keyframes marquee {\n  from {\n    transform: translateX(0);\n  }\n  to {\n    transform: translateX(calc(-50% - 5px));\n  }\n}\n\n@media (max-width: 768px) {\n  .collection-card {\n    flex: 0 0 180px;\n  }\n}\n\n@media (max-width: 480px) {\n  .collection-card {\n    flex: 0 0 160px;\n  }\n}\n\n\n</style>\n\n<div class=\"collection-carousel-wrapper\">\n  <div class=\"collection-carousel-track\" id=\"carousel-track\">\n\n    <div class=\"collection-card\">\n      <a href=\"/collections/all\">\n        <div class=\"collection-image\">\n          <img src=\"YOUR_IMAGE_1\" alt=\"All Collections\">\n          <div class=\"collection-overlay\">\n            <h3>All Collections</h3>\n          </div>\n        </div>\n      </a>\n    </div>\n\n    <div class=\"collection-card\">\n      <a href=\"/collections/rings\">\n        <div class=\"collection-image\">\n          <img src=\"YOUR_IMAGE_2\" alt=\"Rings\">\n          <div class=\"collection-overlay\">\n            <h3>Rings</h3>\n          </div>\n        </div>\n      </a>\n    </div>\n\n    <div class=\"collection-card\">\n      <a href=\"/collections/necklaces\">\n        <div class=\"collection-image\">\n          <img src=\"YOUR_IMAGE_3\" alt=\"Necklaces\">\n          <div class=\"collection-overlay\">\n            <h3>Necklaces</h3>\n          </div>\n        </div>\n      </a>\n    </div>\n\n    <div class=\"collection-card\">\n      <a href=\"/collections/earrings\">\n        <div class=\"collection-image\">\n          <img src=\"YOUR_IMAGE_4\" alt=\"Earrings\">\n          <div class=\"collection-overlay\">\n            <h3>Earrings</h3>\n          </div>\n        </div>\n      </a>\n    </div>\n\n    <div class=\"collection-card\">\n      <a href=\"/collections/bracelets\">\n        <div class=\"collection-image\">\n          <img src=\"YOUR_IMAGE_5\" alt=\"Bracelets\">\n          <div class=\"collection-overlay\">\n            <h3>Bracelets</h3>\n          </div>\n        </div>\n      </a>\n    </div>\n\n  </div>\n</div>\n\n<script>\ndocument.addEventListener(\"DOMContentLoaded\", () => {\n  const track = document.getElementById(\"carousel-track\");\n  track.innerHTML += track.innerHTML;\n});\n</script>",
-        "color_scheme": "scheme-1",
-        "padding_top": 40,
-        "padding_bottom": 52
+        "speed": 35,
+        "card_width": 250,
+        "gap": 18,
+        "pause_hover": true
       }
     }
   },
   "order": [
     "image_banner",
     "category_grid",
-    "custom_liquid_Nb6fAK"
+    "collection_marquee_9PgXjf"
   ]
 }
