@@ -471,7 +471,7 @@
             {% capture widths %}{{ settings.logo_width }}, {{ settings.logo_width | times: 1.5 | round }}, {{ settings.logo_width | times: 2 }}{% endcapture %}
             {{
               settings.logo
-              | image_url: width: 600
+              | image_url: width: 900
               | image_tag:
                 class: 'header__heading-logo motion-reduce',
                 widths: widths,

@@ -1,29 +1,21 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
 {
   "sections": {
     "image_banner": {
       "type": "image-banner",
-      "blocks": {
-        "heading": {
-          "type": "heading",
-          "settings": {
-            "heading": "Browse our latest products"
-          }
-        },
-        "button": {
-          "type": "buttons",
-          "settings": {
-            "button_label_1": "Shop all",
-            "button_link_1": "shopify:\/\/collections\/all",
-            "button_label_2": "",
-            "button_link_2": ""
-          }
-        }
-      },
-      "block_order": [
-        "heading",
-        "button"
-      ],
-      "settings": {}
+      "settings": {
+        "image": "shopify://shop_images/RISONA_Banner___Centered_Logo.png",
+        "eyebrow_text": "New Collection",
+        "heading_text": "RISONA — Premium Anti-Tarnish Jewellery"
+      }
     },
     "category_grid": {
       "type": "category-grid",
@@ -31,61 +23,41 @@
         "cat1": {
           "type": "category",
           "settings": {
-            "label": "Rings"
+            "image": "shopify://shop_images/Gold-Plated_Rings_Cover.png",
+            "label": "Rings",
+            "link": "shopify://collections/rings"
           }
         },
         "cat2": {
           "type": "category",
           "settings": {
-            "label": "Earrings"
-          }
-        },
-        "cat3": {
-          "type": "category",
-          "settings": {
-            "label": "Pendants"
-          }
-        },
-        "cat4": {
-          "type": "category",
-          "settings": {
-            "label": "Chains"
+            "image": "shopify://shop_images/Gold-Plated_Earrings_Cover___Wide_512640f3-7cc3-437d-97ce-9d3478047588.png",
+            "label": "Earrings",
+            "link": "shopify://collections/earrings"
           }
         },
         "cat5": {
           "type": "category",
           "settings": {
-            "label": "Necklaces"
+            "image": "shopify://shop_images/necklace.png",
+            "label": "Necklaces",
+            "link": "shopify://collections/necklaces"
           }
         },
         "cat6": {
           "type": "category",
           "settings": {
-            "label": "Bracelets"
-          }
-        },
-        "cat7": {
-          "type": "category",
-          "settings": {
-            "label": "Bangles"
-          }
-        },
-        "cat8": {
-          "type": "category",
-          "settings": {
-            "label": "Anklets"
+            "image": "shopify://shop_images/Gold-Plated_Bracelet_Cover___Wide.png",
+            "label": "Bracelets",
+            "link": "shopify://collections/bracelets"
           }
         }
       },
       "block_order": [
         "cat1",
         "cat2",
-        "cat3",
-        "cat4",
         "cat5",
-        "cat6",
-        "cat7",
-        "cat8"
+        "cat6"
       ],
       "settings": {
         "heading": "Shop By Category"

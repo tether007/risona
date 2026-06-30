@@ -3674,8 +3674,10 @@ details-disclosure>details {
 header-drawer,
 .menu-drawer-container {
   transform: none !important;
+
   /* don't let an ancestor become the fixed-position containing block */
 }
+
 
 #menu-drawer.menu-drawer--fullscreen {
   position: fixed !important;
@@ -3700,6 +3702,7 @@ header-drawer,
   justify-content: space-between;
   padding: 1.6rem 2rem;
   border-bottom: 1px solid rgba(var(--color-foreground), 0.08);
+  z-index: 100;
 }
 
 #menu-drawer .menu-drawer__close-button {
@@ -3782,6 +3785,7 @@ header-drawer,
   color: rgb(var(--color-foreground));
   cursor: pointer;
   text-decoration: none;
+  z-index: 5;
 }
 
 #menu-drawer .menu-drawer__tab:last-child {
@@ -3959,4 +3963,63 @@ header-drawer,
   #menu-drawer .menu-drawer__grid {
     grid-template-columns: repeat(4, 1fr);
   }
+}
+
+.menu-drawer__sidebar-item:hover {
+  background-color: #7B1E1E;
+  /* Change to your preferred color */
+  color: #fff;
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+/* Keep links inheriting the hover color */
+.menu-drawer__sidebar-item:hover a,
+.menu-drawer__sidebar-item:hover span {
+  color: inherit;
+}
+
+/* Change the arrow icon color too */
+.menu-drawer__sidebar-item:hover .svg-wrapper {
+  color: inherit;
+  opacity: 1;
+}
+
+#menu-drawer {
+  overflow: hidden;
+}
+
+.menu-drawer__content {
+  overflow-y: auto;
+}
+
+.menu-drawer__sidebar {
+  overflow-y: auto;
+}
+
+/* Prevent page scrolling when drawer is open */
+body:has(#Details-menu-drawer-container[open]) {
+  overflow: hidden;
+}
+
+
+#menu-drawer .menu-drawer__tab:hover {
+  background-color: #7B1E1E;
+  /* Change to your preferred color */
+  color: #fff;
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+/* Remove the internal drawer scrollbar */
+.menu-drawer__content,
+.menu-drawer__panel,
+.menu-drawer__navigation,
+.menu-drawer__inner-container {
+  overflow-y: visible !important;
+  max-height: none !important;
+}
+
+#HeaderDrawer-jewellery:hover {
+  background-color: #7B1E1E;
+  color: #fff;
+  transition: background-color 0.25s ease, color 0.25s ease;
 }
