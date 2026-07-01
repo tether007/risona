@@ -1,0 +1,63 @@
+
+<p>Filters: {{ results.filters.size }}</p>
+<div class="risona-toolbar">
+
+  <div class="risona-toolbar__inner page-width">
+
+    <div class="risona-toolbar__left">
+
+      {% for filter in results.filters %}
+
+        <div class="risona-toolbar__item">
+
+          <button
+            class="risona-toolbar__button"
+            type="button"
+            data-filter="{{ filter.label | handle }}"
+          >
+            <span>{{ filter.label }}</span>
+
+            <svg
+              class="risona-toolbar__chevron"
+              width="14"
+              height="14"
+              viewBox="0 0 20 20"
+              fill="none"
+            >
+              <path
+                d="M5 8L10 13L15 8"
+                stroke="currentColor"
+                stroke-width="1.7"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+
+          </button>
+
+          <div
+            class="risona-toolbar__dropdown"
+            id="dropdown-{{ filter.label | handle }}"
+          >
+
+            {% render 'risona-filter-dropdown',
+              filter: filter
+            %}
+
+          </div>
+
+        </div>
+
+      {% endfor %}
+
+    </div>
+
+    <div class="risona-toolbar__right">
+
+      {% render 'risona-sort' %}
+
+    </div>
+
+  </div>
+
+</div>

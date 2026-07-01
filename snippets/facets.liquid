@@ -243,12 +243,9 @@
                                     type="checkbox"
                                     name="{{ value.param_name }}"
                                     value="{{ value.value }}"
-                                    id="{{ input_id }}"
+                                    form="FacetFiltersForm"
                                     {% if value.active %}
                                       checked
-                                    {% endif %}
-                                    {% if is_disabled %}
-                                      disabled
                                     {% endif %}
                                   >
 
