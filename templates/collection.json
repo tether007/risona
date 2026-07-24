@@ -15,8 +15,8 @@
       "settings": {
         "video_url": "",
         "loop_video": true,
-        "desktop_image": "shopify://shop_images/bracelet_banner.png",
-        "mobile_image": "shopify://shop_images/bracelet_banner.png",
+        "desktop_image": "shopify://shop_images/banner.webp",
+        "mobile_image": "shopify://shop_images/banner.webp",
         "link": "",
         "banner_height": 70,
         "banner_height_mobile": 55,
