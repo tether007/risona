@@ -1,0 +1,118 @@
+{% case filter.type %}
+
+{% when 'list' %}
+
+<div class="risona-filter">
+
+  {% if filter.values.size > 8 %}
+
+    <div class="risona-filter__search">
+
+      <input
+        type="text"
+        placeholder="Search..."
+        class="risona-filter-search"
+      >
+
+    </div>
+
+  {% endif %}
+
+  <div class="risona-filter__options">
+
+    {% for value in filter.values %}
+
+      <label
+        class="risona-checkbox{% if forloop.index > 8 %} risona-hidden{% endif %}"
+        data-filter-option
+      >
+
+        <input
+          type="checkbox"
+          name="{{ value.param_name }}"
+          value="{{ value.value }}"
+          {% if value.active %}
+            checked
+          {% endif %}
+        >
+
+        {% assign color = value.label | downcase %}
+
+        {% if color == 'gold'
+          or color == 'silver'
+          or color == 'rose gold'
+          or color == 'black'
+          or color == 'white'
+        %}
+
+          <span
+            class="risona-swatch"
+            style="background:{{ color }};"
+          ></span>
+
+        {% else %}
+
+          <span class="risona-checkbox__box"></span>
+
+        {% endif %}
+
+        <span class="risona-checkbox__label">
+
+          {{ value.label }}
+
+        </span>
+
+        <span class="risona-checkbox__count">
+
+          {{ value.count }}
+
+        </span>
+
+      </label>
+
+    {% endfor %}
+
+  </div>
+
+  {% if filter.values.size > 8 %}
+
+    <button
+      class="risona-show-more"
+      type="button"
+    >
+
+      Show More
+
+    </button>
+
+  {% endif %}
+
+</div>
+
+{% when 'price_range' %}
+
+<div class="risona-price">
+
+  <div class="risona-price__fields">
+
+    <input
+      type="number"
+      name="{{ filter.min_value.param_name }}"
+      placeholder="Min"
+      value="{{ filter.min_value.value.value }}"
+    >
+
+    <span>—</span>
+
+    <input
+      type="number"
+      name="{{ filter.max_value.param_name }}"
+      placeholder="Max"
+      value="{{ filter.max_value.value.value }}"
+    >
+
+  </div>
+
+</div>
+
+{% endcase %}

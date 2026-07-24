@@ -1,0 +1,290 @@
+<style>
+  /* ── RISONA PREMIUM BANNER ── */
+  .risona-premium-banner {
+    position: relative;
+    background: {{ section.settings.bg_color }};
+    padding: {{ section.settings.padding_vertical }}px 3rem;
+    text-align: center;
+    overflow: hidden;
+  }
+
+  /* ── GOLD BORDER LINES ── */
+  .risona-premium-banner::before,
+  .risona-premium-banner::after {
+    content: '';
+    display: block;
+    position: absolute;
+    left: 0; right: 0;
+    height: {{ section.settings.border_thickness }}px;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      {{ section.settings.border_color }} 15%,
+      {{ section.settings.border_color_light }} 50%,
+      {{ section.settings.border_color }} 85%,
+      transparent 100%
+    );
+    opacity: 0.9;
+  }
+  .risona-premium-banner::before { top: 0; }
+  .risona-premium-banner::after  { bottom: 0; }
+
+  /* ── INNER LAYOUT ── */
+  .risona-premium-banner__inner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: {{ section.settings.gap }}px;
+    position: relative;
+  }
+
+  /* ── SEPARATOR ORNAMENT ── */
+  .risona-premium-banner__ornament {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+    opacity: 0.75;
+  }
+  .risona-premium-banner__ornament-line {
+    width: {{ section.settings.ornament_line_width }}px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, {{ section.settings.border_color }});
+  }
+  .risona-premium-banner__ornament-line.right {
+    background: linear-gradient(90deg, {{ section.settings.border_color }}, transparent);
+  }
+  .risona-premium-banner__ornament-dot {
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: {{ section.settings.border_color }};
+  }
+
+  /* ── TEXT ── */
+  .risona-premium-banner__text {
+    font-family: {{ section.settings.font_family }};
+    font-size: {{ section.settings.font_size }}px;
+    font-weight: {{ section.settings.font_weight }};
+    letter-spacing: {{ section.settings.letter_spacing }}em;
+    text-transform: {{ section.settings.text_transform }};
+    color: {{ section.settings.text_color }};
+    line-height: 1.2;
+    margin: 0;
+    white-space: nowrap;
+    position: relative;
+  }
+
+  /* ── OPTIONAL SUBTLE GOLD GLOW ON TEXT ── */
+  {%- if section.settings.text_glow -%}
+  .risona-premium-banner__text {
+    text-shadow:
+      0 0 40px {{ section.settings.border_color }}33,
+      0 0 80px {{ section.settings.border_color }}18;
+  }
+  {%- endif -%}
+
+  /* ── MOBILE ── */
+  @media screen and (max-width: 600px) {
+    .risona-premium-banner__text {
+      font-size: {{ section.settings.font_size | times: 0.65 | round }}px;
+      letter-spacing: {{ section.settings.letter_spacing | times: 0.7 | round: 2 }}em;
+      white-space: normal;
+    }
+    .risona-premium-banner__ornament {
+      display: none;
+    }
+  }
+</style>
+
+<div class="risona-premium-banner">
+  <div class="risona-premium-banner__inner">
+
+    {%- if section.settings.show_ornaments -%}
+      <div class="risona-premium-banner__ornament" aria-hidden="true">
+        <div class="risona-premium-banner__ornament-line"></div>
+        <div class="risona-premium-banner__ornament-dot"></div>
+        <div class="risona-premium-banner__ornament-line"></div>
+      </div>
+    {%- endif -%}
+
+    <p class="risona-premium-banner__text">{{ section.settings.banner_text }}</p>
+
+    {%- if section.settings.show_ornaments -%}
+      <div class="risona-premium-banner__ornament" aria-hidden="true">
+        <div class="risona-premium-banner__ornament-line right"></div>
+        <div class="risona-premium-banner__ornament-dot"></div>
+        <div class="risona-premium-banner__ornament-line right"></div>
+      </div>
+    {%- endif -%}
+
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Risona Premium Banner",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Text"
+    },
+    {
+      "type": "text",
+      "id": "banner_text",
+      "label": "Banner text",
+      "default": "PREMIUM WEAR"
+    },
+    {
+      "type": "select",
+      "id": "font_family",
+      "label": "Font",
+      "options": [
+        { "value": "'Outfit', sans-serif",         "label": "Outfit (modern)" },
+        { "value": "'soria_font', serif",           "label": "Soria (brand serif)" },
+        { "value": "Georgia, serif",                "label": "Georgia (classic)" },
+        { "value": "'Cormorant Garamond', serif",   "label": "Cormorant (editorial)" }
+      ],
+      "default": "'Outfit', sans-serif"
+    },
+    {
+      "type": "range",
+      "id": "font_size",
+      "label": "Font size (desktop)",
+      "min": 10,
+      "max": 72,
+      "step": 1,
+      "unit": "px",
+      "default": 22
+    },
+    {
+      "type": "select",
+      "id": "font_weight",
+      "label": "Font weight",
+      "options": [
+        { "value": "300", "label": "Light (300)" },
+        { "value": "400", "label": "Regular (400)" },
+        { "value": "500", "label": "Medium (500)" },
+        { "value": "600", "label": "Semibold (600)" },
+        { "value": "700", "label": "Bold (700)" }
+      ],
+      "default": "400"
+    },
+    {
+      "type": "range",
+      "id": "letter_spacing",
+      "label": "Letter spacing",
+      "min": 0,
+      "max": 1,
+      "step": 0.1,
+      "unit": "em",
+      "default": 0.4
+    },
+    {
+      "type": "select",
+      "id": "text_transform",
+      "label": "Text case",
+      "options": [
+        { "value": "uppercase",  "label": "UPPERCASE" },
+        { "value": "lowercase",  "label": "lowercase" },
+        { "value": "capitalize", "label": "Title Case" },
+        { "value": "none",       "label": "As typed" }
+      ],
+      "default": "uppercase"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text colour",
+      "default": "#1a0808"
+    },
+    {
+      "type": "checkbox",
+      "id": "text_glow",
+      "label": "Subtle gold glow on text",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "Gold Borders"
+    },
+    {
+      "type": "color",
+      "id": "border_color",
+      "label": "Border / ornament colour",
+      "default": "#C9A96E"
+    },
+    {
+      "type": "color",
+      "id": "border_color_light",
+      "label": "Border highlight colour (centre)",
+      "default": "#e8c98a"
+    },
+    {
+      "type": "range",
+      "id": "border_thickness",
+      "label": "Border thickness",
+      "min": 1,
+      "max": 4,
+      "step": 1,
+      "unit": "px",
+      "default": 1
+    },
+    {
+      "type": "header",
+      "content": "Ornaments"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_ornaments",
+      "label": "Show side ornament lines",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "ornament_line_width",
+      "label": "Ornament line length",
+      "min": 20,
+      "max": 200,
+      "step": 10,
+      "unit": "px",
+      "default": 80
+    },
+    {
+      "type": "range",
+      "id": "gap",
+      "label": "Gap between ornament and text",
+      "min": 8,
+      "max": 60,
+      "step": 4,
+      "unit": "px",
+      "default": 24
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "color",
+      "id": "bg_color",
+      "label": "Background colour",
+      "default": "#fdf7f0"
+    },
+    {
+      "type": "range",
+      "id": "padding_vertical",
+      "label": "Top & bottom padding",
+      "min": 6,
+      "max": 48,
+      "step": 2,
+      "unit": "px",
+      "default": 16
+    }
+  ],
+  "presets": [
+    {
+      "name": "Risona Premium Banner"
+    }
+  ]
+}
+{% endschema %}

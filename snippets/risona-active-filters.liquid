@@ -1,0 +1,26 @@
+{% if collection.filters != blank %}
+
+<div class="risona-active-filters">
+
+{% for filter in collection.filters %}
+
+{% for value in filter.active_values %}
+
+<a
+class="risona-pill"
+href="{{ value.url_to_remove }}"
+>
+
+{{ value.label }}
+
+×
+
+</a>
+
+{% endfor %}
+
+{% endfor %}
+
+</div>
+
+{% endif %}

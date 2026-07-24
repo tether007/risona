@@ -1,97 +1,104 @@
 <style>
-  .risona-catgrid-section {
+  .risona-zp-section {
     position: relative;
-    z-index: 0;
-    isolation: isolate;
     background: #fff;
-    padding: 40px 0 48px;
-    overflow: hidden;
+    margin-bottom: {{ section.settings.gap_after }}px;
   }
 
-  .risona-catgrid__heading {
-    font-family: 'Cormorant Garamond', serif;
+  .risona-zp__heading-wrap {
+    height: 20vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     text-align: center;
+    padding: 0 24px;
+  }
+
+  .risona-zp__heading {
+    font-family: 'Cormorant Garamond', serif;
     color: #6B1212;
-    font-size: clamp(22px, 3vw, 34px);
+    font-size: clamp(24px, 4vw, 44px);
     font-weight: 300;
     font-style: italic;
-    letter-spacing: 0.04em;
-    margin: 0 0 28px;
+    letter-spacing: 0.03em;
+    margin: 0;
   }
 
-  .risona-catgrid {
-    display: grid;
-    grid-template-columns: repeat(6, 1fr);
-    grid-auto-rows: 10vw;
-    gap: 4px;
-    padding: 0 12px;
-    max-width: 1200px;
-    margin: 0 auto;
-    grid-template-areas:
-      "a1 a1 a2 a2 a2 a2"
-      "a1 a1 a2 a2 a2 a2"
-      "a1 a1 a2 a2 a2 a2"
-      "a1 a1 a3 a3 a4 a4"
-      "a1 a1 a3 a3 a4 a4"
-      "a5 a5 a5 a6 a6 a6";
-  }
-
-  .risona-catgrid__card {
+  .risona-zp__scroll {
     position: relative;
+    height: 300vh;
+    height: 300dvh;
+  }
+
+  .risona-zp__pin {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    height: 100dvh;
+    overflow: hidden;
+    background: #f6f1ec;
+  }
+
+  .risona-zp__item {
+    position: absolute;
     border-radius: 12px;
     overflow: hidden;
-    transform: translate3d(0, 0, 0);
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.79);
-    transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1),
-                box-shadow 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+    will-change: transform;
+    transform: scale(var(--zp-scale, 1));
+    transform-origin: center center;
+    z-index: 1;
   }
 
-  .risona-catgrid__card:hover {
-    transform: translate3d(0, -3px, 0) scale(1.015);
-    box-shadow: 0 20px 38px rgba(0, 0, 0, 0.79);
-    z-index: 2;
+  .risona-zp__item[data-zp-index="0"] {
+    z-index: 10;
   }
 
-  .risona-catgrid__img {
+  .risona-zp__item-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+  }
+
+  .risona-zp__img {
     width: 100%;
     height: 100%;
     object-fit: cover;
     display: block;
   }
 
-  .risona-catgrid__placeholder {
+  .risona-zp__placeholder {
     width: 100%;
     height: 100%;
     background: linear-gradient(135deg, #f5f0f0, #e8dede);
   }
 
-  .risona-catgrid__placeholder .placeholder-svg {
+  .risona-zp__placeholder .placeholder-svg {
     width: 100%;
     height: 100%;
     object-fit: cover;
     opacity: 0.4;
   }
 
-  .risona-catgrid__overlay {
+  .risona-zp__overlay {
     position: absolute;
     bottom: 0;
     left: 0;
     right: 0;
-    padding: 48px 16px 16px;
-    background: linear-gradient(to top, rgba(0, 0, 0, 0.65) 0%, rgba(0, 0, 0, 0.2) 55%, transparent 100%);
+    padding: 28px 12px 10px;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.65) 0%, rgba(0, 0, 0, 0.15) 60%, transparent 100%);
     pointer-events: none;
   }
 
-  .risona-catgrid__label {
+  .risona-zp__label {
     margin: 0;
     font-family: 'Cormorant Garamond', serif;
-    font-size: 18px;
-    font-weight: 400;
+    font-size: 14px;
     color: #fff;
     letter-spacing: 0.02em;
   }
 
-  .risona-catgrid__link {
+  .risona-zp__link {
     position: absolute;
     inset: 0;
     z-index: 1;
@@ -100,105 +107,187 @@
     font-size: 0;
   }
 
-  .risona-catgrid__link:focus-visible {
+  .risona-zp__link:focus-visible {
     outline: 2px solid #C9A96E;
     outline-offset: -2px;
     border-radius: 12px;
   }
 
-  @media (max-width: 989px) {
-    .risona-catgrid {
-      grid-auto-rows: 14vw;
-    }
-  }
+  /* 7-item mosaic positions */
+  .risona-zp__item[data-zp-index="0"] { top: 37.5vh; left: 37.5vw; width: 25vw;  height: 25vh; }
+  .risona-zp__item[data-zp-index="1"] { top: 5vh;    left: 37.5vw; width: 35vw;  height: 30vh; }
+  .risona-zp__item[data-zp-index="2"] { top: 17.5vh; left: 15vw;   width: 20vw;  height: 45vh; }
+  .risona-zp__item[data-zp-index="3"] { top: 37.5vh; left: 65vw;   width: 25vw;  height: 25vh; }
+  .risona-zp__item[data-zp-index="4"] { top: 65vh;   left: 45vw;   width: 20vw;  height: 25vh; }
+  .risona-zp__item[data-zp-index="5"] { top: 65vh;   left: 12.5vw; width: 30vw;  height: 25vh; }
+  .risona-zp__item[data-zp-index="6"] { top: 65vh;   left: 67.5vw; width: 15vw;  height: 15vh; }
+
+  /* 3-item layout */
+  .risona-zp-section[data-zp-count="3"] .risona-zp__item[data-zp-index="0"] { top: 0vh;  left: 20vw; width: 60vw; height: 48vh; }
+  .risona-zp-section[data-zp-count="3"] .risona-zp__item[data-zp-index="1"] { top: 50vh; left: 2vw;  width: 47vw; height: 48vh; }
+  .risona-zp-section[data-zp-count="3"] .risona-zp__item[data-zp-index="2"] { top: 50vh; left: 51vw; width: 47vw; height: 48vh; }
 
   @media (max-width: 749px) {
-    .risona-catgrid-section {
-      padding: 32px 0 36px;
-    }
+    .risona-zp-section[data-zp-count="3"] .risona-zp__item[data-zp-index="0"] { top: 0vh;  left: 5vw;  width: 90vw; height: 36vh; }
+    .risona-zp-section[data-zp-count="3"] .risona-zp__item[data-zp-index="1"] { top: 38vh; left: 4vw;  width: 44vw; height: 60vh; }
+    .risona-zp-section[data-zp-count="3"] .risona-zp__item[data-zp-index="2"] { top: 38vh; left: 52vw; width: 44vw; height: 60vh; }
 
-    .risona-catgrid__heading {
-      font-size: 24px;
-      margin-bottom: 24px;
-    }
+    .risona-zp__heading-wrap { height: 22dvh; padding: 0 16px; }
 
-    .risona-catgrid {
-      grid-template-columns: repeat(2, 1fr);
-      grid-auto-rows: 34vw;
-      gap: 4px;
-      padding: 0 8px;
-
-      grid-template-areas:
-        "a1 a2"
-        "a1 a2"
-        "a3 a2"
-        "a3 a4"
-        "a5 a5"
-        "a5 a5"
-        "a6 a7"
-        "a6 a8"
-        "a6 a8";
-    }
-
-    .risona-catgrid__card {
+    .risona-zp__item {
       border-radius: 8px;
-      box-shadow: 0 4px 10px rgba(0,0,0,.2);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
     }
 
-    .risona-catgrid__overlay {
-      padding: 28px 10px 10px;
-    }
-
-    .risona-catgrid__label {
-      font-size: 14px;
-    }
-
-    .risona-catgrid__link:focus-visible {
-      border-radius: 8px;
-    }
+    .risona-zp__overlay { padding: 20px 10px 8px; }
+    .risona-zp__label   { font-size: 12px; }
   }
-  
+
+  @media (max-height: 500px) {
+    .risona-zp__heading-wrap { height: 0; }
+  }
 </style>
 
-<section class="risona-catgrid-section" id="RisonaCatGrid-{{ section.id }}" aria-labelledby="RisonaCatHeading-{{ section.id }}">
+<section
+  class="risona-zp-section"
+  id="RisonaZoomParallax-{{ section.id }}"
+  aria-labelledby="RisonaZoomHeading-{{ section.id }}"
+  data-zp-root
+  data-pin-height="{{ section.settings.scroll_length }}"
+  data-zp-count="{{ section.blocks.size }}"
+>
   {%- if section.settings.heading != blank -%}
-    <h2 class="risona-catgrid__heading" id="RisonaCatHeading-{{ section.id }}">{{ section.settings.heading }}</h2>
+    <div class="risona-zp__heading-wrap">
+      <h2 class="risona-zp__heading" id="RisonaZoomHeading-{{ section.id }}">{{ section.settings.heading }}</h2>
+    </div>
   {%- endif -%}
 
-  <nav class="risona-catgrid" aria-label="Product categories">
-    {%- for block in section.blocks -%}
-      <div class="risona-catgrid__card" style="grid-area: a{{ forloop.index }};" {{ block.shopify_attributes }}>
-        {%- if block.settings.image != blank -%}
-          {{
-            block.settings.image
-            | image_url: width: 900
-            | image_tag:
-              class: 'risona-catgrid__img',
-              loading: 'lazy',
-              decoding: 'async',
-              sizes: '(max-width: 749px) 50vw, 25vw',
-              widths: '300, 450, 600, 900',
-              alt: block.settings.label
-          }}
-        {%- else -%}
-          <div class="risona-catgrid__placeholder">
-            {{ 'collection-1' | placeholder_svg_tag: 'placeholder-svg' }}
+  <div class="risona-zp__scroll" data-zp-scroll style="height: {{ section.settings.scroll_length }}vh; height: {{ section.settings.scroll_length }}dvh;">
+    <div class="risona-zp__pin" data-zp-pin>
+      {%- for block in section.blocks limit: 7 -%}
+        {%- assign zp_index = forloop.index0 -%}
+        <div
+          class="risona-zp__item"
+          data-zp-index="{{ zp_index }}"
+          data-zp-item
+          {{ block.shopify_attributes }}
+        >
+          <div class="risona-zp__item-inner">
+            {%- if block.settings.image != blank -%}
+              {%- if zp_index == 0 -%}
+                {{
+                  block.settings.image
+                  | image_url: width: 1600
+                  | image_tag:
+                    class: 'risona-zp__img',
+                    loading: 'eager',
+                    fetchpriority: 'high',
+                    decoding: 'async',
+                    sizes: '100vw',
+                    widths: '600, 900, 1200, 1600',
+                    alt: block.settings.label
+                }}
+              {%- else -%}
+                {{
+                  block.settings.image
+                  | image_url: width: 1200
+                  | image_tag:
+                    class: 'risona-zp__img',
+                    loading: 'lazy',
+                    decoding: 'async',
+                    sizes: '(max-width: 749px) 70vw, 45vw',
+                    widths: '400, 600, 900, 1200',
+                    alt: block.settings.label
+                }}
+              {%- endif -%}
+            {%- else -%}
+              <div class="risona-zp__placeholder">
+                {{ 'collection-1' | placeholder_svg_tag: 'placeholder-svg' }}
+              </div>
+            {%- endif -%}
+            <div class="risona-zp__overlay">
+              <h3 class="risona-zp__label">{{ block.settings.label }}</h3>
+            </div>
+            <a href="{{ block.settings.link | default: '#' }}" class="risona-zp__link" aria-label="Shop {{ block.settings.label | escape }}">
+              {{ block.settings.label }}
+            </a>
           </div>
-        {%- endif -%}
-        <div class="risona-catgrid__overlay">
-          <h3 class="risona-catgrid__label">{{ block.settings.label }}</h3>
         </div>
-        <a href="{{ block.settings.link | default: '#' }}" class="risona-catgrid__link" aria-label="Shop {{ block.settings.label | escape }}">
-          {{ block.settings.label }}
-        </a>
-      </div>
-    {%- endfor -%}
-  </nav>
+      {%- endfor -%}
+    </div>
+  </div>
 </section>
+
+<script>
+  (function () {
+    var root = document.getElementById('RisonaZoomParallax-{{ section.id }}');
+    if (!root) return;
+
+    var scrollEl = root.querySelector('[data-zp-scroll]');
+    var items = Array.prototype.slice.call(root.querySelectorAll('[data-zp-item]'));
+
+    var fallbackTargets = [4, 5, 6, 5, 6, 8, 9];
+
+    items.forEach(function (el, i) {
+      var target;
+      if (i === 0) {
+        var w = el.offsetWidth;
+        var h = el.offsetHeight;
+        target = Math.max(window.innerWidth / w, window.innerHeight / h);
+      } else {
+        target = fallbackTargets[i % fallbackTargets.length];
+      }
+      el.dataset.zpTarget = target;
+      el.style.setProperty('--zp-scale', target);
+    });
+
+    var ticking = false;
+
+    function clamp(v, min, max) {
+      return Math.max(min, Math.min(max, v));
+    }
+
+    function viewportHeight() {
+      return (window.visualViewport && window.visualViewport.height) || window.innerHeight;
+    }
+
+    function update() {
+      ticking = false;
+      if (!scrollEl) return;
+
+      var vh = viewportHeight();
+      var rect = scrollEl.getBoundingClientRect();
+      var scrollable = rect.height - vh;
+      var progress = scrollable > 0 ? clamp(-rect.top / scrollable, 0, 1) : 0;
+
+      items.forEach(function (el) {
+        var target = parseFloat(el.dataset.zpTarget);
+        var scale = target - progress * (target - 1);
+        el.style.setProperty('--zp-scale', scale);
+      });
+    }
+
+    function onScroll() {
+      if (!ticking) {
+        ticking = true;
+        window.requestAnimationFrame(update);
+      }
+    }
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
+    window.addEventListener('orientationchange', onScroll);
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', onScroll);
+    }
+
+    update();
+  })();
+</script>
 
 {% schema %}
 {
-  "name": "RISONA Category Grid",
+  "name": "RISONA Zoom Parallax Grid",
   "tag": "section",
   "class": "section",
   "disabled_on": {
@@ -210,13 +299,39 @@
       "id": "heading",
       "label": "Section heading",
       "default": "Shop By Category"
+    },
+    {
+      "type": "header",
+      "content": "Scroll & Spacing"
+    },
+    {
+      "type": "range",
+      "id": "scroll_length",
+      "label": "Scroll length (animation duration)",
+      "info": "Controls how long the zoom-out takes. Lower = shorter scroll + less blank space. Higher = slower, more dramatic. Recommended: 120–180 for compact feel.",
+      "min": 80,
+      "max": 500,
+      "step": 10,
+      "unit": "vh",
+      "default": 150
+    },
+    {
+      "type": "range",
+      "id": "gap_after",
+      "label": "Gap after section",
+      "info": "Negative values pull the next section up, reducing blank space at the bottom. Positive values add space. Start at 0 and go negative to close the gap.",
+      "min": -300,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "default": 0
     }
   ],
   "blocks": [
     {
       "type": "category",
       "name": "Category",
-      "limit": 8,
+      "limit": 7,
       "settings": [
         {
           "type": "image_picker",
@@ -240,9 +355,11 @@
   ],
   "presets": [
     {
-      "name": "RISONA Category Grid",
+      "name": "RISONA Zoom Parallax Grid",
       "settings": {
-        "heading": "Shop By Category"
+        "heading": "Shop By Category",
+        "scroll_length": 150,
+        "gap_after": 0
       },
       "blocks": [
         { "type": "category", "settings": { "label": "Rings" } },
@@ -251,8 +368,7 @@
         { "type": "category", "settings": { "label": "Chains" } },
         { "type": "category", "settings": { "label": "Necklaces" } },
         { "type": "category", "settings": { "label": "Bracelets" } },
-        { "type": "category", "settings": { "label": "Bangles" } },
-        { "type": "category", "settings": { "label": "Anklets" } }
+        { "type": "category", "settings": { "label": "Bangles" } }
       ]
     }
   ]

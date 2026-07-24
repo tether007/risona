@@ -1,545 +1,726 @@
-{% comment %}theme-check-disable UndefinedObject{% endcomment %}
-{{ 'section-footer.css' | asset_url | stylesheet_tag }}
-{{ 'component-newsletter.css' | asset_url | stylesheet_tag }}
-{{ 'component-list-menu.css' | asset_url | stylesheet_tag }}
-{{ 'component-list-payment.css' | asset_url | stylesheet_tag }}
-{{ 'component-list-social.css' | asset_url | stylesheet_tag }}
-
-{%- style -%}
-  .footer {
-    margin-top: {{ section.settings.margin_top | times: 0.75 | round: 0 }}px;
+<style>
+  :root {
+    --risona-red: #6B1212;
+    --risona-red-light: #fdf0f0;
+    --risona-gold: #C9A96E;
+    --risona-dark: #1a0808;
+    --risona-muted: #7a3535;
+    --risona-border: #e8d5d5;
   }
 
-  .section-{{ section.id }}-padding {
-    padding-top: {{ section.settings.padding_top | times: 0.75 | round: 0 }}px;
-    padding-bottom: {{ section.settings.padding_bottom | times: 0.75 | round: 0 }}px;
+  /* ── FOOTER WRAPPER ── */
+  .risona-footer {
+    background: {{ section.settings.footer_bg_color }};
+    border-top: 2px solid var(--risona-border);
+    font-family: 'Outfit', sans-serif;
+    color: var(--risona-dark);
   }
 
-  @media screen and (min-width: 750px) {
-    .footer {
-      margin-top: {{ section.settings.margin_top }}px;
-    }
-
-    .section-{{ section.id }}-padding {
-      padding-top: {{ section.settings.padding_top }}px;
-      padding-bottom: {{ section.settings.padding_bottom }}px;
-    }
+  /* ── DARK MODE OVERRIDES (applied when dark_mode is enabled) ── */
+  .risona-footer--dark {
+    --risona-dark: #f0e8e8;
+    --risona-muted: #c0a0a0;
+    --risona-border: rgba(255,255,255,0.1);
+    border-top-color: rgba(201,169,110,0.3);
   }
-{%- endstyle -%}
+  .risona-footer--dark .risona-footer__col-title   { color: #fff; }
+  .risona-footer--dark .risona-footer__links a     { color: #d4b8b8; }
+  .risona-footer--dark .risona-footer__links a:hover { color: var(--risona-gold); }
+  .risona-footer--dark .risona-footer__contact-body { color: #c8b0b0; }
+  .risona-footer--dark .risona-footer__contact-body strong { color: #fff; }
+  .risona-footer--dark .risona-footer__contact-body address { color: #b8a0a0; }
+  .risona-footer--dark .risona-footer__contact-item { color: #c8b0b0; }
+  .risona-footer--dark .risona-footer__app-desc    { color: #b8a0a0; }
+  .risona-footer--dark .risona-footer__subscribe-label { color: #f0e8e8; }
+  .risona-footer--dark .risona-footer__subscribe-form  {
+    background: rgba(255,255,255,0.07);
+    border-color: rgba(255,255,255,0.14);
+  }
+  .risona-footer--dark .risona-footer__subscribe-form input[type="email"] { color: #fff; }
+  .risona-footer--dark .risona-footer__subscribe-form input[type="email"]::placeholder { color: rgba(255,255,255,0.35); }
+  .risona-footer--dark .risona-footer__payment-label { color: rgba(255,255,255,0.5); }
+  .risona-footer--dark .risona-footer__payment-icon  { border-color: rgba(255,255,255,0.12); }
+  .risona-footer--dark .risona-footer__social-label  { color: rgba(255,255,255,0.5); }
+  .risona-footer--dark .risona-footer__social a {
+    background: rgba(255,255,255,0.07);
+    border-color: rgba(255,255,255,0.14);
+    color: #d4b8b8;
+  }
+  .risona-footer--dark .risona-footer__social a:hover {
+    background: var(--risona-red);
+    border-color: var(--risona-red);
+    color: #fff;
+  }
+  .risona-footer--dark .risona-footer__copyright {
+    color: rgba(255,255,255,0.4);
+    border-top-color: rgba(255,255,255,0.08);
+  }
 
-<footer class="footer color-{{ section.settings.color_scheme }} gradient section-{{ section.id }}-padding">
-  {%- liquid
-    assign has_social_icons = true
-    if settings.social_facebook_link == blank and settings.social_instagram_link == blank and settings.social_youtube_link == blank and settings.social_tiktok_link == blank and settings.social_twitter_link == blank and settings.social_pinterest_link == blank and settings.social_snapchat_link == blank and settings.social_tumblr_link == blank and settings.social_vimeo_link == blank
-      assign has_social_icons = false
-    endif
+  /* ── TOP GRID: 3-col default, 4-col when app section is on ── */
+  .risona-footer__top {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1.2fr;
+    gap: 3rem;
+    padding: 4rem 5rem 3.5rem;
+    border-bottom: 1px solid var(--risona-border);
+  }
+  .risona-footer__top--4col { grid-template-columns: 1fr 1fr 1.1fr 1.3fr; }
 
-    if settings.brand_image == blank and settings.brand_headline == blank and settings.brand_description == blank
-      assign brand_empty = true
-    endif
+  @media screen and (max-width: 1100px) {
+    .risona-footer__top--4col { grid-template-columns: 1fr 1fr; }
+  }
+  @media screen and (max-width: 900px) {
+    .risona-footer__top { grid-template-columns: 1fr 1fr; padding: 3rem 2rem; }
+    .risona-footer__col--contact { grid-column: 1 / -1; }
+  }
+  @media screen and (max-width: 600px) {
+    .risona-footer__top { grid-template-columns: 1fr; gap: 2.5rem; }
+    .risona-footer__col--contact,
+    .risona-footer__col--app { grid-column: 1; }
+  }
 
-    if section.blocks.size == 1 and section.blocks[0].type == 'brand_information' and brand_empty and has_social_icons == false and section.settings.newsletter_enable == false and section.settings.enable_follow_on_shop == false
-      assign only_empty_brand = true
-    endif
-  -%}
-  {%- if section.blocks.size > 0
-    or section.settings.newsletter_enable
-    or section.settings.show_social
-    and has_social_icons == true
-    or section.settings.enable_follow_on_shop
-  -%}
-    {%- unless only_empty_brand -%}
-      <div class="footer__content-top page-width">
-        {%- if section.blocks.size > 0 -%}
-          {%- liquid
-            if section.blocks.size == 9
-              assign footer_grid_class = 'grid--3-col-tablet'
-            elsif section.blocks.size > 6
-              assign footer_grid_class = 'grid--4-col-desktop'
-            elsif section.blocks.size > 4
-              assign footer_grid_class = 'grid--3-col-tablet'
-            endif
-          -%}
-          <div
-            class="footer__blocks-wrapper grid grid--1-col grid--2-col grid--4-col-tablet {{ footer_grid_class }}{% if settings.animations_reveal_on_scroll %} scroll-trigger animate--slide-in{% endif %}"
-            {% if settings.animations_reveal_on_scroll %}
-              data-cascade
-            {% endif %}
-          >
-            {%- for block in section.blocks -%}
-              <div
-                class="footer-block grid__item{% if block.type == 'link_list' %} footer-block--menu{% endif %}{% if settings.animations_reveal_on_scroll %} scroll-trigger animate--slide-in{% endif %}"
-                {{ block.shopify_attributes }}
-                {% if settings.animations_reveal_on_scroll %}
-                  data-cascade
-                  style="--animation-order: {{ forloop.index }};"
-                {% endif %}
-              >
-                {%- if block.settings.heading != blank -%}
-                  <h2 class="footer-block__heading inline-richtext">{{- block.settings.heading -}}</h2>
-                {%- endif -%}
+  /* ── COLUMN HEADING ── */
+  .risona-footer__col-title {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--risona-dark);
+    margin: 0 0 1.4rem;
+    padding-bottom: 0.7rem;
+    border-bottom: 1.5px solid var(--risona-red);
+    display: inline-block;
+  }
 
-                {%- case block.type -%}
-                  {%- when '@app' -%}
-                    {% render block %}
-                  {%- when 'text' -%}
-                    <div class="footer-block__details-content rte">
-                      {{ block.settings.subtext }}
-                    </div>
-                  {%- when 'link_list' -%}
-                    {%- if block.settings.menu != blank -%}
-                      <ul class="footer-block__details-content list-unstyled">
-                        {%- for link in block.settings.menu.links -%}
-                          <li>
-                            <a
-                              href="{{ link.url }}"
-                              class="link link--text list-menu__item list-menu__item--link{% if link.active %} list-menu__item--active{% endif %}"
-                            >
-                              {{ link.title | escape }}
-                            </a>
-                          </li>
-                        {%- endfor -%}
-                      </ul>
-                    {%- endif -%}
-                  {%- when 'brand_information' -%}
-                    <div class="footer-block__brand-info">
-                      {%- if settings.brand_image != blank -%}
-                        {%- assign brand_image_height = settings.brand_image_width
-                          | divided_by: settings.brand_image.aspect_ratio
-                        -%}
-                        <div
-                          class="footer-block__image-wrapper"
-                          style="max-width: min(100%, {{ settings.brand_image_width }}px);"
-                        >
-                          {{
-                            settings.brand_image
-                            | image_url: width: 1100
-                            | image_tag:
-                              loading: 'lazy',
-                              widths: '50, 100, 150, 200, 300, 400, 550, 800, 1100',
-                              height: brand_image_height,
-                              width: settings.brand_image_width
-                          }}
-                        </div>
-                      {%- endif -%}
-                      {%- if settings.brand_headline != blank -%}
-                        <h2 class="footer-block__heading rte">{{ settings.brand_headline }}</h2>
-                      {%- endif -%}
-                      {%- if settings.brand_description != blank -%}
-                        <div class="rte">{{ settings.brand_description }}</div>
-                      {%- endif -%}
-                      {%- if block.settings.show_social and has_social_icons -%}
-                        {%- render 'social-icons', class: 'footer__list-social' -%}
-                      {%- endif -%}
-                    </div>
-                  {%- when 'image' -%}
-                    <div class="footer-block__details-content footer-block-image {{ block.settings.alignment }}">
-                      {%- if block.settings.image != blank -%}
-                        {%- assign image_size_2x = block.settings.image_width | times: 2 | at_most: 5760 -%}
-                        <div
-                          class="footer-block__image-wrapper"
-                          style="max-width: min(100%, {{ block.settings.image_width }}px);"
-                        >
-                          <img
-                            srcset="{{ block.settings.image | image_url: width: block.settings.image_width }}, {{ block.settings.image | image_url: width: image_size_2x }} 2x"
-                            src="{{ block.settings.image | image_url: width: 760 }}"
-                            alt="{{ block.settings.image.alt | escape }}"
-                            loading="lazy"
-                            width="{{ block.settings.image.width }}"
-                            height="{{ block.settings.image.height }}"
-                          >
-                        </div>
-                      {%- else -%}
-                        {{ 'image' | placeholder_svg_tag: 'placeholder-svg placeholder' }}
-                      {%- endif -%}
-                    </div>
-                {%- endcase -%}
-              </div>
-            {%- endfor -%}
+  /* ── LINK LIST ── */
+  .risona-footer__links {
+    list-style: none; margin: 0; padding: 0;
+    display: flex; flex-direction: column; gap: 0.75rem;
+  }
+  .risona-footer__links a {
+    font-size: 13px; font-weight: 400; letter-spacing: 0.04em;
+    color: #4a2020; text-decoration: none;
+    display: inline-block; position: relative;
+    transition: color 0.2s;
+  }
+  .risona-footer__links a::before {
+    content: ''; position: absolute; left: 0; bottom: -1px;
+    width: 0; height: 1px; background: var(--risona-gold);
+    transition: width 0.25s ease;
+  }
+  .risona-footer__links a:hover { color: var(--risona-red); }
+  .risona-footer__links a:hover::before { width: 100%; }
+
+  /* ── CONTACT COLUMN ── */
+  .risona-footer__contact-body { font-size: 13px; line-height: 1.7; color: #4a2020; }
+  .risona-footer__contact-body .bis {
+    font-size: 11px; letter-spacing: 0.12em; color: var(--risona-muted);
+    margin-bottom: 1rem; display: block;
+  }
+  .risona-footer__contact-body p { margin: 0 0 0.9rem; }
+  .risona-footer__contact-body strong { font-weight: 600; color: var(--risona-dark); }
+  .risona-footer__contact-body address {
+    font-style: normal; margin-bottom: 1.1rem; font-size: 12.5px; color: #5a2828;
+  }
+  .risona-footer__contact-item {
+    display: flex; align-items: baseline; gap: 0.5rem;
+    margin-bottom: 0.55rem; font-size: 13px; color: #4a2020;
+  }
+  .risona-footer__contact-item .dash { color: var(--risona-gold); font-weight: 700; flex-shrink: 0; }
+  .risona-footer__contact-item a {
+    color: var(--risona-red); text-decoration: underline;
+    text-underline-offset: 2px; text-decoration-color: var(--risona-border);
+    transition: text-decoration-color 0.2s;
+  }
+  .risona-footer__contact-item a:hover { text-decoration-color: var(--risona-gold); }
+
+  /* ── APP DOWNLOAD COLUMN ── */
+  .risona-footer__app-desc {
+    font-size: 12.5px; line-height: 1.6; color: #5a2828; margin: 0 0 1.2rem;
+  }
+  .risona-footer__app-badges { display: flex; flex-direction: column; gap: 0.65rem; align-items: flex-start; }
+  .risona-footer__app-badge {
+    display: inline-flex; align-items: center; gap: 0.65rem;
+    background: #111; color: #fff; border-radius: 8px;
+    padding: 0.45rem 1rem 0.45rem 0.75rem;
+    text-decoration: none; border: 1px solid rgba(255,255,255,0.14);
+    transition: background 0.2s, transform 0.15s; min-width: 148px;
+  }
+  .risona-footer__app-badge:hover { background: #222; transform: translateY(-1px); }
+  .risona-footer__app-badge svg { width: 20px; height: 20px; flex-shrink: 0; }
+  .risona-footer__app-badge-text { display: flex; flex-direction: column; line-height: 1.25; }
+  .risona-footer__app-badge-sub { font-size: 9px; letter-spacing: 0.04em; opacity: 0.72; font-weight: 400; }
+  .risona-footer__app-badge-main { font-size: 13px; font-weight: 600; }
+
+  /* ── BOTTOM BAR ── */
+  .risona-footer__bottom {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 2.2rem 5rem; gap: 2rem; flex-wrap: wrap;
+  }
+  @media screen and (max-width: 900px) {
+    .risona-footer__bottom { padding: 2rem; flex-direction: column; align-items: flex-start; }
+  }
+
+  /* ── EMAIL SUBSCRIBE ── */
+  .risona-footer__subscribe-label {
+    font-size: 13px; font-weight: 500; letter-spacing: 0.06em;
+    color: var(--risona-dark); margin-bottom: 0.85rem;
+  }
+  .risona-footer__subscribe-form {
+    display: flex; align-items: center;
+    border: 1px solid var(--risona-border); border-radius: 4px;
+    background: #fff; overflow: hidden; width: 300px; max-width: 100%;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .risona-footer__subscribe-form:focus-within {
+    border-color: var(--risona-gold); box-shadow: 0 0 0 1px var(--risona-gold);
+  }
+  .risona-footer__subscribe-form input[type="email"] {
+    flex: 1; border: none; outline: none; background: transparent;
+    padding: 0.8rem 1rem; font-family: 'Outfit', sans-serif;
+    font-size: 13px; color: var(--risona-dark);
+  }
+  .risona-footer__subscribe-form input[type="email"]::placeholder { color: #b08080; font-size: 13px; }
+  .risona-footer__subscribe-btn {
+    background: var(--risona-red); color: #fff; border: none;
+    padding: 0.8rem 1.1rem; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.2s; flex-shrink: 0;
+  }
+  .risona-footer__subscribe-btn:hover { background: #7a1414; }
+  .risona-footer__subscribe-btn svg {
+    width: 16px; height: 16px; stroke: #fff; fill: none;
+    stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+  }
+
+  /* ── PAYMENT METHODS ── */
+  .risona-footer__payment { display: flex; align-items: center; gap: 0.8rem; flex-wrap: wrap; }
+  .risona-footer__payment-label {
+    font-size: 11px; font-weight: 600; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--risona-muted); white-space: nowrap;
+  }
+  .risona-footer__payment-icons { display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap; }
+  .risona-footer__payment-icon {
+    height: 26px; border-radius: 4px; overflow: hidden;
+    border: 1px solid var(--risona-border); background: #fff;
+    display: flex; align-items: center; justify-content: center; padding: 0 5px;
+  }
+  .risona-footer__payment-icon svg { height: 16px; width: auto; display: block; }
+
+  /* ── SOCIAL WITH LABEL ── */
+  .risona-footer__right { display: flex; flex-direction: column; align-items: flex-end; gap: 0.45rem; }
+  @media screen and (max-width: 900px) { .risona-footer__right { align-items: flex-start; } }
+  .risona-footer__social-label {
+    font-size: 11px; font-weight: 500; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--risona-muted);
+  }
+  .risona-footer__social { display: flex; align-items: center; gap: 0.6rem; }
+  .risona-footer__social a {
+    display: flex; align-items: center; justify-content: center;
+    width: 34px; height: 34px; border-radius: 6px;
+    border: 1px solid var(--risona-border); background: #fff;
+    color: var(--risona-dark); text-decoration: none;
+    transition: background 0.2s, border-color 0.2s, color 0.2s;
+  }
+  .risona-footer__social a:hover { background: var(--risona-red); border-color: var(--risona-red); color: #fff; }
+  .risona-footer__social svg { width: 15px; height: 15px; fill: currentColor; }
+
+  /* ── COPYRIGHT ── */
+  .risona-footer__copyright {
+    text-align: center; font-size: 11px; letter-spacing: 0.08em;
+    color: var(--risona-muted); padding: 1rem 5rem 1.5rem;
+    border-top: 1px solid var(--risona-border);
+    display: flex; flex-direction: column; gap: 0.3rem; align-items: center;
+  }
+  .risona-footer__copyright a { color: var(--risona-gold); text-decoration: none; }
+  .risona-footer__copyright a:hover { text-decoration: underline; }
+  .risona-footer__cin { font-size: 10px; letter-spacing: 0.06em; opacity: 0.6; }
+</style>
+
+<footer class="risona-footer{% if section.settings.dark_mode %} risona-footer--dark{% endif %}" role="contentinfo">
+
+  <!-- ── TOP COLUMNS ── -->
+  <div class="risona-footer__top{% if section.settings.show_app_section %} risona-footer__top--4col{% endif %}">
+
+    <!-- Column 1: Quick Links -->
+    <div class="risona-footer__col">
+      <h3 class="risona-footer__col-title">{{ section.settings.col1_title }}</h3>
+      <ul class="risona-footer__links">
+        {%- assign col1_menu = linklists[section.settings.col1_menu] -%}
+        {%- for link in col1_menu.links -%}
+          <li><a href="{{ link.url }}">{{ link.title }}</a></li>
+        {%- endfor -%}
+      </ul>
+    </div>
+
+    <!-- Column 2: Info -->
+    <div class="risona-footer__col">
+      <h3 class="risona-footer__col-title">{{ section.settings.col2_title }}</h3>
+      <ul class="risona-footer__links">
+        {%- assign col2_menu = linklists[section.settings.col2_menu] -%}
+        {%- for link in col2_menu.links -%}
+          <li><a href="{{ link.url }}">{{ link.title }}</a></li>
+        {%- endfor -%}
+      </ul>
+    </div>
+
+    <!-- Column 3: Contact -->
+    <div class="risona-footer__col risona-footer__col--contact">
+      <h3 class="risona-footer__col-title">{{ section.settings.col3_title }}</h3>
+      <div class="risona-footer__contact-body">
+        {%- if section.settings.bis_number != blank -%}
+          <span class="bis">{{ section.settings.bis_number }}</span>
+        {%- endif -%}
+        {%- if section.settings.contact_intro != blank -%}
+          <p>{{ section.settings.contact_intro }}</p>
+        {%- endif -%}
+        {%- if section.settings.company_name != blank -%}
+          <p><strong>{{ section.settings.company_name }}</strong></p>
+        {%- endif -%}
+        {%- if section.settings.company_address != blank -%}
+          <address>{{ section.settings.company_address }}</address>
+        {%- endif -%}
+        {%- if section.settings.chat_link != blank -%}
+          <div class="risona-footer__contact-item">
+            <span class="dash">—</span>
+            <a href="{{ section.settings.chat_link }}">{{ section.settings.chat_label | default: 'Chat with us' }}</a>
           </div>
         {%- endif -%}
+        {%- if section.settings.phone_number != blank -%}
+          <div class="risona-footer__contact-item">
+            <span class="dash">—</span>
+            <span>{{ section.settings.phone_number }}</span>
+          </div>
+        {%- endif -%}
+        {%- if section.settings.ticket_link != blank -%}
+          <div class="risona-footer__contact-item">
+            <span class="dash">—</span>
+            <a href="{{ section.settings.ticket_link }}">{{ section.settings.ticket_label | default: 'Raise a ticket' }}</a>
+          </div>
+        {%- endif -%}
+      </div>
+    </div>
 
-        <div
-          class="footer-block--newsletter{% if settings.animations_reveal_on_scroll %} scroll-trigger animate--slide-in{% endif %}"
-          {% if settings.animations_reveal_on_scroll %}
-            data-cascade
-          {% endif %}
-        >
-          {%- if section.settings.newsletter_enable -%}
-            <div class="footer-block__newsletter">
-              {%- if section.settings.newsletter_heading != blank -%}
-                <h2 class="footer-block__heading inline-richtext">{{ section.settings.newsletter_heading }}</h2>
-              {%- endif -%}
-              {%- form 'customer', id: 'ContactFooter', class: 'footer__newsletter newsletter-form' -%}
-                <input type="hidden" name="contact[tags]" value="newsletter">
-                <div class="newsletter-form__field-wrapper">
-                  <div class="field">
-                    <input
-                      id="NewsletterForm--{{ section.id }}"
-                      type="email"
-                      name="contact[email]"
-                      class="field__input"
-                      value="{{ form.email }}"
-                      aria-required="true"
-                      autocorrect="off"
-                      autocapitalize="off"
-                      autocomplete="email"
-                      {% if form.errors %}
-                        autofocus
-                        aria-invalid="true"
-                        aria-describedby="ContactFooter-error"
-                      {% elsif form.posted_successfully? %}
-                        aria-describedby="ContactFooter-success"
-                      {% endif %}
-                      placeholder="{{ 'newsletter.label' | t }}"
-                      required
-                    >
-                    <label class="field__label" for="NewsletterForm--{{ section.id }}">
-                      {{ 'newsletter.label' | t }}
-                    </label>
-                    <button
-                      type="submit"
-                      class="newsletter-form__button field__button"
-                      name="commit"
-                      id="Subscribe"
-                      aria-label="{{ 'newsletter.button_label' | t }}"
-                    >
-                      <span class="svg-wrapper">
-                        {{- 'icon-arrow.svg' | inline_asset_content -}}
-                      </span>
-                    </button>
-                  </div>
-                  {%- if form.errors -%}
-                    <small class="newsletter-form__message form__message" id="ContactFooter-error">
-                      <span class="svg-wrapper">
-                        {{- 'icon-error.svg' | inline_asset_content -}}
-                      </span>
-                      {{- form.errors.translated_fields.email | capitalize }}
-                      {{ form.errors.messages.email -}}
-                    </small>
-                  {%- endif -%}
-                </div>
-                {%- if form.posted_successfully? -%}
-                  <h3
-                    class="newsletter-form__message newsletter-form__message--success form__message"
-                    id="ContactFooter-success"
-                    tabindex="-1"
-                    autofocus
-                  >
-                    <span class="svg-wrapper">
-                      {{- 'icon-success.svg' | inline_asset_content -}}
-                    </span>
-                    {{- 'newsletter.success' | t }}
-                  </h3>
-                {%- endif -%}
-              {%- endform -%}
-            </div>
+    <!-- Column 4: App Download (conditional) -->
+    {%- if section.settings.show_app_section -%}
+      <div class="risona-footer__col risona-footer__col--app">
+        <h3 class="risona-footer__col-title">{{ section.settings.app_heading | default: 'Download Our App' }}</h3>
+        {%- if section.settings.app_description != blank -%}
+          <p class="risona-footer__app-desc">{{ section.settings.app_description }}</p>
+        {%- endif -%}
+        <div class="risona-footer__app-badges">
+          {%- if section.settings.playstore_link != blank -%}
+            <a href="{{ section.settings.playstore_link }}" target="_blank" rel="noopener" class="risona-footer__app-badge">
+              <!-- Google Play icon -->
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M3.18 1.05 13.5 11.37l-2.16 2.16L3.18 5.37A2.25 2.25 0 0 1 3.18 1.05z" fill="#EA4335"/>
+                <path d="M1.5 2.25v19.5l10.5-9.75L1.5 2.25z" fill="#4285F4"/>
+                <path d="M20.25 10.5 16.5 8.25 13.5 11.25l3 3 3.75-2.25a1.5 1.5 0 0 0 0-2.5z" fill="#FBBC05"/>
+                <path d="M3.18 22.95 13.5 12.63l-2.16-2.16-8.16 8.16a2.25 2.25 0 0 0 3.18 3.18l-3.18-1.06z" fill="#34A853"/>
+              </svg>
+              <div class="risona-footer__app-badge-text">
+                <span class="risona-footer__app-badge-sub">GET IT ON</span>
+                <span class="risona-footer__app-badge-main">Google Play</span>
+              </div>
+            </a>
           {%- endif -%}
-
-          {%- if shop.features.follow_on_shop? and section.settings.enable_follow_on_shop -%}
-            <div class="footer__follow-on-shop">
-              {{ shop | login_button: action: 'follow' }}
-            </div>
-          {%- endif -%}
-
-          {%- if section.settings.show_social and has_social_icons -%}
-            {%- render 'social-icons', class: 'footer__list-social' -%}
+          {%- if section.settings.appstore_link != blank -%}
+            <a href="{{ section.settings.appstore_link }}" target="_blank" rel="noopener" class="risona-footer__app-badge">
+              <!-- Apple icon -->
+              <svg viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
+                <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98l-.09.06c-.22.14-2.18 1.27-2.16 3.79.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.37 2.79M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
+              </svg>
+              <div class="risona-footer__app-badge-text">
+                <span class="risona-footer__app-badge-sub">Download on the</span>
+                <span class="risona-footer__app-badge-main">App Store</span>
+              </div>
+            </a>
           {%- endif -%}
         </div>
       </div>
-    {%- endunless -%}
-  {%- endif -%}
+    {%- endif -%}
 
-  <div
-    class="footer__content-bottom{% if settings.animations_reveal_on_scroll %} scroll-trigger animate--slide-in{% endif %}"
-    {% if settings.animations_reveal_on_scroll %}
-      data-cascade
-    {% endif %}
-  >
-    <div class="footer__content-bottom-wrapper page-width">
-      <div class="footer__column footer__localization isolate">
-        {%- if section.settings.enable_country_selector and localization.available_countries.size > 1 -%}
-          <localization-form>
-            {%- form 'localization', id: 'FooterCountryForm', class: 'localization-form' -%}
-              <div>
-                <h2 class="caption-large text-body" id="FooterCountryLabel">{{ 'localization.country_label' | t }}</h2>
-                {%- render 'country-localization', localPosition: 'FooterCountry' -%}
-              </div>
-            {%- endform -%}
-          </localization-form>
-        {%- endif -%}
-
-        {%- if section.settings.enable_language_selector and localization.available_languages.size > 1 -%}
-          <localization-form>
-            {%- form 'localization', id: 'FooterLanguageForm', class: 'localization-form' -%}
-              <div>
-                <h2 class="caption-large text-body" id="FooterLanguageLabel">
-                  {{ 'localization.language_label' | t }}
-                </h2>
-                {%- render 'language-localization', localPosition: 'FooterLanguage' -%}
-              </div>
-            {%- endform -%}
-          </localization-form>
-        {%- endif -%}
-      </div>
-      <div class="footer__column footer__column--info">
-        {%- if section.settings.payment_enable -%}
-          <div class="footer__payment">
-            <span class="visually-hidden">{{ 'sections.footer.payment' | t }}</span>
-            <ul class="list list-payment" role="list">
-              {%- for type in shop.enabled_payment_types -%}
-                <li class="list-payment__item">
-                  {{ type | payment_type_svg_tag: class: 'icon icon--full-color' }}
-                </li>
-              {%- endfor -%}
-            </ul>
-          </div>
-        {%- endif -%}
-      </div>
-    </div>
-    <div class="footer__content-bottom-wrapper page-width{% if section.settings.enable_country_selector == false and section.settings.enable_language_selector == false %} footer__content-bottom-wrapper--center{% endif %}">
-      <div class="footer__copyright caption">
-        <small class="copyright__content"
-          >&copy; {{ 'now' | date: '%Y' }}, {{ shop.name | link_to: routes.root_url -}}
-        </small>
-        <small class="copyright__content">{{ powered_by_link }}</small>
-        {%- if section.settings.show_policy -%}
-          <ul class="policies list-unstyled">
-            {%- for policy in shop.policies -%}
-              {%- if policy != blank -%}
-                <li>
-                  <small class="copyright__content"
-                    ><a href="{{ policy.url }}">{{ policy.title | escape }}</a></small
-                  >
-                </li>
-              {%- endif -%}
-            {%- endfor -%}
-          </ul>
-        {%- endif -%}
-      </div>
-    </div>
   </div>
+
+  <!-- ── BOTTOM BAR ── -->
+  <div class="risona-footer__bottom">
+
+    <!-- Subscribe -->
+    <div class="risona-footer__subscribe">
+      <p class="risona-footer__subscribe-label">{{ section.settings.subscribe_label | default: 'Subscribe for exclusive offers and updates!' }}</p>
+      {%- form 'customer', id: 'risona-footer-subscribe' -%}
+        <input type="hidden" name="contact[tags]" value="newsletter">
+        <div class="risona-footer__subscribe-form">
+          <input
+            type="email" name="contact[email]"
+            placeholder="{{ section.settings.subscribe_placeholder | default: 'Email' }}"
+            autocorrect="off" autocapitalize="off"
+            aria-label="{{ section.settings.subscribe_placeholder | default: 'Email' }}"
+            required
+          >
+          <button type="submit" class="risona-footer__subscribe-btn" aria-label="Subscribe">
+            <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+        </div>
+      {%- endform -%}
+    </div>
+
+    <!-- Payment Methods (conditional) -->
+    {%- if section.settings.show_payment_methods -%}
+      <div class="risona-footer__payment">
+        {%- if section.settings.payment_label != blank -%}
+          <span class="risona-footer__payment-label">{{ section.settings.payment_label }}</span>
+        {%- endif -%}
+        <div class="risona-footer__payment-icons">
+          {%- if section.settings.show_visa -%}
+            <div class="risona-footer__payment-icon" title="Visa">
+              <svg viewBox="0 0 60 20" xmlns="http://www.w3.org/2000/svg" width="42" height="14">
+                <rect width="60" height="20" fill="#1A1F71" rx="2"/>
+                <text x="30" y="15" fill="white" font-family="Arial,sans-serif" font-size="14" font-weight="bold" text-anchor="middle" font-style="italic">VISA</text>
+              </svg>
+            </div>
+          {%- endif -%}
+          {%- if section.settings.show_mastercard -%}
+            <div class="risona-footer__payment-icon" title="Mastercard">
+              <svg viewBox="0 0 38 24" xmlns="http://www.w3.org/2000/svg" width="38" height="24">
+                <circle cx="15" cy="12" r="11" fill="#EB001B"/>
+                <circle cx="23" cy="12" r="11" fill="#F79E1B"/>
+                <path d="M19 3.8a11 11 0 0 1 0 16.4 11 11 0 0 1 0-16.4z" fill="#FF5F00"/>
+              </svg>
+            </div>
+          {%- endif -%}
+          {%- if section.settings.show_amex -%}
+            <div class="risona-footer__payment-icon" title="American Express">
+              <svg viewBox="0 0 52 18" xmlns="http://www.w3.org/2000/svg" width="50" height="16">
+                <rect width="52" height="18" fill="#2E77BC" rx="2"/>
+                <text x="26" y="13" fill="white" font-family="Arial,sans-serif" font-size="9.5" font-weight="bold" text-anchor="middle" letter-spacing="1">AMEX</text>
+              </svg>
+            </div>
+          {%- endif -%}
+          {%- if section.settings.show_upi -%}
+            <div class="risona-footer__payment-icon" title="UPI">
+              <svg viewBox="0 0 48 20" xmlns="http://www.w3.org/2000/svg" width="44" height="18">
+                <rect width="48" height="20" fill="#fff" rx="2"/>
+                <text x="10" y="14" fill="#097939" font-family="Arial,sans-serif" font-size="8.5" font-weight="bold">UPI</text>
+                <rect x="28" y="4" width="3" height="12" rx="1" fill="#097939"/>
+                <rect x="33" y="4" width="3" height="12" rx="1" fill="#FC4C02"/>
+                <rect x="38" y="4" width="3" height="12" rx="1" fill="#097939"/>
+              </svg>
+            </div>
+          {%- endif -%}
+          {%- if section.settings.show_rupay -%}
+            <div class="risona-footer__payment-icon" title="RuPay">
+              <svg viewBox="0 0 58 20" xmlns="http://www.w3.org/2000/svg" width="54" height="18">
+                <rect width="58" height="20" fill="#1B3E86" rx="2"/>
+                <text x="29" y="14" fill="white" font-family="Arial,sans-serif" font-size="9" font-weight="bold" text-anchor="middle">RuPay</text>
+              </svg>
+            </div>
+          {%- endif -%}
+          {%- if section.settings.show_cod -%}
+            <div class="risona-footer__payment-icon" title="Cash on Delivery">
+              <svg viewBox="0 0 54 20" xmlns="http://www.w3.org/2000/svg" width="50" height="18">
+                <rect width="54" height="20" fill="#2E7D32" rx="2"/>
+                <text x="27" y="13.5" fill="white" font-family="Arial,sans-serif" font-size="8" font-weight="bold" text-anchor="middle">COD</text>
+              </svg>
+            </div>
+          {%- endif -%}
+        </div>
+      </div>
+    {%- endif -%}
+
+    <!-- Social Icons with label -->
+    <div class="risona-footer__right">
+      {%- if section.settings.social_label != blank -%}
+        <span class="risona-footer__social-label">{{ section.settings.social_label }}</span>
+      {%- endif -%}
+      <div class="risona-footer__social">
+        {%- if settings.social_instagram_link != blank -%}
+          <a href="{{ settings.social_instagram_link }}" target="_blank" rel="noopener" aria-label="Instagram">
+            <svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+          </a>
+        {%- endif -%}
+        {%- if settings.social_facebook_link != blank -%}
+          <a href="{{ settings.social_facebook_link }}" target="_blank" rel="noopener" aria-label="Facebook">
+            <svg viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+          </a>
+        {%- endif -%}
+        {%- if settings.social_youtube_link != blank -%}
+          <a href="{{ settings.social_youtube_link }}" target="_blank" rel="noopener" aria-label="YouTube">
+            <svg viewBox="0 0 24 24"><path d="M23.495 6.205a3.007 3.007 0 0 0-2.088-2.088c-1.87-.501-9.396-.501-9.396-.501s-7.507-.01-9.396.501A3.007 3.007 0 0 0 .527 6.205a31.247 31.247 0 0 0-.522 5.805 31.247 31.247 0 0 0 .522 5.783 3.007 3.007 0 0 0 2.088 2.088c1.868.502 9.396.502 9.396.502s7.506 0 9.396-.502a3.007 3.007 0 0 0 2.088-2.088 31.247 31.247 0 0 0 .5-5.783 31.247 31.247 0 0 0-.5-5.805zM9.609 15.601V8.408l6.264 3.602z"/></svg>
+          </a>
+        {%- endif -%}
+        {%- if settings.social_pinterest_link != blank -%}
+          <a href="{{ settings.social_pinterest_link }}" target="_blank" rel="noopener" aria-label="Pinterest">
+            <svg viewBox="0 0 24 24"><path d="M12 0C5.373 0 0 5.372 0 12c0 5.084 3.163 9.426 7.627 11.174-.105-.949-.2-2.405.042-3.441.218-.937 1.407-5.965 1.407-5.965s-.359-.719-.359-1.782c0-1.668.967-2.914 2.171-2.914 1.023 0 1.518.769 1.518 1.69 0 1.029-.655 2.568-.994 3.995-.283 1.194.599 2.169 1.777 2.169 2.133 0 3.772-2.249 3.772-5.495 0-2.873-2.064-4.882-5.012-4.882-3.414 0-5.418 2.561-5.418 5.207 0 1.031.397 2.138.893 2.738a.36.36 0 0 1 .083.345l-.333 1.36c-.053.22-.174.267-.402.161-1.499-.698-2.436-2.889-2.436-4.649 0-3.785 2.75-7.262 7.929-7.262 4.163 0 7.398 2.967 7.398 6.931 0 4.136-2.607 7.464-6.227 7.464-1.216 0-2.359-.632-2.75-1.378l-.748 2.853c-.271 1.043-1.002 2.35-1.492 3.146C9.57 23.812 10.763 24 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0z"/></svg>
+          </a>
+        {%- endif -%}
+        {%- if settings.social_tiktok_link != blank -%}
+          <a href="{{ settings.social_tiktok_link }}" target="_blank" rel="noopener" aria-label="TikTok">
+            <svg viewBox="0 0 24 24"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/></svg>
+          </a>
+        {%- endif -%}
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── COPYRIGHT ── -->
+  <div class="risona-footer__copyright">
+    <span>
+      &copy; {{ 'now' | date: '%Y' }} {{ shop.name }}. All rights reserved.
+      {%- if section.settings.copyright_links != blank -%}
+        &nbsp;·&nbsp; {{ section.settings.copyright_links }}
+      {%- endif -%}
+    </span>
+    {%- if section.settings.cin_number != blank -%}
+      <span class="risona-footer__cin">{{ section.settings.cin_number }}</span>
+    {%- endif -%}
+  </div>
+
 </footer>
 
 {% schema %}
 {
-  "name": "t:sections.footer.name",
-  "blocks": [
+  "name": "Risona Footer",
+  "settings": [
     {
-      "type": "@app"
+      "type": "header",
+      "content": "Appearance"
     },
     {
-      "type": "link_list",
-      "name": "t:sections.footer.blocks.link_list.name",
-      "settings": [
-        {
-          "type": "inline_richtext",
-          "id": "heading",
-          "default": "t:sections.footer.blocks.link_list.settings.heading.default",
-          "label": "t:sections.footer.blocks.link_list.settings.heading.label"
-        },
-        {
-          "type": "link_list",
-          "id": "menu",
-          "default": "footer",
-          "label": "t:sections.footer.blocks.link_list.settings.menu.label"
-        }
-      ]
+      "type": "color",
+      "id": "footer_bg_color",
+      "label": "Background colour",
+      "default": "#f5f2f2"
     },
     {
-      "type": "brand_information",
-      "name": "t:sections.footer.blocks.brand_information.name",
-      "settings": [
-        {
-          "type": "paragraph",
-          "content": "t:sections.footer.blocks.brand_information.settings.paragraph.content"
-        },
-        {
-          "type": "checkbox",
-          "id": "show_social",
-          "default": true,
-          "label": "t:sections.footer.blocks.brand_information.settings.show_social.label",
-          "info": "t:sections.footer.blocks.brand_information.settings.show_social.info"
-        }
-      ]
+      "type": "checkbox",
+      "id": "dark_mode",
+      "label": "Dark mode (light text for dark backgrounds)",
+      "info": "Enable this when using a dark background colour so all text automatically switches to light colours.",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "Column 1 — Quick Links"
     },
     {
       "type": "text",
-      "name": "t:sections.footer.blocks.text.name",
-      "settings": [
-        {
-          "type": "inline_richtext",
-          "id": "heading",
-          "default": "t:sections.footer.blocks.text.settings.heading.default",
-          "label": "t:sections.footer.blocks.text.settings.heading.label"
-        },
-        {
-          "type": "richtext",
-          "id": "subtext",
-          "default": "t:sections.footer.blocks.text.settings.subtext.default",
-          "label": "t:sections.footer.blocks.text.settings.subtext.label"
-        }
-      ]
+      "id": "col1_title",
+      "label": "Heading",
+      "default": "Quick links"
     },
     {
-      "type": "image",
-      "name": "Image",
-      "settings": [
-        {
-          "type": "image_picker",
-          "id": "image",
-          "label": "Image"
-        },
-        {
-          "type": "range",
-          "id": "image_width",
-          "min": 50,
-          "max": 550,
-          "step": 5,
-          "unit": "px",
-          "label": "Width",
-          "default": 100
-        },
-        {
-          "type": "select",
-          "id": "alignment",
-          "label": "Alignment",
-          "options": [
-            {
-              "value": "",
-              "label": "Left"
-            },
-            {
-              "value": "center",
-              "label": "Center"
-            },
-            {
-              "value": "right",
-              "label": "Right"
-            }
-          ],
-          "default": "center"
-        }
-      ]
+      "type": "link_list",
+      "id": "col1_menu",
+      "label": "Menu",
+      "default": "footer"
+    },
+    {
+      "type": "header",
+      "content": "Column 2 — Info"
+    },
+    {
+      "type": "text",
+      "id": "col2_title",
+      "label": "Heading",
+      "default": "Info"
+    },
+    {
+      "type": "link_list",
+      "id": "col2_menu",
+      "label": "Menu",
+      "default": "footer"
+    },
+    {
+      "type": "header",
+      "content": "Column 3 — Contact"
+    },
+    {
+      "type": "text",
+      "id": "col3_title",
+      "label": "Heading",
+      "default": "Contact us"
+    },
+    {
+      "type": "text",
+      "id": "bis_number",
+      "label": "BIS / certification number",
+      "default": "BIS : HM/C - 6290031216"
+    },
+    {
+      "type": "text",
+      "id": "contact_intro",
+      "label": "Intro line",
+      "default": "For any suggestions, queries or complaints please contact us:"
+    },
+    {
+      "type": "text",
+      "id": "company_name",
+      "label": "Company name",
+      "default": "Risona Jewels Private Limited"
+    },
+    {
+      "type": "textarea",
+      "id": "company_address",
+      "label": "Address",
+      "default": "Third Floor, Magnum Vista, Raghuvanahalli, Bangalore 560062"
+    },
+    {
+      "type": "text",
+      "id": "chat_link",
+      "label": "Chat link URL"
+    },
+    {
+      "type": "text",
+      "id": "chat_label",
+      "label": "Chat link label",
+      "default": "Chat with us (Recommended for quick support)"
+    },
+    {
+      "type": "text",
+      "id": "phone_number",
+      "label": "Phone number",
+      "default": "9228837724 (10:00 AM – 6:30 PM)"
+    },
+    {
+      "type": "text",
+      "id": "ticket_link",
+      "label": "Ticket / support link URL"
+    },
+    {
+      "type": "text",
+      "id": "ticket_label",
+      "label": "Ticket link label",
+      "default": "Raise a ticket (For non-urgent requests)"
+    },
+    {
+      "type": "header",
+      "content": "Column 4 — App Download"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_app_section",
+      "label": "Show app download column",
+      "default": false
+    },
+    {
+      "type": "text",
+      "id": "app_heading",
+      "label": "Column heading",
+      "default": "Download Our App"
+    },
+    {
+      "type": "textarea",
+      "id": "app_description",
+      "label": "Description",
+      "default": "Shop new arrivals, track orders & get exclusive app-only offers."
+    },
+    {
+      "type": "url",
+      "id": "playstore_link",
+      "label": "Google Play link"
+    },
+    {
+      "type": "url",
+      "id": "appstore_link",
+      "label": "App Store link"
+    },
+    {
+      "type": "header",
+      "content": "Email Subscribe"
+    },
+    {
+      "type": "text",
+      "id": "subscribe_label",
+      "label": "Subscribe heading",
+      "default": "Subscribe for exclusive offers and updates!"
+    },
+    {
+      "type": "text",
+      "id": "subscribe_placeholder",
+      "label": "Input placeholder",
+      "default": "Email"
+    },
+    {
+      "type": "header",
+      "content": "Payment Methods"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_payment_methods",
+      "label": "Show payment methods",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "payment_label",
+      "label": "Label text",
+      "default": "We Accept"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_visa",
+      "label": "Show Visa",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_mastercard",
+      "label": "Show Mastercard",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_amex",
+      "label": "Show American Express",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_upi",
+      "label": "Show UPI",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_rupay",
+      "label": "Show RuPay",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_cod",
+      "label": "Show Cash on Delivery (COD)",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "Social Icons"
+    },
+    {
+      "type": "text",
+      "id": "social_label",
+      "label": "Label before icons",
+      "default": "Follow us on",
+      "info": "Leave blank to hide the label. Social links are managed in Theme Settings → Social Media."
+    },
+    {
+      "type": "header",
+      "content": "Copyright"
+    },
+    {
+      "type": "text",
+      "id": "cin_number",
+      "label": "CIN / registration number",
+      "info": "e.g. CIN: L72900KA2011PLC059678 — displayed below the copyright line."
+    },
+    {
+      "type": "text",
+      "id": "copyright_links",
+      "label": "Extra copyright links (HTML allowed)",
+      "info": "e.g. <a href='/policies/privacy-policy'>Privacy</a> · <a href='/policies/terms-of-service'>Terms</a>"
     }
-  ],
-  "settings": [
-    {
-      "type": "color_scheme",
-      "id": "color_scheme",
-      "label": "t:sections.all.colors.label",
-      "default": "scheme-1"
-    },
-    {
-      "type": "header",
-      "content": "t:sections.footer.settings.header__1.content",
-      "info": "t:sections.footer.settings.header__1.info"
-    },
-    {
-      "type": "checkbox",
-      "id": "newsletter_enable",
-      "default": true,
-      "label": "t:sections.footer.settings.newsletter_enable.label"
-    },
-    {
-      "type": "inline_richtext",
-      "id": "newsletter_heading",
-      "default": "t:sections.footer.settings.newsletter_heading.default",
-      "label": "t:sections.footer.settings.newsletter_heading.label"
-    },
-    {
-      "type": "header",
-      "content": "t:sections.footer.settings.header__9.content"
-    },
-    {
-      "type": "checkbox",
-      "id": "enable_follow_on_shop",
-      "default": true,
-      "label": "t:sections.footer.settings.enable_follow_on_shop.label",
-      "info": "t:sections.footer.settings.enable_follow_on_shop.info"
-    },
-    {
-      "type": "checkbox",
-      "id": "show_social",
-      "default": true,
-      "label": "t:sections.footer.settings.show_social.label",
-      "info": "t:sections.footer.settings.show_social.info"
-    },
-    {
-      "type": "checkbox",
-      "id": "enable_country_selector",
-      "default": true,
-      "label": "t:sections.footer.settings.enable_country_selector.label",
-      "info": "t:sections.footer.settings.enable_country_selector.info"
-    },
-    {
-      "type": "checkbox",
-      "id": "enable_language_selector",
-      "default": true,
-      "label": "t:sections.footer.settings.enable_language_selector.label",
-      "info": "t:sections.footer.settings.enable_language_selector.info"
-    },
-    {
-      "type": "checkbox",
-      "id": "payment_enable",
-      "default": true,
-      "label": "t:sections.footer.settings.payment_enable.label"
-    },
-    {
-      "type": "checkbox",
-      "id": "show_policy",
-      "default": true,
-      "label": "t:sections.footer.settings.show_policy.label",
-      "info": "t:sections.footer.settings.show_policy.info"
-    },
-    {
-      "type": "header",
-      "content": "t:sections.all.spacing"
-    },
-    {
-      "type": "range",
-      "id": "margin_top",
-      "min": 0,
-      "max": 100,
-      "step": 4,
-      "unit": "px",
-      "label": "t:sections.footer.settings.margin_top.label",
-      "default": 0
-    },
-    {
-      "type": "header",
-      "content": "t:sections.all.padding.section_padding_heading"
-    },
-    {
-      "type": "range",
-      "id": "padding_top",
-      "min": 0,
-      "max": 100,
-      "step": 4,
-      "unit": "px",
-      "label": "t:sections.all.padding.padding_top",
-      "default": 36
-    },
-    {
-      "type": "range",
-      "id": "padding_bottom",
-      "min": 0,
-      "max": 100,
-      "step": 4,
-      "unit": "px",
-      "label": "t:sections.all.padding.padding_bottom",
-      "default": 36
-    }
-  ],
-  "default": {
-    "blocks": [
-      {
-        "type": "link_list"
-      },
-      {
-        "type": "text"
-      }
-    ]
-  }
+  ]
 }
 {% endschema %}

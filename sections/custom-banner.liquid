@@ -1,0 +1,545 @@
+<style>
+  /* ── RISONA HERO BANNER ── */
+  .risona-hero {
+    position: relative;
+    width: 100%;
+    min-height: {{ section.settings.banner_height }}vh;
+    overflow: hidden;
+    background: transparent;
+  }
+
+  /* ── MEDIA LAYER (image + video stack) ── */
+  .risona-hero__media {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    z-index: 1;
+    {%- if section.settings.show_gradient_bottom -%}
+    -webkit-mask-image: linear-gradient(to top, transparent 0px, black {{ section.settings.gradient_height }}px, black 100%);
+    mask-image: linear-gradient(to top, transparent 0px, black {{ section.settings.gradient_height }}px, black 100%);
+    {%- endif -%}
+  }
+
+  .risona-hero__video,
+  .risona-hero__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  /* image is the fast-loading base layer, video paints on top once ready */
+  .risona-hero__img {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+  }
+  .risona-hero__video {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+  }
+  .risona-hero__img--mobile { display: none; }
+
+  /* ── BANNER LINK (wraps whole media area, like Bluestone) ── */
+  .risona-hero__link {
+    position: absolute;
+    inset: 0;
+    z-index: 4;
+    cursor: pointer;
+  }
+
+  /* ── SIDE GRADIENT OVERLAYS ── */
+  {%- if section.settings.show_gradient_sides -%}
+  .risona-hero__side-gradient {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: {{ section.settings.gradient_sides_width }}%;
+    pointer-events: none;
+    z-index: 3;
+  }
+  .risona-hero__side-gradient--left {
+    left: 0;
+    background: linear-gradient(
+      to right,
+      {{ section.settings.gradient_color }} 0%,
+      rgba(255,255,255,0) 100%
+    );
+  }
+  .risona-hero__side-gradient--right {
+    right: 0;
+    background: linear-gradient(
+      to left,
+      {{ section.settings.gradient_color }} 0%,
+      rgba(255,255,255,0) 100%
+    );
+  }
+  {%- endif -%}
+
+  /* dark tint for text legibility */
+  {%- if section.settings.show_dark_overlay -%}
+  .risona-hero__dark {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    background: rgba(0,0,0,{{ section.settings.overlay_opacity | times: 0.01 }});
+    pointer-events: none;
+  }
+  {%- endif -%}
+
+  /* ── TEXT CONTENT ── */
+  .risona-hero__content {
+    position: absolute;
+    z-index: 5;
+    inset: 0;
+    display: flex;
+    padding: 4rem 6rem;
+    pointer-events: none;
+  }
+  .risona-hero__content--center         { align-items: center;   justify-content: center; text-align: center; }
+  .risona-hero__content--bottom-left    { align-items: flex-end; justify-content: flex-start; text-align: left; }
+  .risona-hero__content--bottom-center  { align-items: flex-end; justify-content: center; text-align: center; }
+  .risona-hero__content--bottom-right   { align-items: flex-end; justify-content: flex-end; text-align: right; }
+  .risona-hero__content--middle-left    { align-items: center;   justify-content: flex-start; text-align: left; }
+  .risona-hero__content--middle-right   { align-items: center;   justify-content: flex-end; text-align: right; }
+  .risona-hero__content--top-left       { align-items: flex-start; justify-content: flex-start; text-align: left; }
+
+  .risona-hero__text-wrap {
+    max-width: 620px;
+    pointer-events: all;
+  }
+  .risona-hero__eyebrow {
+    display: block;
+    font-family: 'Outfit', sans-serif;
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: #C9A96E;
+    margin-bottom: 0.9rem;
+  }
+  .risona-hero__heading {
+    font-family: 'soria_font', serif;
+    font-size: clamp(30px, 5.5vw, 72px);
+    font-weight: 300;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    line-height: 1.1;
+    margin: 0 0 1.1rem;
+    color: {{ section.settings.text_color }};
+  }
+  .risona-hero__subheading {
+    font-family: 'Outfit', sans-serif;
+    font-size: clamp(12px, 1.4vw, 15px);
+    font-weight: 400;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: {{ section.settings.text_color }};
+    opacity: 0.82;
+    margin: 0 0 2rem;
+    line-height: 1.6;
+  }
+  .risona-hero__cta-wrap {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+  .risona-hero__content--center .risona-hero__cta-wrap,
+  .risona-hero__content--bottom-center .risona-hero__cta-wrap {
+    justify-content: center;
+  }
+  .risona-hero__cta {
+    display: inline-block;
+    font-family: 'Outfit', sans-serif;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    padding: 0.9rem 2.4rem;
+    text-decoration: none;
+    position: relative;
+    z-index: 6;
+    transition: background 0.25s, color 0.25s, border-color 0.25s;
+  }
+  .risona-hero__cta--primary {
+    background: {{ section.settings.text_color }};
+    color: #1a0808;
+    border: 1px solid {{ section.settings.text_color }};
+  }
+  .risona-hero__cta--primary:hover {
+    background: #C9A96E;
+    border-color: #C9A96E;
+    color: #fff;
+  }
+  .risona-hero__cta--outline {
+    background: transparent;
+    border: 1px solid {{ section.settings.text_color }};
+    color: {{ section.settings.text_color }};
+  }
+  .risona-hero__cta--outline:hover {
+    background: {{ section.settings.text_color }};
+    color: #1a0808;
+  }
+
+  /* ── MOBILE ── */
+  @media screen and (max-width: 749px) {
+    .risona-hero { min-height: {{ section.settings.banner_height_mobile }}vh; }
+    .risona-hero__img--desktop { display: none; }
+    .risona-hero__img--mobile  { display: block; }
+    .risona-hero__content { padding: 2.5rem 1.8rem; }
+    .risona-hero__heading { font-size: clamp(24px, 8vw, 40px); }
+    {%- if section.settings.show_gradient_bottom -%}
+    .risona-hero__media {
+      -webkit-mask-image: linear-gradient(to top, transparent 0px, black 120px, black 100%);
+      mask-image: linear-gradient(to top, transparent 0px, black 120px, black 100%);
+    }
+    {%- endif -%}
+  }
+</style>
+
+<section class="risona-hero" id="RisonaHero-{{ section.id }}">
+
+  <!-- ── MEDIA: IMAGE (fast base layer) + VIDEO on top ── -->
+  <div class="risona-hero__media">
+
+    {%- if section.settings.desktop_image != blank -%}
+      {{
+        section.settings.desktop_image
+        | image_url: width: 1920
+        | image_tag:
+          class: 'risona-hero__img risona-hero__img--desktop',
+          loading: 'eager',
+          fetchpriority: 'high',
+          widths: '750, 1100, 1500, 1920',
+          sizes: '100vw',
+          alt: section.settings.heading
+      }}
+    {%- endif -%}
+    {%- if section.settings.mobile_image != blank -%}
+      {{
+        section.settings.mobile_image
+        | image_url: width: 900
+        | image_tag:
+          class: 'risona-hero__img risona-hero__img--mobile',
+          loading: 'eager',
+          widths: '375, 550, 750, 900',
+          sizes: '100vw',
+          alt: section.settings.heading
+      }}
+    {%- endif -%}
+
+    {%- if section.settings.video != blank -%}
+      <video
+        class="risona-hero__video"
+        autoplay
+        {% if section.settings.loop_video %}loop{% endif %}
+        muted
+        playsinline
+        preload="auto"
+        {%- if section.settings.video.preview_image != blank -%}
+          poster="{{ section.settings.video.preview_image | image_url: width: 1920 }}"
+        {%- elsif section.settings.desktop_image != blank -%}
+          poster="{{ section.settings.desktop_image | image_url: width: 1920 }}"
+        {%- endif -%}
+      >
+        {%- for source in section.settings.video.sources -%}
+          <source src="{{ source.url }}" type="{{ source.mime_type }}">
+        {%- endfor -%}
+      </video>
+
+    {%- elsif section.settings.video_url != blank -%}
+      <video
+        class="risona-hero__video"
+        autoplay
+        {% if section.settings.loop_video %}loop{% endif %}
+        muted
+        playsinline
+        preload="auto"
+        {%- if section.settings.desktop_image != blank -%}
+          poster="{{ section.settings.desktop_image | image_url: width: 1920 }}"
+        {%- endif -%}
+      >
+        <source src="{{ section.settings.video_url }}" type="video/mp4">
+      </video>
+    {%- endif -%}
+
+    {%- if section.settings.link != blank -%}
+      <a href="{{ section.settings.link }}" class="risona-hero__link" aria-label="{{ section.settings.heading | default: 'Shop now' }}"></a>
+    {%- endif -%}
+
+    {%- if section.settings.show_gradient_sides -%}
+      <div class="risona-hero__side-gradient risona-hero__side-gradient--left" aria-hidden="true"></div>
+      <div class="risona-hero__side-gradient risona-hero__side-gradient--right" aria-hidden="true"></div>
+    {%- endif -%}
+
+  </div>
+
+  {%- if section.settings.show_dark_overlay -%}
+    <div class="risona-hero__dark" aria-hidden="true"></div>
+  {%- endif -%}
+
+  <!-- ── TEXT CONTENT ── -->
+  {%- if section.settings.show_text -%}
+    <div class="risona-hero__content risona-hero__content--{{ section.settings.text_position }}">
+      <div class="risona-hero__text-wrap">
+
+        {%- if section.settings.eyebrow != blank -%}
+          <span class="risona-hero__eyebrow">{{ section.settings.eyebrow }}</span>
+        {%- endif -%}
+
+        {%- if section.settings.heading != blank -%}
+          <h2 class="risona-hero__heading">{{ section.settings.heading }}</h2>
+        {%- endif -%}
+
+        {%- if section.settings.subheading != blank -%}
+          <p class="risona-hero__subheading">{{ section.settings.subheading }}</p>
+        {%- endif -%}
+
+        {%- if section.settings.cta_label != blank or section.settings.cta2_label != blank -%}
+          <div class="risona-hero__cta-wrap">
+            {%- if section.settings.cta_label != blank -%}
+              <a href="{{ section.settings.cta_link | default: '#' }}" class="risona-hero__cta risona-hero__cta--primary">
+                {{ section.settings.cta_label }}
+              </a>
+            {%- endif -%}
+            {%- if section.settings.cta2_label != blank -%}
+              <a href="{{ section.settings.cta2_link | default: '#' }}" class="risona-hero__cta risona-hero__cta--outline">
+                {{ section.settings.cta2_label }}
+              </a>
+            {%- endif -%}
+          </div>
+        {%- endif -%}
+
+      </div>
+    </div>
+  {%- endif -%}
+
+</section>
+
+{% schema %}
+{
+  "name": "Risona Hero Banner",
+  "tag": "section",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Video"
+    },
+    {
+      "type": "video",
+      "id": "video",
+      "label": "Shopify-hosted video",
+      "info": "Upload via Shopify admin → Content → Files. Takes priority over everything else."
+    },
+    {
+      "type": "text",
+      "id": "video_url",
+      "label": "External video URL (.mp4)",
+      "info": "Paste a direct .mp4 link (e.g. from your CDN). Used only if no Shopify video is set."
+    },
+    {
+      "type": "checkbox",
+      "id": "loop_video",
+      "label": "Loop video",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Images"
+    },
+    {
+      "type": "image_picker",
+      "id": "desktop_image",
+      "label": "Desktop image",
+      "info": "Always loads first as the fast base layer. If no video is set, this is the banner. If a video is set, this is the poster/fallback shown while the video buffers."
+    },
+    {
+      "type": "image_picker",
+      "id": "mobile_image",
+      "label": "Mobile image",
+      "info": "Shown on screens under 750px."
+    },
+    {
+      "type": "url",
+      "id": "link",
+      "label": "Banner link (wraps entire banner)",
+      "info": "Makes the whole banner clickable. Buttons below (if enabled) still work independently and take priority over this link."
+    },
+    {
+      "type": "header",
+      "content": "Height"
+    },
+    {
+      "type": "range",
+      "id": "banner_height",
+      "label": "Height — desktop",
+      "min": 30,
+      "max": 100,
+      "step": 10,
+      "unit": "vh",
+      "default": 70
+    },
+    {
+      "type": "range",
+      "id": "banner_height_mobile",
+      "label": "Height — mobile",
+      "min": 30,
+      "max": 100,
+      "step": 5,
+      "unit": "vh",
+      "default": 55
+    },
+    {
+      "type": "header",
+      "content": "Bottom Gradient"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_gradient_bottom",
+      "label": "Show bottom gradient",
+      "info": "Fades the hero into the page below it — like the Bluestone effect.",
+      "default": true
+    },
+    {
+      "type": "color",
+      "id": "gradient_color",
+      "label": "Gradient colour",
+      "info": "Match this to your page/section background colour.",
+      "default": "#ffffff"
+    },
+    {
+      "type": "range",
+      "id": "gradient_height",
+      "label": "Gradient reach (how far up it climbs)",
+      "min": 80,
+      "max": 350,
+      "step": 5,
+      "unit": "px",
+      "default": 200
+    },
+    {
+      "type": "header",
+      "content": "Side Gradients"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_gradient_sides",
+      "label": "Show left & right gradients",
+      "default": false
+    },
+    {
+      "type": "range",
+      "id": "gradient_sides_width",
+      "label": "Side gradient width",
+      "min": 5,
+      "max": 40,
+      "step": 5,
+      "unit": "%",
+      "default": 20
+    },
+    {
+      "type": "header",
+      "content": "Dark Overlay"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_dark_overlay",
+      "label": "Show dark overlay",
+      "info": "Darkens the video/image to make white text more readable.",
+      "default": false
+    },
+    {
+      "type": "range",
+      "id": "overlay_opacity",
+      "label": "Overlay darkness",
+      "min": 5,
+      "max": 70,
+      "step": 5,
+      "unit": "%",
+      "default": 25
+    },
+    {
+      "type": "header",
+      "content": "Text Content"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_text",
+      "label": "Show text overlay",
+      "default": false
+    },
+    {
+      "type": "select",
+      "id": "text_position",
+      "label": "Text position",
+      "options": [
+        { "value": "center",        "label": "Centre" },
+        { "value": "middle-left",   "label": "Middle left" },
+        { "value": "middle-right",  "label": "Middle right" },
+        { "value": "bottom-left",   "label": "Bottom left" },
+        { "value": "bottom-center", "label": "Bottom centre" },
+        { "value": "bottom-right",  "label": "Bottom right" },
+        { "value": "top-left",      "label": "Top left" }
+      ],
+      "default": "bottom-left"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text colour",
+      "default": "#ffffff"
+    },
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow line (small text above heading)",
+      "info": "Always renders in gold. Leave blank to hide."
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading"
+    },
+    {
+      "type": "textarea",
+      "id": "subheading",
+      "label": "Subheading"
+    },
+    {
+      "type": "text",
+      "id": "cta_label",
+      "label": "Primary button label"
+    },
+    {
+      "type": "url",
+      "id": "cta_link",
+      "label": "Primary button link"
+    },
+    {
+      "type": "text",
+      "id": "cta2_label",
+      "label": "Secondary button label (outline style)"
+    },
+    {
+      "type": "url",
+      "id": "cta2_link",
+      "label": "Secondary button link"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Risona Hero Banner",
+      "settings": {
+        "banner_height": 70,
+        "banner_height_mobile": 55,
+        "show_gradient_bottom": true,
+        "gradient_color": "#ffffff",
+        "gradient_height": 200,
+        "loop_video": true,
+        "show_dark_overlay": false,
+        "show_text": false
+      }
+    }
+  ]
+}
+{% endschema %}
