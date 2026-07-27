@@ -318,6 +318,39 @@
     transform: translateY(1px);
   }
 
+  /* ── MOBILE HEADER LAYOUT (hamburger + logo on the left, icons on the right) ── */
+  @media screen and (max-width: 749px) {
+    .header {
+      grid-template-columns: auto auto 1fr !important;
+      column-gap: 0.8rem !important;
+    }
+    .header__category-selector {
+      display: none !important;
+    }
+    .header__left-area {
+      gap: 0.6rem !important;
+    }
+    .header__heading,
+    .header__heading-link {
+      justify-self: start !important;
+      text-align: left !important;
+      align-items: flex-start !important;
+      margin: 0 !important;
+      padding: 0.5rem 0 !important;
+    }
+    .header__heading-link .h2,
+    .header__heading-link span.h2 {
+      font-size: 22px !important;
+      letter-spacing: 0.12em !important;
+    }
+    .header__heading-logo-wrapper {
+      max-width: 130px;
+    }
+    header-drawer {
+      margin-left: 0 !important;
+    }
+  }
+
   .header__search-full-width {
     grid-column: 1 / -1;
     width: 100%;

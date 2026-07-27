@@ -13,18 +13,26 @@
       "type": "custom-banner",
       "name": "Custom Banner",
       "settings": {
-        "desktop_image": "shopify://shop_images/Rings_Banner_1369_321.png",
-        "link": ""
+        "image_fit": "cover",
+        "image_position": "center center",
+        "overlay_color": "#000000",
+        "overlay_opacity": 25,
+        "height_desktop": 368,
+        "height_mobile": 60,
+        "margin_top": 0,
+        "margin_bottom": 0,
+        "background_color": "rgba(0,0,0,0)"
       }
     },
     "product-grid": {
       "type": "main-collection-product-grid",
+      "disabled": true,
       "settings": {
         "products_per_page": 16,
         "columns_desktop": 4,
         "columns_mobile": "2",
         "color_scheme": "scheme-1",
-        "image_ratio": "adapt",
+        "image_ratio": "portrait",
         "image_shape": "default",
         "show_secondary_image": false,
         "show_vendor": false,
@@ -35,6 +43,16 @@
         "enable_sorting": true,
         "padding_top": 36,
         "padding_bottom": 36
+      }
+    },
+    "risona_product_grid_H88awK": {
+      "type": "risona-product-grid",
+      "name": "Risona Product Grid",
+      "settings": {
+        "product_limit": 8,
+        "columns_desktop": 4,
+        "columns_tablet": 3,
+        "columns_mobile": 2
       }
     },
     "banner": {
@@ -49,6 +67,7 @@
   "order": [
     "custom_banner_7waPnj",
     "product-grid",
+    "risona_product_grid_H88awK",
     "banner"
   ]
 }

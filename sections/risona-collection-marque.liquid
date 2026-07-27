@@ -1,0 +1,265 @@
+{% comment %}
+  Section: Collection Marquee
+  ─────────────────────────────────────────────────────────────────────
+  An auto-scrolling horizontal marquee of category cards (image + title),
+  each linking to a collection. Scrolling loops seamlessly and can pause
+  on hover.
+
+  Add cards via Admin → Theme editor → this section → Add block → Card.
+  Each card has: Image, Title, Collection (pick from your store's
+  collections, e.g. Premium / Necklaces / Rings), and an optional manual
+  Link override.
+  ─────────────────────────────────────────────────────────────────────
+{% endcomment %}
+
+<style>
+  .collection-marquee {
+    padding: 2rem 0 2.5rem;
+    overflow: hidden;
+  }
+
+  .collection-marquee__heading {
+    font-family: 'Outfit', sans-serif;
+    font-size: 15px;
+    font-weight: 500;
+    color: #6b6b6b;
+    margin: 0 0 1.25rem;
+    padding: 0 clamp(1rem, 4vw, 3rem);
+  }
+
+  .collection-marquee__track-wrap {
+    width: 100%;
+    overflow: hidden;
+    -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 5%, #000 95%, transparent 100%);
+            mask-image: linear-gradient(90deg, transparent 0, #000 5%, #000 95%, transparent 100%);
+  }
+
+  .collection-marquee__track {
+    display: flex;
+    width: max-content;
+    gap: {{ section.settings.gap }}px;
+    animation: collection-marquee-scroll {{ section.settings.speed }}s linear infinite;
+  }
+
+  .collection-marquee[data-pause-hover="true"] .collection-marquee__track:hover {
+    animation-play-state: paused;
+  }
+
+  @keyframes collection-marquee-scroll {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-50%); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .collection-marquee__track {
+      animation: none;
+    }
+  }
+
+  .collection-marquee__card {
+    position: relative;
+    flex: 0 0 auto;
+    width: {{ section.settings.card_width }}px;
+    text-decoration: none;
+    color: inherit;
+    font-family: 'Outfit', sans-serif;
+  }
+
+  .collection-marquee__media {
+    position: relative;
+    aspect-ratio: 4 / 5;
+    overflow: hidden;
+    border-radius: 4px;
+    background: #f5f3f1;
+  }
+
+  .collection-marquee__img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.4s ease;
+  }
+
+  .collection-marquee__card:hover .collection-marquee__img {
+    transform: scale(1.04);
+  }
+
+  .collection-marquee__title {
+    display: block;
+    margin-top: 0.65rem;
+    font-size: 13.5px;
+    font-weight: 500;
+    color: #1a0808;
+    text-align: center;
+  }
+</style>
+
+<div
+  class="collection-marquee"
+  data-pause-hover="{{ section.settings.pause_hover }}"
+>
+  {%- if section.settings.heading != blank -%}
+    <p class="collection-marquee__heading">{{ section.settings.heading }}</p>
+  {%- endif -%}
+
+  {%- if section.blocks.size > 0 -%}
+    <div class="collection-marquee__track-wrap">
+      <div class="collection-marquee__track">
+        {%- comment -%} render the block set twice for a seamless loop {%- endcomment -%}
+        {%- for i in (1..2) -%}
+          {%- for block in section.blocks -%}
+            {%- if block.type == 'card' -%}
+              {%- comment -%}
+                Resolve the card's destination: a picked collection wins;
+                otherwise fall back to the manual URL field.
+              {%- endcomment -%}
+              {%- assign card_url = block.settings.link -%}
+              {%- if block.settings.collection_link != blank -%}
+                {%- assign card_url = block.settings.collection_link.url -%}
+              {%- endif -%}
+              <a
+                href="{{ card_url }}"
+                class="collection-marquee__card"
+                {{ block.shopify_attributes }}
+                aria-hidden="{% if i == 2 %}true{% else %}false{% endif %}"
+                tabindex="{% if i == 2 %}-1{% else %}0{% endif %}"
+              >
+                <div class="collection-marquee__media">
+                  {%- if block.settings.image != blank -%}
+                    <img
+                      src="{{ block.settings.image | image_url: width: 500 }}"
+                      alt="{{ block.settings.image.alt | default: block.settings.title | escape }}"
+                      class="collection-marquee__img"
+                      width="{{ block.settings.image.width }}"
+                      height="{{ block.settings.image.height }}"
+                      loading="lazy"
+                    >
+                  {%- else -%}
+                    <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#b5b5b5;font-size:12px;">
+                      No image
+                    </div>
+                  {%- endif -%}
+                </div>
+                {%- if block.settings.title != blank -%}
+                  <span class="collection-marquee__title">{{ block.settings.title }}</span>
+                {%- endif -%}
+              </a>
+            {%- endif -%}
+          {%- endfor -%}
+        {%- endfor -%}
+      </div>
+    </div>
+  {%- endif -%}
+</div>
+
+{% schema %}
+{
+  "name": "Risona Collection Marquee",
+  "tag": "section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading"
+    },
+    {
+      "type": "range",
+      "id": "speed",
+      "label": "Scroll speed (seconds per loop)",
+      "min": 10,
+      "max": 90,
+      "step": 5,
+      "default": 35
+    },
+    {
+      "type": "range",
+      "id": "card_width",
+      "label": "Card width (px)",
+      "min": 150,
+      "max": 400,
+      "step": 10,
+      "default": 250
+    },
+    {
+      "type": "range",
+      "id": "gap",
+      "label": "Gap between cards (px)",
+      "min": 0,
+      "max": 48,
+      "step": 2,
+      "default": 18
+    },
+    {
+      "type": "checkbox",
+      "id": "pause_hover",
+      "label": "Pause scrolling on hover",
+      "default": true
+    }
+  ],
+  "blocks": [
+    {
+      "type": "card",
+      "name": "Card",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Title"
+        },
+        {
+          "type": "collection",
+          "id": "collection_link",
+          "label": "Collection",
+          "info": "Pick a collection (e.g. Premium, Premium Necklaces, Premium Rings). Takes priority over the manual link below."
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Manual link (optional)",
+          "info": "Only used if no collection is selected above."
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Collection Marquee",
+      "settings": {
+        "heading": "Shop By Category",
+        "speed": 35,
+        "card_width": 250,
+        "gap": 18,
+        "pause_hover": true
+      },
+      "blocks": [
+        {
+          "type": "card",
+          "settings": {
+            "title": "Premium"
+          }
+        },
+        {
+          "type": "card",
+          "settings": {
+            "title": "Necklaces"
+          }
+        },
+        {
+          "type": "card",
+          "settings": {
+            "title": "Rings"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

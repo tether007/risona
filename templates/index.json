@@ -9,70 +9,161 @@
  */
 {
   "sections": {
-    "image_banner": {
-      "type": "image-banner",
+    "risona_video_banner_AqBiRz": {
+      "type": "risona-video-banner",
+      "name": "Risona Hero Banner",
       "settings": {
-        "image": "shopify://shop_images/RISONA_Banner___Centered_Logo.png",
-        "eyebrow_text": "New Collection",
-        "heading_text": "RISONA — Premium Anti-Tarnish Jewellery"
+        "video": "shopify://files/videos/VL_VIDEO_1.mp4",
+        "video_url": "",
+        "loop_video": true,
+        "link": "",
+        "banner_height": 70,
+        "banner_height_mobile": 55,
+        "show_gradient_bottom": true,
+        "gradient_color": "#ffffff",
+        "gradient_height": 200,
+        "show_gradient_sides": false,
+        "gradient_sides_width": 20,
+        "show_dark_overlay": false,
+        "overlay_opacity": 25,
+        "show_text": false,
+        "text_position": "bottom-left",
+        "text_color": "#ffffff",
+        "eyebrow": "",
+        "heading": "",
+        "subheading": "",
+        "cta_label": "",
+        "cta_link": "",
+        "cta2_label": "",
+        "cta2_link": ""
       }
     },
-    "category_grid": {
-      "type": "category-grid",
+    "custom_banner_JtWrmp": {
+      "type": "custom-banner",
+      "name": "Custom Banner",
+      "settings": {
+        "image": "shopify://shop_images/i_don_t_chase_i_attract___transparent_banner.png",
+        "image_fit": "cover",
+        "image_position": "center center",
+        "overlay_color": "#000000",
+        "overlay_opacity": 0,
+        "height_desktop": 120,
+        "height_mobile": 60,
+        "margin_top": 0,
+        "margin_bottom": 0,
+        "background_color": "rgba(0,0,0,0)"
+      }
+    },
+    "risona_card_stack_Mj7RX7": {
+      "type": "risona-card-stack",
       "blocks": {
-        "cat1": {
-          "type": "category",
+        "card_3cp48w": {
+          "type": "card",
           "settings": {
-            "image": "shopify://shop_images/Gold-Plated_Rings_Cover.png",
-            "label": "Rings",
-            "link": "shopify://collections/rings"
+            "collection": "premium",
+            "cover_image": "shopify://shop_images/neck_4.webp",
+            "title": "",
+            "description": "",
+            "link": ""
           }
         },
-        "cat2": {
-          "type": "category",
+        "card_bgitEq": {
+          "type": "card",
           "settings": {
-            "image": "shopify://shop_images/Gold-Plated_Earrings_Cover___Wide_512640f3-7cc3-437d-97ce-9d3478047588.png",
-            "label": "Earrings",
-            "link": "shopify://collections/earrings"
+            "collection": "bracelets",
+            "cover_image": "shopify://shop_images/Blue_Clover_Bracelet_on_Silk.png",
+            "title": "",
+            "description": "",
+            "link": ""
           }
         },
-        "cat5": {
-          "type": "category",
+        "card_E9VCY7": {
+          "type": "card",
           "settings": {
-            "image": "shopify://shop_images/necklace.png",
-            "label": "Necklaces",
-            "link": "shopify://collections/necklaces"
+            "collection": "earrings",
+            "cover_image": "shopify://shop_images/Gold_pearl_drops_on_red_satin.png",
+            "title": "",
+            "description": "",
+            "link": ""
           }
         },
-        "cat6": {
-          "type": "category",
+        "card_CxfTmb": {
+          "type": "card",
           "settings": {
-            "image": "shopify://shop_images/Gold-Plated_Bracelet_Cover___Wide.png",
-            "label": "Bracelets",
-            "link": "shopify://collections/bracelets"
+            "collection": "necklaces",
+            "cover_image": "shopify://shop_images/Starfish_Necklace_on_Red_Satin.png",
+            "title": "",
+            "description": "",
+            "link": ""
+          }
+        },
+        "card_bdGtnp": {
+          "type": "card",
+          "settings": {
+            "collection": "rings",
+            "cover_image": "shopify://shop_images/GoldRing_EmeraldCut.png",
+            "title": "",
+            "description": "",
+            "link": ""
           }
         }
       },
       "block_order": [
-        "cat1",
-        "cat2",
-        "cat5",
-        "cat6"
+        "card_3cp48w",
+        "card_bgitEq",
+        "card_E9VCY7",
+        "card_CxfTmb",
+        "card_bdGtnp"
       ],
-      "custom_css": [],
+      "name": "Risona Card Stack",
       "settings": {
-        "heading": "Shop By Category",
-        "scroll_length": 150,
-        "gap_after": 0
+        "max_visible": 7,
+        "card_width": 520,
+        "card_height": 320,
+        "overlap": 48,
+        "spread_deg": 48,
+        "perspective_px": 1100,
+        "depth_px": 140,
+        "tilt_x_deg": 12,
+        "active_lift_px": 24,
+        "active_scale": 103,
+        "inactive_scale": 94,
+        "loop": true,
+        "autoplay": false,
+        "interval_ms": 2800,
+        "pause_on_hover": true,
+        "show_dots": true
+      }
+    },
+    "custom_banner_64h4Jf": {
+      "type": "custom-banner",
+      "name": "Custom Banner",
+      "settings": {
+        "image_fit": "cover",
+        "image_position": "center center",
+        "overlay_color": "#000000",
+        "overlay_opacity": 0,
+        "height_desktop": 120,
+        "height_mobile": 60,
+        "margin_top": 0,
+        "margin_bottom": 0,
+        "background_color": "rgba(0,0,0,0)"
       }
     },
     "custom_banner_ahpCae": {
       "type": "custom-banner",
       "name": "Custom Banner",
       "settings": {
-        "desktop_image": "shopify://shop_images/salt_dummy.webp",
-        "mobile_image": "shopify://shop_images/salt_dummy.webp",
-        "link": ""
+        "image": "shopify://shop_images/salt_dummy.webp",
+        "image_fit": "cover",
+        "image_position": "center center",
+        "overlay_color": "#000000",
+        "overlay_opacity": 25,
+        "height_desktop": 368,
+        "height_mobile": 60,
+        "margin_top": 0,
+        "margin_bottom": 0,
+        "background_color": "rgba(0,0,0,0)"
       }
     },
     "risona_slim_banner_mpeRBf": {
@@ -97,62 +188,69 @@
         "padding_vertical": 16
       }
     },
-    "collection_marquee_9PgXjf": {
-      "type": "collection-marquee",
+    "risona_collection_marque_bMPyDF": {
+      "type": "risona-collection-marque",
       "blocks": {
-        "card_LbWCXg": {
+        "card_zDnD43": {
           "type": "card",
           "settings": {
-            "image": "shopify://shop_images/Gold-Plated_Earrings_Cover___Wide.png",
-            "title": "Earrings",
-            "link": "shopify://collections/earrings"
+            "title": "Premium",
+            "collection_link": "",
+            "link": ""
           }
         },
-        "card_8Hcryw": {
+        "card_kMBAt8": {
           "type": "card",
           "settings": {
-            "image": "shopify://shop_images/Gold-Plated_Bracelet_Cover___Wide.png",
-            "title": "Bracelets",
-            "link": "shopify://collections/bracelets"
-          }
-        },
-        "card_cxBT4Y": {
-          "type": "card",
-          "settings": {
-            "image": "shopify://shop_images/Screenshot_2026-06-29_165004.png",
             "title": "Necklaces",
-            "link": "shopify://collections/necklaces"
+            "collection_link": "",
+            "link": ""
           }
         },
-        "card_qytpcr": {
+        "card_8wEJDn": {
           "type": "card",
           "settings": {
-            "image": "shopify://shop_images/RISONA_Rings___New_Logo.png",
             "title": "Rings",
-            "link": "shopify://collections/rings"
+            "collection_link": "",
+            "link": ""
           }
         }
       },
       "block_order": [
-        "card_LbWCXg",
-        "card_8Hcryw",
-        "card_cxBT4Y",
-        "card_qytpcr"
+        "card_zDnD43",
+        "card_kMBAt8",
+        "card_8wEJDn"
       ],
       "name": "Collection Marquee",
       "settings": {
+        "heading": "",
         "speed": 35,
         "card_width": 250,
         "gap": 18,
         "pause_hover": true
       }
+    },
+    "bestseller_q9DgFB": {
+      "type": "bestseller",
+      "name": "Bestsellers Grid",
+      "settings": {
+        "heading": "Bestsellers",
+        "collection": "bracelets",
+        "products_to_show": 4,
+        "columns_desktop": 4,
+        "bg_color": "#fbf3e7",
+        "view_more_url": "shopify://collections/bracelets"
+      }
     }
   },
   "order": [
-    "image_banner",
-    "category_grid",
+    "risona_video_banner_AqBiRz",
+    "custom_banner_JtWrmp",
+    "risona_card_stack_Mj7RX7",
+    "custom_banner_64h4Jf",
     "custom_banner_ahpCae",
     "risona_slim_banner_mpeRBf",
-    "collection_marquee_9PgXjf"
+    "risona_collection_marque_bMPyDF",
+    "bestseller_q9DgFB"
   ]
 }

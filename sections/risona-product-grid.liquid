@@ -1,0 +1,422 @@
+{% comment %}
+  Section: Risona Product Grid
+  ─────────────────────────────────────────────────────────────────────
+  Each time you add this section, it has its OWN collection setting —
+  different instances (different pages, or stacked on the same page)
+  will never share products unless you deliberately pick the same
+  collection for both.
+
+  If placed on a Collection page template and no collection is chosen
+  manually, it automatically falls back to showing the collection
+  currently being viewed.
+
+  BADGES
+  Add a tag to any product in Admin → Products → Tags using the prefix
+  "badge:" — for example:
+    badge:Bestseller
+    badge:Ending Soon
+    badge:New Launch
+    badge:Hot Deal
+    badge:Limited
+
+  The section reads the first matching tag and renders a styled badge.
+  Built-in colour mappings (case-insensitive):
+    bestseller, best seller  → gold    #C9A96E
+    ending soon, limited     → red     #C9482F
+    new, new launch,
+    new arrival              → green   #2a7a4f
+    hot, hot deal, trending  → orange  #d4600a
+    anything else            → dark    #2a2a2a
+  ─────────────────────────────────────────────────────────────────────
+{% endcomment %}
+
+{%- comment -%}
+  Resolve which collection this instance should show:
+  1. Manually chosen collection setting, if set
+  2. Otherwise, the collection currently being viewed (on a collection page)
+{%- endcomment -%}
+{%- assign grid_collection = section.settings.collection | default: collection -%}
+
+<style>
+  /* ── SECTION WRAPPER (scoped to this section instance) ── */
+  #risona-grid-{{ section.id }} {
+    padding: 2rem clamp(1rem, 4vw, 3rem) 3rem;
+  }
+  #risona-grid-{{ section.id }} .risona-grid-section__heading {
+    font-family: 'Outfit', sans-serif;
+    font-size: 15px;
+    font-weight: 500;
+    color: #6b6b6b;
+    margin: 0 0 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid #ececec;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+  #risona-grid-{{ section.id }} .risona-grid-section__heading span {
+    color: #9b9b9b;
+    font-weight: 400;
+  }
+  #risona-grid-{{ section.id }} .risona-grid-section__view-all {
+    font-size: 12.5px;
+    font-weight: 500;
+    color: #1a0808;
+    text-decoration: underline;
+    white-space: nowrap;
+  }
+
+  /* ── GRID ── */
+  #risona-grid-{{ section.id }} .risona-grid {
+    display: grid;
+    grid-template-columns: repeat({{ section.settings.columns_desktop }}, 1fr);
+    gap: 1.5rem 1.25rem;
+  }
+  @media (max-width: 989px) {
+    #risona-grid-{{ section.id }} .risona-grid {
+      grid-template-columns: repeat({{ section.settings.columns_tablet }}, 1fr);
+    }
+  }
+  @media (max-width: 599px) {
+    #risona-grid-{{ section.id }} .risona-grid {
+      grid-template-columns: repeat({{ section.settings.columns_mobile }}, 1fr);
+      gap: 1rem 0.75rem;
+    }
+  }
+
+  /* ── CARD ── */
+  #risona-grid-{{ section.id }} .risona-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    font-family: 'Outfit', sans-serif;
+  }
+
+  #risona-grid-{{ section.id }} .risona-card__media-link {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  #risona-grid-{{ section.id }} .risona-card__media {
+    position: relative;
+    aspect-ratio: 1 / 1;
+    overflow: hidden;
+    background: #f5f3f1;
+    border-radius: 4px;
+  }
+
+  #risona-grid-{{ section.id }} .risona-card__img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  #risona-grid-{{ section.id }} .risona-card__img--primary   { z-index: 1; }
+  #risona-grid-{{ section.id }} .risona-card__img--secondary {
+    z-index: 2;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  #risona-grid-{{ section.id }} .risona-card__media:not(.risona-card__media--single):hover .risona-card__img--secondary {
+    opacity: 1;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    #risona-grid-{{ section.id }} .risona-card__img--secondary { transition: none; }
+  }
+
+  /* ── BADGE ── */
+  #risona-grid-{{ section.id }} .risona-card__badge {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 10px;
+    border-radius: 3px;
+    font-family: 'Outfit', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: #fff;
+    pointer-events: none;
+    white-space: nowrap;
+    background: #2a2a2a;
+  }
+
+  #risona-grid-{{ section.id }} .risona-card__badge--ribbon {
+    left: 0;
+    border-radius: 0 3px 3px 0;
+    padding: 4px 14px 4px 8px;
+    clip-path: polygon(0 0, 100% 0, 88% 50%, 100% 100%, 0 100%);
+  }
+
+  #risona-grid-{{ section.id }} .risona-card__badge--bestseller,
+  #risona-grid-{{ section.id }} .risona-card__badge--best-seller     { background: #C9A96E; }
+
+  #risona-grid-{{ section.id }} .risona-card__badge--ending-soon,
+  #risona-grid-{{ section.id }} .risona-card__badge--limited         { background: #C9482F; }
+
+  #risona-grid-{{ section.id }} .risona-card__badge--new,
+  #risona-grid-{{ section.id }} .risona-card__badge--new-launch,
+  #risona-grid-{{ section.id }} .risona-card__badge--new-arrival     { background: #2a7a4f; }
+
+  #risona-grid-{{ section.id }} .risona-card__badge--hot,
+  #risona-grid-{{ section.id }} .risona-card__badge--hot-deal,
+  #risona-grid-{{ section.id }} .risona-card__badge--trending        { background: #d4600a; }
+
+  /* ── CARD INFO ── */
+  #risona-grid-{{ section.id }} .risona-card__info {
+    padding-top: 0.65rem;
+    position: relative;
+  }
+
+  #risona-grid-{{ section.id }} .risona-card__price-row {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    margin-bottom: 0.2rem;
+  }
+  #risona-grid-{{ section.id }} .risona-card__price {
+    font-size: 15px;
+    font-weight: 600;
+    color: #1a0808;
+  }
+  #risona-grid-{{ section.id }} .risona-card__compare {
+    font-size: 12.5px;
+    color: #9b9b9b;
+    text-decoration: line-through;
+  }
+
+  #risona-grid-{{ section.id }} .risona-card__title {
+    display: block;
+    font-size: 13px;
+    color: #4a4a4a;
+    text-decoration: none;
+    line-height: 1.4;
+    margin-bottom: 0.75rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  #risona-grid-{{ section.id }} .risona-card__title:hover { text-decoration: underline; }
+
+  #risona-grid-{{ section.id }} .risona-card__form { margin: 0; }
+
+  #risona-grid-{{ section.id }} .risona-card__add {
+    width: 100%;
+    padding: 0.7rem 1rem;
+    background: #F6E9E4;
+    color: #1a0808;
+    border: none;
+    border-radius: 3px;
+    font-family: 'Outfit', sans-serif;
+    font-size: 12.5px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  #risona-grid-{{ section.id }} .risona-card__add:hover:not(:disabled) {
+    background: #C9A96E;
+    color: #fff;
+  }
+  #risona-grid-{{ section.id }} .risona-card__add:disabled {
+    background: #f0f0f0;
+    color: #a5a5a5;
+    cursor: not-allowed;
+  }
+</style>
+
+<div class="risona-grid-section" id="risona-grid-{{ section.id }}">
+  {%- if grid_collection != blank -%}
+    <p class="risona-grid-section__heading">
+      <span>
+        {{ section.settings.heading | default: grid_collection.title }}
+        <span>({{ grid_collection.products_count }} Designs)</span>
+      </span>
+      {%- if section.settings.show_view_all -%}
+        <a href="{{ grid_collection.url }}" class="risona-grid-section__view-all">View All</a>
+      {%- endif -%}
+    </p>
+  {%- endif -%}
+
+  <div class="risona-grid">
+    {%- if grid_collection != blank -%}
+
+      {%- for product in grid_collection.products limit: section.settings.product_limit -%}
+        {%- assign current_variant = product.selected_or_first_available_variant -%}
+
+        {%- comment -%} ── Badge: find first tag prefixed "badge:" ── {%- endcomment -%}
+        {%- assign badge_label = '' -%}
+        {%- assign badge_slug  = '' -%}
+        {%- for tag in product.tags -%}
+          {%- if tag contains 'badge:' -%}
+            {%- assign badge_label = tag | remove: 'badge:' | strip -%}
+            {%- assign badge_slug  = badge_label | downcase | replace: ' ', '-' -%}
+            {%- break -%}
+          {%- endif -%}
+        {%- endfor -%}
+
+        <div class="risona-card">
+
+          {%- comment -%} ── Badge ribbon ── {%- endcomment -%}
+          {%- if badge_label != blank -%}
+            <div class="risona-card__badge risona-card__badge--ribbon risona-card__badge--{{ badge_slug }}"
+                 aria-label="{{ badge_label }}">
+              {{ badge_label }}
+            </div>
+          {%- endif -%}
+
+          {%- comment -%} ── Product image ── {%- endcomment -%}
+          <a href="{{ product.url }}" class="risona-card__media-link" aria-label="{{ product.title | escape }}">
+            <div class="risona-card__media{% if product.images.size <= 1 %} risona-card__media--single{% endif %}">
+              {%- if product.featured_image -%}
+                <img
+                  src="{{ product.featured_image | image_url: width: 600 }}"
+                  alt="{{ product.featured_image.alt | default: product.title | escape }}"
+                  class="risona-card__img risona-card__img--primary"
+                  width="{{ product.featured_image.width }}"
+                  height="{{ product.featured_image.height }}"
+                  loading="lazy"
+                >
+                {%- if product.images[1] != blank -%}
+                  <img
+                    src="{{ product.images[1] | image_url: width: 600 }}"
+                    alt="{{ product.images[1].alt | default: product.title | escape }}"
+                    class="risona-card__img risona-card__img--secondary"
+                    width="{{ product.images[1].width }}"
+                    height="{{ product.images[1].height }}"
+                    loading="lazy"
+                  >
+                {%- endif -%}
+              {%- else -%}
+                <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#b5b5b5;font-size:12px;">
+                  No image
+                </div>
+              {%- endif -%}
+            </div>
+          </a>
+
+          {%- comment -%} ── Info row ── {%- endcomment -%}
+          <div class="risona-card__info">
+            <div class="risona-card__price-row">
+              <span class="risona-card__price">{{ current_variant.price | money }}</span>
+              {%- if current_variant.compare_at_price > current_variant.price -%}
+                <s class="risona-card__compare">{{ current_variant.compare_at_price | money }}</s>
+              {%- endif -%}
+            </div>
+
+            <a href="{{ product.url }}" class="risona-card__title">{{ product.title }}</a>
+
+            <form action="/cart/add" method="post" class="risona-card__form">
+              <input type="hidden" name="id" value="{{ current_variant.id }}">
+              <button
+                type="submit"
+                class="risona-card__add"
+                {% unless current_variant.available %}disabled aria-disabled="true"{% endunless %}
+              >
+                {%- if current_variant.available -%}Add to Bag{%- else -%}Sold Out{%- endif -%}
+              </button>
+            </form>
+          </div>
+
+        </div>
+      {%- endfor -%}
+
+    {%- else -%}
+      {%- comment -%} placeholder cards in the editor when no collection is chosen or found {%- endcomment -%}
+      {%- for i in (1..section.settings.product_limit) -%}
+        <div class="risona-card">
+          <div class="risona-card__media risona-card__media--single"
+               style="display:flex;align-items:center;justify-content:center;color:#b5b5b5;font-size:12px;">
+            Select a collection
+          </div>
+        </div>
+      {%- endfor -%}
+    {%- endif -%}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Risona Product Grid",
+  "tag": "section",
+  "settings": [
+    {
+      "type": "collection",
+      "id": "collection",
+      "label": "Collection",
+      "info": "Leave blank on a Collection page to auto-show the collection being viewed."
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading (optional)",
+      "info": "Leave blank to use the collection's own title."
+    },
+    {
+      "type": "checkbox",
+      "id": "show_view_all",
+      "label": "Show 'View All' link",
+      "default": false
+    },
+    {
+      "type": "range",
+      "id": "product_limit",
+      "label": "Number of products",
+      "min": 4,
+      "max": 24,
+      "step": 4,
+      "default": 8
+    },
+    {
+      "type": "header",
+      "content": "Columns"
+    },
+    {
+      "type": "range",
+      "id": "columns_desktop",
+      "label": "Columns — desktop",
+      "min": 2,
+      "max": 6,
+      "step": 1,
+      "default": 4
+    },
+    {
+      "type": "range",
+      "id": "columns_tablet",
+      "label": "Columns — tablet",
+      "min": 2,
+      "max": 4,
+      "step": 1,
+      "default": 3
+    },
+    {
+      "type": "range",
+      "id": "columns_mobile",
+      "label": "Columns — mobile",
+      "min": 1,
+      "max": 3,
+      "step": 1,
+      "default": 2
+    }
+  ],
+  "presets": [
+    {
+      "name": "Risona Product Grid",
+      "settings": {
+        "product_limit": 8,
+        "columns_desktop": 4,
+        "columns_tablet": 3,
+        "columns_mobile": 2
+      }
+    }
+  ]
+}
+{% endschema %}

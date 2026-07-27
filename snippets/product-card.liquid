@@ -1,0 +1,99 @@
+{%- comment -%}
+  Renders a single Risona product card.
+  Usage: {% render 'product-card', card_product: product %}
+
+  Optional params:
+    card_rating       — number string, e.g. "4.8" (defaults to placeholder below)
+    card_rating_count — number string, e.g. "312" (defaults to placeholder below)
+
+  NOTE: The rating shown is a static placeholder (per your request) —
+  swap the two lines marked below for your review app's metafields
+  once one is installed (e.g. product.metafields.judgeme.reviews_average).
+{%- endcomment -%}
+
+{%- assign product = card_product -%}
+{%- assign has_second_image = false -%}
+{%- if product.images.size > 1 -%}{%- assign has_second_image = true -%}{%- endif -%}
+{%- assign tags_downcase = product.tags | join: ',' | downcase -%}
+{%- assign is_bestseller = false -%}
+{%- if tags_downcase contains 'bestseller' -%}{%- assign is_bestseller = true -%}{%- endif -%}
+
+<div class="risona-card">
+  <a href="{{ product.url }}" class="risona-card__media-link" aria-label="{{ product.title | escape }}">
+    <div class="risona-card__media{% unless has_second_image %} risona-card__media--single{% endunless %}">
+      {%- if is_bestseller -%}
+        <span class="risona-card__ribbon">Bestseller</span>
+      {%- endif -%}
+      {{
+        product.featured_image
+        | image_url: width: 600
+        | image_tag:
+          class: 'risona-card__img risona-card__img--primary',
+          loading: 'lazy',
+          widths: '300, 450, 600',
+          sizes: '(min-width: 990px) 25vw, 50vw',
+          alt: product.featured_image.alt | default: product.title
+      }}
+      {%- if has_second_image -%}
+        {{
+          product.images[1]
+          | image_url: width: 600
+          | image_tag:
+            class: 'risona-card__img risona-card__img--secondary',
+            loading: 'eager',
+            widths: '300, 450, 600',
+            sizes: '(min-width: 990px) 25vw, 50vw',
+            alt: product.title
+        }}
+      {%- endif -%}
+
+      {%- comment -%} PLACEHOLDER RATING — replace card_rating / card_rating_count once a review app is wired up {%- endcomment -%}
+      <span class="risona-card__rating">
+        <svg class="risona-card__star" viewBox="0 0 20 20" aria-hidden="true">
+          <path d="M10 1.3l2.7 5.7 6.2.6-4.6 4.2 1.3 6.1L10 14.8l-5.6 3.1 1.3-6.1L1.1 7.6l6.2-.6L10 1.3z"/>
+        </svg>
+        <span class="risona-card__rating-value">{{ card_rating | default: '4.8' }}</span>
+        <span class="risona-card__rating-divider">|</span>
+        <span class="risona-card__rating-count">{{ card_rating_count | default: '312' }}</span>
+      </span>
+    </div>
+  </a>
+
+  <button
+    type="button"
+    class="risona-card__wishlist"
+    aria-label="Add {{ product.title | escape }} to wishlist"
+    data-product-id="{{ product.id }}"
+    data-wishlist-toggle
+  >
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M12 21s-7.4-4.6-10-9C.5 8.9 1.7 5.3 5 4.4c2-.6 4.1.2 5.3 1.9C11.4 4.6 13.4 3.8 15.4 4.4c3.3.9 4.5 4.5 3 7.6C19.4 16.4 12 21 12 21z"/>
+    </svg>
+  </button>
+
+  <div class="risona-card__info">
+    <div class="risona-card__price-row">
+      <span class="risona-card__price">{{ product.price | money }}</span>
+      {%- if product.compare_at_price > product.price -%}
+        <span class="risona-card__compare">{{ product.compare_at_price | money }}</span>
+      {%- endif -%}
+    </div>
+
+    <a href="{{ product.url }}" class="risona-card__title">{{ product.title }}</a>
+
+    {%- form 'product', product, class: 'risona-card__form' -%}
+      <input type="hidden" name="id" value="{{ product.selected_or_first_available_variant.id }}">
+      <button
+        type="submit"
+        class="risona-card__add"
+        {% if product.selected_or_first_available_variant.available == false %}disabled{% endif %}
+      >
+        {%- if product.selected_or_first_available_variant.available == false -%}
+          Sold Out
+        {%- else -%}
+          Add to Cart
+        {%- endif -%}
+      </button>
+    {%- endform -%}
+  </div>
+</div>

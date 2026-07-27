@@ -1,0 +1,919 @@
+<style>
+  /* ── RISONA CARD STACK ── */
+  .risona-stack {
+    width: 100%;
+    padding: clamp(2rem, 5vw, 4rem) 1rem;
+    /* prevents the fanned side-cards from ever expanding the page's
+       scrollable width — without this, cards positioned via translateX
+       past the viewport edge silently create horizontal page scroll */
+    overflow: hidden;
+  }
+
+  .risona-stack__stage {
+    position: relative;
+    width: 100%;
+    height: {{ section.settings.card_height | plus: 80 | at_least: 380 }}px;
+  }
+
+  .risona-stack__wash-top,
+  .risona-stack__wash-bottom {
+    position: absolute;
+    left: 0;
+    right: 0;
+    margin: 0 auto;
+    border-radius: 999px;
+    pointer-events: none;
+    filter: blur(48px);
+  }
+  .risona-stack__wash-top {
+    top: 24px;
+    height: 192px;
+    width: 70%;
+    background: rgba(0,0,0,0.05);
+  }
+  .risona-stack__wash-bottom {
+    bottom: 0;
+    height: 160px;
+    width: 76%;
+    background: rgba(0,0,0,0.10);
+  }
+
+  .risona-stack__viewport {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    perspective: {{ section.settings.perspective_px }}px;
+    outline: none;
+    /* lets the page still scroll vertically on touch devices while JS
+       handles horizontal drag itself — without this, touch drag and
+       page scroll fight each other */
+    touch-action: pan-y;
+  }
+
+  .risona-stack__card {
+    position: absolute;
+    bottom: 0;
+    /* hard ceiling so a card can never exceed the viewport width even
+       before JS has run its first resize calculation */
+    max-width: 88vw;
+    border-radius: 16px;
+    border: 4px solid rgba(0,0,0,0.08);
+    overflow: hidden;
+    box-shadow: 0 20px 40px -12px rgba(0,0,0,0.25);
+    will-change: transform, opacity;
+    user-select: none;
+    transform-style: preserve-3d;
+    transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease;
+  }
+  .risona-stack__card.is-dragging {
+    transition: none;
+    cursor: grabbing;
+  }
+  .risona-stack__card.is-active {
+    cursor: grab;
+  }
+  .risona-stack__card:not(.is-active) {
+    cursor: pointer;
+  }
+  .risona-stack__card:focus-visible {
+    outline: 2px solid #C9A96E;
+    outline-offset: 3px;
+  }
+
+  .risona-stack__card-inner {
+    height: 100%;
+    width: 100%;
+    position: relative;
+  }
+
+  .risona-stack__img-wrap {
+    position: absolute;
+    inset: 0;
+  }
+  .risona-stack__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    pointer-events: none;
+  }
+  .risona-stack__placeholder {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f0ece7;
+    color: #a5a5a5;
+    font-family: 'Outfit', sans-serif;
+    font-size: 13px;
+  }
+
+  .risona-stack__gradient {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 55%);
+  }
+
+  .risona-stack__content {
+    position: relative;
+    z-index: 1;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 1.25rem;
+  }
+  .risona-stack__title {
+    font-family: 'soria_font', serif;
+    font-size: 20px;
+    font-weight: 400;
+    letter-spacing: 0.02em;
+    color: #fff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .risona-stack__desc {
+    margin-top: 0.35rem;
+    font-family: 'Outfit', sans-serif;
+    font-size: 12.5px;
+    color: rgba(255,255,255,0.82);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .risona-stack__nav {
+    margin-top: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+  }
+  .risona-stack__dots {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .risona-stack__dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 999px;
+    border: none;
+    padding: 0;
+    background: rgba(26,8,8,0.25);
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .risona-stack__dot.is-active,
+  .risona-stack__dot:hover {
+    background: #1a0808;
+  }
+  .risona-stack__link {
+    display: inline-flex;
+    color: #8a8a8a;
+    transition: color 0.2s;
+  }
+  .risona-stack__link:hover {
+    color: #1a0808;
+  }
+  .risona-stack__link svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  @media (max-width: 599px) {
+    .risona-stack__title { font-size: 16px; }
+    .risona-stack__desc { display: none; }
+  }
+
+  /* ── Mobile horizontal grid (≤749px) / Desktop 3D stack (≥750px) swap ── */
+  .risona-stack__desktop-only {
+    display: none;
+  }
+
+  .risona-stack__mobile-track {
+    display: grid;
+    grid-template-columns: repeat(var(--rc-mobile-cols, 7), 1fr);
+    column-gap: var(--rc-mobile-gap, 6px);
+    row-gap: calc(var(--rc-mobile-gap, 6px) + 10px);
+  }
+
+  .risona-stack__mobile-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .risona-stack__mobile-icon {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #f0ece7;
+  }
+
+  .risona-stack__mobile-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .risona-stack__mobile-icon-empty {
+    width: 100%;
+    height: 100%;
+    background: #f0ece7;
+  }
+
+  .risona-stack__mobile-icon-label {
+    margin-top: 5px;
+    font-family: 'Outfit', sans-serif;
+    font-size: var(--rc-mobile-label-size, 9px);
+    font-weight: 500;
+    color: #1a0808;
+    text-align: center;
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
+  }
+
+  @media (min-width: 750px) {
+    .risona-stack__mobile-wrap {
+      display: none;
+    }
+    .risona-stack__desktop-only {
+      display: block;
+    }
+  }
+</style>
+
+<div
+  class="risona-stack"
+  id="RisonaStack-{{ section.id }}"
+  data-risona-stack
+  data-max-visible="{{ section.settings.max_visible }}"
+  data-card-width="{{ section.settings.card_width }}"
+  data-card-height="{{ section.settings.card_height }}"
+  data-overlap="{{ section.settings.overlap | divided_by: 100.0 }}"
+  data-spread-deg="{{ section.settings.spread_deg }}"
+  data-depth-px="{{ section.settings.depth_px }}"
+  data-tilt-x-deg="{{ section.settings.tilt_x_deg }}"
+  data-active-lift-px="{{ section.settings.active_lift_px }}"
+  data-active-scale="{{ section.settings.active_scale | divided_by: 100.0 }}"
+  data-inactive-scale="{{ section.settings.inactive_scale | divided_by: 100.0 }}"
+  data-loop="{{ section.settings.loop }}"
+  data-autoplay="{{ section.settings.autoplay }}"
+  data-interval-ms="{{ section.settings.interval_ms }}"
+  data-pause-on-hover="{{ section.settings.pause_on_hover }}"
+  data-show-dots="{{ section.settings.show_dots }}"
+>
+  {%- comment -%}
+    Mobile grid (≤749px) — fixed 7-column grid that wraps automatically
+    once there are more than 7 cards. No scrolling, no JS. Same blocks
+    as the desktop stack below, just rendered flat.
+  {%- endcomment -%}
+  <div class="risona-stack__mobile-wrap">
+    <div
+      class="risona-stack__mobile-track"
+      data-mobile-track
+      style="--rc-mobile-cols: {{ section.settings.mobile_columns | default: 7 }}; --rc-mobile-gap: {{ section.settings.mobile_gap | default: 6 }}px; --rc-mobile-label-size: {{ section.settings.mobile_label_size | default: 9 }}px;"
+    >
+      {%- for block in section.blocks -%}
+        {%- assign m_collection = block.settings.collection -%}
+        {%- assign m_title = block.settings.title | default: m_collection.title -%}
+        {%- assign m_href = block.settings.link | default: m_collection.url -%}
+        <a href="{{ m_href | default: '#' }}" class="risona-stack__mobile-item" {{ block.shopify_attributes }}>
+          <div class="risona-stack__mobile-icon">
+            {%- if block.settings.cover_image != blank -%}
+              {{ block.settings.cover_image | image_url: width: 220 | image_tag: loading: 'lazy', widths: '110, 176, 220', alt: m_title }}
+            {%- else -%}
+              <div class="risona-stack__mobile-icon-empty"></div>
+            {%- endif -%}
+          </div>
+          <p class="risona-stack__mobile-icon-label">{{ m_title }}</p>
+        </a>
+      {%- endfor -%}
+    </div>
+  </div>
+
+  {%- comment -%} Desktop 3D fan stack (≥750px) — unchanged {%- endcomment -%}
+  <div class="risona-stack__desktop-only">
+  <div class="risona-stack__stage">
+    <div class="risona-stack__wash-top" aria-hidden="true"></div>
+    <div class="risona-stack__wash-bottom" aria-hidden="true"></div>
+
+    <div class="risona-stack__viewport" data-stack-viewport tabindex="0">
+      {%- for block in section.blocks -%}
+        {%- assign card_collection = block.settings.collection -%}
+        {%- assign card_title = block.settings.title | default: card_collection.title -%}
+        {%- assign card_href = block.settings.link | default: card_collection.url -%}
+        <div
+          class="risona-stack__card"
+          data-stack-card
+          data-index="{{ forloop.index0 }}"
+          data-href="{{ card_href }}"
+          role="button"
+          tabindex="0"
+          aria-label="{{ card_title | escape }}"
+          style="width: {{ section.settings.card_width }}px; height: {{ section.settings.card_height }}px;"
+        >
+          <div class="risona-stack__card-inner">
+            <div class="risona-stack__img-wrap">
+              {%- if block.settings.cover_image != blank -%}
+                {{
+                  block.settings.cover_image
+                  | image_url: width: 1200
+                  | image_tag:
+                    class: 'risona-stack__img',
+                    loading: 'eager',
+                    widths: '600, 900, 1200',
+                    alt: card_title
+                }}
+              {%- else -%}
+                <div class="risona-stack__placeholder">No cover image</div>
+              {%- endif -%}
+            </div>
+            <div class="risona-stack__gradient" aria-hidden="true"></div>
+            <div class="risona-stack__content">
+              {%- if card_title != blank -%}
+                <div class="risona-stack__title">{{ card_title }}</div>
+              {%- endif -%}
+              {%- if block.settings.description != blank -%}
+                <div class="risona-stack__desc">{{ block.settings.description }}</div>
+              {%- endif -%}
+            </div>
+          </div>
+        </div>
+      {%- endfor -%}
+    </div>
+  </div>
+
+  {%- if section.settings.show_dots -%}
+    <div class="risona-stack__nav">
+      <div class="risona-stack__dots" data-stack-dots>
+        {%- for block in section.blocks -%}
+          <button
+            type="button"
+            class="risona-stack__dot"
+            data-stack-dot
+            data-index="{{ forloop.index0 }}"
+            aria-label="Go to {{ block.settings.title | default: block.settings.collection.title | escape }}"
+          ></button>
+        {%- endfor -%}
+      </div>
+      <a href="#" class="risona-stack__link" data-stack-external-link target="_blank" rel="noreferrer" aria-label="Open link" hidden>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h6"></path>
+          <path d="M15 3h6v6"></path>
+          <path d="M10 14 21 3"></path>
+        </svg>
+      </a>
+    </div>
+  {%- endif -%}
+  </div>
+</div>
+
+<script>
+(function () {
+  function wrapIndex(n, len) {
+    if (len <= 0) return 0;
+    return ((n % len) + len) % len;
+  }
+
+  function signedOffset(i, active, len, loop) {
+    var raw = i - active;
+    if (!loop || len <= 1) return raw;
+    var alt = raw > 0 ? raw - len : raw + len;
+    return Math.abs(alt) < Math.abs(raw) ? alt : raw;
+  }
+
+  function initStack(root) {
+    var viewport = root.querySelector('[data-stack-viewport]');
+    var cards = Array.prototype.slice.call(root.querySelectorAll('[data-stack-card]'));
+    var dots = Array.prototype.slice.call(root.querySelectorAll('[data-stack-dot]'));
+    var externalLink = root.querySelector('[data-stack-external-link]');
+    var len = cards.length;
+    if (!len) return;
+
+    // Below 750px the mobile static grid is shown instead (see CSS) and it's
+    // plain <a> tags — no JS needed. Skip all 3D/drag/autoplay setup entirely.
+    if (!window.matchMedia('(min-width: 750px)').matches) return;
+
+    var cfg = {
+      maxVisible: parseInt(root.dataset.maxVisible, 10) || 7,
+      cardWidth: parseFloat(root.dataset.cardWidth) || 520,
+      cardHeight: parseFloat(root.dataset.cardHeight) || 320,
+      overlap: parseFloat(root.dataset.overlap) || 0.48,
+      spreadDeg: parseFloat(root.dataset.spreadDeg) || 48,
+      depthPx: parseFloat(root.dataset.depthPx) || 140,
+      tiltXDeg: parseFloat(root.dataset.tiltXDeg) || 12,
+      activeLiftPx: parseFloat(root.dataset.activeLiftPx) || 22,
+      activeScale: parseFloat(root.dataset.activeScale) || 1.03,
+      inactiveScale: parseFloat(root.dataset.inactiveScale) || 0.94,
+      loop: root.dataset.loop === 'true',
+      autoplay: root.dataset.autoplay === 'true',
+      intervalMs: Math.max(700, parseInt(root.dataset.intervalMs, 10) || 2800),
+      pauseOnHover: root.dataset.pauseOnHover === 'true',
+    };
+
+    var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var maxOffset = Math.max(0, Math.floor(cfg.maxVisible / 2));
+    var stepDeg = maxOffset > 0 ? cfg.spreadDeg / maxOffset : 0;
+    var aspectRatio = cfg.cardWidth > 0 ? (cfg.cardHeight / cfg.cardWidth) : 0.6;
+
+    // ── RESPONSIVE SIZING ──
+    // The admin-set card_width/card_height are treated as a maximum, not a
+    // fixed size. On narrower screens we scale both down together (keeping
+    // aspect ratio) so the fanned stack always fits inside its container —
+    // this is what makes it adapt to mobile instead of overflowing.
+    var effective = { width: cfg.cardWidth, height: cfg.cardHeight, spacing: 0 };
+
+    function recomputeSize() {
+      var containerWidth = root.clientWidth || window.innerWidth;
+      // total footprint a full fan needs, worst case, at 100% overlap setting:
+      // active card width plus the spacing on both sides for every visible offset
+      var worstCaseSpacing = Math.max(10, Math.round(cfg.cardWidth * (1 - cfg.overlap)));
+      var neededWidth = cfg.cardWidth + (maxOffset * worstCaseSpacing * 2);
+      var scale = Math.min(1, (containerWidth * 0.92) / neededWidth);
+
+      effective.width = Math.max(120, Math.round(cfg.cardWidth * scale));
+      effective.height = Math.max(80, Math.round(effective.width * aspectRatio));
+      effective.spacing = Math.max(10, Math.round(effective.width * (1 - cfg.overlap)));
+
+      var stage = root.querySelector('.risona-stack__stage');
+      if (stage) {
+        stage.style.height = Math.max(380, effective.height + 80) + 'px';
+      }
+    }
+
+    recomputeSize();
+
+    var active = 0;
+    var hovering = false;
+    var autoplayTimer = null;
+
+    function render() {
+      cards.forEach(function (card, i) {
+        var off = signedOffset(i, active, len, cfg.loop);
+        var abs = Math.abs(off);
+        var visible = abs <= maxOffset;
+        var isActive = off === 0;
+
+        card.style.width = effective.width + 'px';
+        card.style.height = effective.height + 'px';
+
+        if (!visible) {
+          card.style.opacity = '0';
+          card.style.pointerEvents = 'none';
+          card.style.zIndex = '0';
+          return;
+        }
+
+        var x = off * effective.spacing;
+        var y = abs * 10 + (isActive ? -cfg.activeLiftPx : 0);
+        var z = -abs * cfg.depthPx;
+        var rotateZ = off * stepDeg;
+        var rotateX = isActive ? 0 : cfg.tiltXDeg;
+        var scale = isActive ? cfg.activeScale : cfg.inactiveScale;
+        var zIndex = 100 - abs;
+
+        card.style.opacity = '1';
+        card.style.pointerEvents = 'auto';
+        card.style.zIndex = String(zIndex);
+        card.style.transform =
+          'translateX(' + x + 'px) translateY(' + y + 'px) translateZ(' + z + 'px) ' +
+          'rotateZ(' + rotateZ + 'deg) rotateX(' + rotateX + 'deg) scale(' + scale + ')';
+
+        card.classList.toggle('is-active', isActive);
+      });
+
+      dots.forEach(function (dot, i) {
+        dot.classList.toggle('is-active', i === active);
+      });
+
+      if (externalLink) {
+        var href = cards[active] ? cards[active].dataset.href : '';
+        if (href) {
+          externalLink.href = href;
+          externalLink.hidden = false;
+        } else {
+          externalLink.hidden = true;
+        }
+      }
+    }
+
+    function canGoPrev() { return cfg.loop || active > 0; }
+    function canGoNext() { return cfg.loop || active < len - 1; }
+
+    function prev() {
+      if (!canGoPrev()) return;
+      active = wrapIndex(active - 1, len);
+      render();
+    }
+    function next() {
+      if (!canGoNext()) return;
+      active = wrapIndex(active + 1, len);
+      render();
+    }
+    function goTo(i) {
+      active = wrapIndex(i, len);
+      render();
+    }
+
+    // click / keyboard select
+    cards.forEach(function (card, i) {
+      card.addEventListener('click', function (e) {
+        if (card.classList.contains('is-dragging')) return;
+        if (i !== active) {
+          goTo(i);
+        }
+      });
+      card.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          goTo(i);
+        }
+      });
+    });
+
+    dots.forEach(function (dot, i) {
+      dot.addEventListener('click', function () { goTo(i); });
+    });
+
+    viewport.addEventListener('keydown', function (e) {
+      if (e.key === 'ArrowLeft') prev();
+      if (e.key === 'ArrowRight') next();
+    });
+
+    // drag only on active card
+    var dragState = null;
+
+    function getThreshold() {
+      return Math.min(160, effective.width * 0.22);
+    }
+
+    function onPointerDown(e) {
+      var card = cards[active];
+      if (!card) return;
+      dragState = {
+        startX: e.clientX,
+        lastX: e.clientX,
+        lastT: performance.now(),
+        velocity: 0,
+      };
+      card.classList.add('is-dragging');
+      card.setPointerCapture && card.setPointerCapture(e.pointerId);
+    }
+
+    function onPointerMove(e) {
+      if (!dragState) return;
+      var card = cards[active];
+      if (!card) return;
+      var now = performance.now();
+      var dt = Math.max(1, now - dragState.lastT);
+      dragState.velocity = ((e.clientX - dragState.lastX) / dt) * 1000;
+      dragState.lastX = e.clientX;
+      dragState.lastT = now;
+
+      var travel = e.clientX - dragState.startX;
+      var off = 0; // active card offset is always 0 at rest
+      var rotateX = 0;
+      var scale = cfg.activeScale;
+      card.style.transform =
+        'translateX(' + travel + 'px) translateY(' + (-cfg.activeLiftPx) + 'px) translateZ(0px) ' +
+        'rotateZ(' + (travel * 0.02) + 'deg) rotateX(0deg) scale(' + scale + ')';
+    }
+
+    function onPointerUp(e) {
+      if (!dragState) return;
+      var card = cards[active];
+      var travel = e.clientX - dragState.startX;
+      var v = dragState.velocity;
+      card.classList.remove('is-dragging');
+      dragState = null;
+
+      if (travel > getThreshold() || v > 650) {
+        prev();
+      } else if (travel < -getThreshold() || v < -650) {
+        next();
+      } else {
+        render();
+      }
+    }
+
+    viewport.addEventListener('pointerdown', function (e) {
+      var card = e.target.closest('[data-stack-card]');
+      if (!card || !card.classList.contains('is-active')) return;
+      onPointerDown(e);
+    });
+    viewport.addEventListener('pointermove', onPointerMove);
+    viewport.addEventListener('pointerup', onPointerUp);
+    viewport.addEventListener('pointercancel', onPointerUp);
+
+    // autoplay
+    if (cfg.autoplay && !reduceMotion) {
+      function startAutoplay() {
+        stopAutoplay();
+        autoplayTimer = window.setInterval(function () {
+          if (cfg.pauseOnHover && hovering) return;
+          if (cfg.loop || active < len - 1) next();
+        }, cfg.intervalMs);
+      }
+      function stopAutoplay() {
+        if (autoplayTimer) window.clearInterval(autoplayTimer);
+      }
+      root.addEventListener('mouseenter', function () { hovering = true; });
+      root.addEventListener('mouseleave', function () { hovering = false; });
+      startAutoplay();
+    }
+
+    render();
+
+    var resizeTimer = null;
+    window.addEventListener('resize', function () {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(function () {
+        recomputeSize();
+        render();
+      }, 120);
+    });
+  }
+
+  function initAll() {
+    document.querySelectorAll('[data-risona-stack]').forEach(initStack);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initAll);
+  } else {
+    initAll();
+  }
+})();
+</script>
+
+{% schema %}
+{
+  "name": "Risona Card Stack",
+  "tag": "section",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "range",
+      "id": "max_visible",
+      "label": "Max visible cards",
+      "min": 3,
+      "max": 9,
+      "step": 2,
+      "default": 7
+    },
+    {
+      "type": "range",
+      "id": "card_width",
+      "label": "Card width",
+      "min": 280,
+      "max": 640,
+      "step": 20,
+      "unit": "px",
+      "default": 520
+    },
+    {
+      "type": "range",
+      "id": "card_height",
+      "label": "Card height",
+      "min": 200,
+      "max": 480,
+      "step": 20,
+      "unit": "px",
+      "default": 320
+    },
+    {
+      "type": "range",
+      "id": "overlap",
+      "label": "Overlap",
+      "info": "Higher = cards sit closer together",
+      "min": 0,
+      "max": 80,
+      "step": 4,
+      "unit": "%",
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "spread_deg",
+      "label": "Fan spread",
+      "min": 0,
+      "max": 90,
+      "step": 6,
+      "unit": "deg",
+      "default": 48
+    },
+    {
+      "type": "header",
+      "content": "Depth & Tilt"
+    },
+    {
+      "type": "range",
+      "id": "perspective_px",
+      "label": "Perspective",
+      "min": 600,
+      "max": 1800,
+      "step": 100,
+      "unit": "px",
+      "default": 1100
+    },
+    {
+      "type": "range",
+      "id": "depth_px",
+      "label": "Depth per card",
+      "min": 0,
+      "max": 280,
+      "step": 20,
+      "unit": "px",
+      "default": 140
+    },
+    {
+      "type": "range",
+      "id": "tilt_x_deg",
+      "label": "Inactive card tilt",
+      "min": 0,
+      "max": 30,
+      "step": 3,
+      "unit": "deg",
+      "default": 12
+    },
+    {
+      "type": "header",
+      "content": "Active Card Emphasis"
+    },
+    {
+      "type": "range",
+      "id": "active_lift_px",
+      "label": "Active lift",
+      "min": 0,
+      "max": 60,
+      "step": 4,
+      "unit": "px",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "active_scale",
+      "label": "Active scale",
+      "min": 90,
+      "max": 120,
+      "step": 1,
+      "unit": "%",
+      "default": 103
+    },
+    {
+      "type": "range",
+      "id": "inactive_scale",
+      "label": "Inactive scale",
+      "min": 70,
+      "max": 100,
+      "step": 1,
+      "unit": "%",
+      "default": 94
+    },
+    {
+      "type": "header",
+      "content": "Behavior"
+    },
+    {
+      "type": "checkbox",
+      "id": "loop",
+      "label": "Loop",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "autoplay",
+      "label": "Autoplay",
+      "default": false
+    },
+    {
+      "type": "range",
+      "id": "interval_ms",
+      "label": "Autoplay interval",
+      "min": 1000,
+      "max": 6000,
+      "step": 200,
+      "unit": "ms",
+      "default": 2800
+    },
+    {
+      "type": "checkbox",
+      "id": "pause_on_hover",
+      "label": "Pause autoplay on hover",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Navigation"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_dots",
+      "label": "Show dots",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Mobile Grid"
+    },
+    {
+      "type": "range",
+      "id": "mobile_columns",
+      "label": "Cards per row (mobile)",
+      "info": "Fewer columns = bigger cards. Extra cards automatically wrap to the next row.",
+      "min": 3,
+      "max": 8,
+      "step": 1,
+      "default": 7
+    },
+    {
+      "type": "range",
+      "id": "mobile_gap",
+      "label": "Spacing between cards (mobile)",
+      "min": 2,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "default": 6
+    },
+    {
+      "type": "range",
+      "id": "mobile_label_size",
+      "label": "Label text size (mobile)",
+      "min": 8,
+      "max": 16,
+      "step": 1,
+      "unit": "px",
+      "default": 9
+    }
+  ],
+  "blocks": [
+    {
+      "type": "card",
+      "name": "Card",
+      "settings": [
+        {
+          "type": "collection",
+          "id": "collection",
+          "label": "Collection",
+          "info": "Used for the default title and link unless overridden below."
+        },
+        {
+          "type": "image_picker",
+          "id": "cover_image",
+          "label": "Card cover image",
+          "info": "Each card needs its own cover — this does not fall back to the collection's image."
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Title override",
+          "info": "Leave blank to use the collection's title."
+        },
+        {
+          "type": "textarea",
+          "id": "description",
+          "label": "Description"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Link override",
+          "info": "Leave blank to use the collection's URL."
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Risona Card Stack",
+      "blocks": [
+        { "type": "card" },
+        { "type": "card" },
+        { "type": "card" },
+        { "type": "card" },
+        { "type": "card" }
+      ]
+    }
+  ]
+}
+{% endschema %}
