@@ -1,0 +1,234 @@
+<div class="risona-accordion">
+
+  <div class="risona-accordion__item">
+
+    <button
+      class="risona-accordion__header"
+      type="button"
+      aria-expanded="false"
+    >
+
+      <span class="risona-accordion__title">
+        Description
+      </span>
+
+      <span class="risona-accordion__toggle">
+        <svg
+          class="risona-accordion__icon"
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M12 5V19M5 12H19"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+          />
+        </svg>
+      </span>
+
+    </button>
+
+    <div class="risona-accordion__content">
+      <div class="rte">
+        {{ product.description }}
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<style>
+      .risona-accordion {
+    width: 100%;
+    margin: 32px 0; 
+  }
+
+  .risona-accordion__item {
+    border-bottom: 1px solid #e8e8e8;
+  }
+
+  .risona-accordion__header {
+    width: 100%;
+    display: flex;
+    align-items: stretch;
+    justify-content: space-between;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+    text-align: left;
+    transition: background .25s ease;
+  }
+
+  .risona-accordion__header:hover {
+    background: #fafafa;
+  }
+
+  .risona-accordion__title {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    padding: 22px 28px;
+    font-size: 17px;
+    font-weight: 500;
+    color: #111;
+    line-height: 1.3;
+  }
+
+  .risona-accordion__toggle {
+    width: 64px;
+    min-width: 64px;
+    background: #000;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background .3s ease;
+  }
+
+  .risona-accordion__icon {
+    width: 18px;
+    height: 18px;
+    transition: transform .35s ease;
+  }
+
+  .risona-accordion__item.is-open .risona-accordion__icon {
+    transform: rotate(45deg);
+  }
+
+  /* ---------- Content ---------- */
+
+  .risona-accordion__content {
+    display: none;
+    padding: 26px 28px;
+    background: #fff;
+    border-top: 1px solid #ececec;
+  }
+
+  .risona-accordion__item.is-open .risona-accordion__content {
+    display: block;
+  }
+
+  .risona-accordion__content .rte {
+    font-size: 15px;
+    line-height: 1.8;
+    color: #555;
+  }
+
+  .risona-accordion__content p:first-child {
+    margin-top: 0;
+  }
+
+  .risona-accordion__content p:last-child {
+    margin-bottom: 0;
+  }
+
+  .risona-accordion__content ul,
+  .risona-accordion__content ol {
+    margin: 12px 0;
+    padding-left: 20px;
+  }
+
+  .risona-accordion__content li {
+    margin-bottom: 8px;
+  }
+
+  /* ---------- Tablet ---------- */
+
+  @media screen and (max-width: 989px) {
+
+    .risona-accordion {
+      margin: 28px 0;
+    }
+
+    .risona-accordion__title {
+      padding: 20px;
+      font-size: 16px;
+    }
+
+    .risona-accordion__toggle {
+      width: 58px;
+      min-width: 58px;
+    }
+
+    .risona-accordion__content {
+      padding: 22px 20px;
+    }
+
+  }
+
+  /* ---------- Mobile ---------- */
+
+  @media screen and (max-width: 749px) {
+
+    .risona-accordion {
+      margin: 24px 0;
+    }
+
+    .risona-accordion__title {
+      padding: 18px 18px;
+      font-size: 15px;
+    }
+
+    .risona-accordion__toggle {
+      width: 52px;
+      min-width: 52px;
+    }
+
+    .risona-accordion__icon {
+      width: 16px;
+      height: 16px;
+    }
+
+    .risona-accordion__content {
+      padding: 18px;
+    }
+
+    .risona-accordion__content .rte {
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+  }
+</style>
+
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const accordion = document.querySelector('.risona-accordion');
+
+  if (!accordion) return;
+
+  const items = accordion.querySelectorAll('.risona-accordion__item');
+
+  items.forEach((item) => {
+    const trigger = item.querySelector('.risona-accordion__header');
+
+    trigger.addEventListener('click', () => {
+      const isOpen = item.classList.contains('is-open');
+
+      // Close all items
+      items.forEach((otherItem) => {
+        otherItem.classList.remove('is-open');
+
+        const otherTrigger = otherItem.querySelector(
+          '.risona-accordion__header'
+        );
+
+        otherTrigger.setAttribute('aria-expanded', 'false');
+      });
+
+      // Open clicked item if it wasn't already open
+      if (!isOpen) {
+        item.classList.add('is-open');
+        trigger.setAttribute('aria-expanded', 'true');
+      }
+    });
+  });
+});
+</script>

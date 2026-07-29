@@ -36,7 +36,7 @@
     background: rgba(255,255,255,0.07);
     border-color: rgba(255,255,255,0.14);
   }
-  .risona-footer--dark .risona-footer__subscribe-form input[type="email"] { color: #fff; }
+  .risona-footer--dark .risona-footer__subscribe-form input[type="email"] { color: #fff; font-weight: 800; font-family: "cormorant Garamond", serif; }
   .risona-footer--dark .risona-footer__subscribe-form input[type="email"]::placeholder { color: rgba(255,255,255,0.35); }
   .risona-footer--dark .risona-footer__payment-label { color: rgba(255,255,255,0.5); }
   .risona-footer--dark .risona-footer__payment-icon  { border-color: rgba(255,255,255,0.12); }
@@ -82,7 +82,8 @@
   /* ── COLUMN HEADING ── */
   .risona-footer__col-title {
     font-size: 12px;
-    font-weight: 600;
+    font-family: "cormorant Garamond", serif;
+    font-weight: 1000;
     letter-spacing: 0.2em;
     text-transform: uppercase;
     color: var(--risona-dark);
@@ -100,11 +101,13 @@
   .risona-footer__links a {
     font-size: 13px; font-weight: 400; letter-spacing: 0.04em;
     color: #4a2020; text-decoration: none;
+    font-family: "Cormorant Garamond", serif;
     display: inline-block; position: relative;
     transition: color 0.2s;
   }
   .risona-footer__links a::before {
     content: ''; position: absolute; left: 0; bottom: -1px;
+    font-family: "Cormorant Garamond", serif;
     width: 0; height: 1px; background: var(--risona-gold);
     transition: width 0.25s ease;
   }
@@ -112,7 +115,7 @@
   .risona-footer__links a:hover::before { width: 100%; }
 
   /* ── CONTACT COLUMN ── */
-  .risona-footer__contact-body { font-size: 13px; line-height: 1.7; color: #4a2020; }
+  .risona-footer__contact-body { font-size: 13px; line-height: 1.7; color: #4a2020;font-family: "cormorant Garamond", serif; font-weight: 800; }
   .risona-footer__contact-body .bis {
     font-size: 11px; letter-spacing: 0.12em; color: var(--risona-muted);
     margin-bottom: 1rem; display: block;
@@ -165,6 +168,8 @@
   .risona-footer__subscribe-label {
     font-size: 13px; font-weight: 500; letter-spacing: 0.06em;
     color: var(--risona-dark); margin-bottom: 0.85rem;
+    font-family: "Cormorant Garamond", serif; 
+    font-weight: 800;
   }
   .risona-footer__subscribe-form {
     display: flex; align-items: center;

@@ -1,0 +1,586 @@
+<div
+  class="risona-lightbox"
+  id="RisonaLightbox"
+  aria-hidden="true"
+>
+
+  <div class="risona-lightbox__backdrop"></div>
+
+  <div class="risona-lightbox__container">
+
+    <button
+      type="button"
+      class="risona-lightbox__close"
+      aria-label="Close"
+    >
+      ✕
+    </button>
+
+    <button
+      type="button"
+      class="risona-lightbox__arrow risona-lightbox__prev"
+      aria-label="Previous Image"
+    >
+      &#10094;
+    </button>
+
+    <div class="risona-lightbox__viewer">
+
+      <div class="risona-lightbox__track">
+
+        {% for media in product.media %}
+
+          {% if media.media_type == 'image' %}
+
+            <div
+              class="risona-lightbox__slide"
+              data-media-id="{{ media.id }}"
+              data-index="{{ forloop.index0 }}"
+            >
+
+              {{
+                media
+                | image_url: width: 3500
+                | image_tag:
+                    loading: 'lazy',
+                    class: 'risona-lightbox__image',
+                    draggable: 'false'
+              }}
+
+            </div>
+
+          {% endif %}
+
+        {% endfor %}
+
+      </div>
+
+    </div>
+
+    <button
+      type="button"
+      class="risona-lightbox__arrow risona-lightbox__next"
+      aria-label="Next Image"
+    >
+      &#10095;
+    </button>
+
+    <div class="risona-lightbox__toolbar">
+
+      <button
+        type="button"
+        class="risona-lightbox__zoom-in"
+      >
+        +
+      </button>
+
+      <button
+        type="button"
+        class="risona-lightbox__zoom-out"
+      >
+        −
+      </button>
+
+      <button
+        type="button"
+        class="risona-lightbox__reset"
+      >
+        100%
+      </button>
+
+    </div>
+
+    <div class="risona-lightbox__counter">
+
+      <span class="risona-lightbox__current">
+        1
+      </span>
+
+      /
+
+      <span class="risona-lightbox__total">
+        {{ product.media.size }}
+      </span>
+
+    </div>
+
+    <div class="risona-lightbox__thumbnails">
+
+      {% for media in product.media %}
+
+        {% if media.media_type == 'image' %}
+
+          <button
+            type="button"
+            class="risona-lightbox__thumbnail"
+            data-index="{{ forloop.index0 }}"
+            data-media-id="{{ media.id }}"
+          >
+
+            {{
+              media
+              | image_url: width: 250
+              | image_tag:
+                  loading: 'lazy',
+                  class: 'risona-lightbox__thumbnail-image'
+            }}
+
+          </button>
+
+        {% endif %}
+
+      {% endfor %}
+
+    </div>
+
+  </div>
+
+</div>
+
+<style>
+.risona-lightbox{
+    position:fixed;
+    inset:0;
+    z-index:99999;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    visibility:hidden;
+    opacity:0;
+    transition:opacity .35s ease, visibility .35s ease;
+}
+
+.risona-lightbox.is-open{
+    visibility:visible;
+    opacity:1;
+}
+
+.risona-lightbox__backdrop{
+    position:absolute;
+    inset:0;
+    background:rgba(0,0,0,.92);
+    backdrop-filter:blur(4px);
+}
+
+.risona-lightbox__container{
+    position:relative;
+    width:min(95vw,1500px);
+    height:min(92vh,900px);
+    display:flex;
+    flex-direction:column;
+    z-index:2;
+}
+
+.risona-lightbox__viewer{
+    flex:1;
+    overflow:hidden;
+    position:relative;
+    border-radius:12px;
+}
+
+.risona-lightbox__track{
+    display:flex;
+    height:100%;
+    transition:transform .4s ease;
+    will-change:transform;
+}
+
+.risona-lightbox__slide{
+    flex:0 0 100%;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    overflow:hidden;
+    position:relative;
+}
+
+.risona-lightbox__image{
+    max-width:100%;
+    max-height:100%;
+    object-fit:contain;
+    user-select:none;
+    -webkit-user-drag:none;
+    cursor:zoom-in;
+    transition:
+        transform .25s ease,
+        transform-origin .25s ease;
+    will-change:transform;
+}
+
+.risona-lightbox__close{
+    position:absolute;
+    right:20px;
+    top:20px;
+    width:48px;
+    height:48px;
+    border:none;
+    border-radius:50%;
+    background:#fff;
+    color:#111;
+    font-size:24px;
+    cursor:pointer;
+    z-index:30;
+    transition:.25s;
+}
+
+.risona-lightbox__close:hover{
+    transform:rotate(90deg);
+}
+
+.risona-lightbox__arrow{
+    position:absolute;
+    top:50%;
+    transform:translateY(-50%);
+    width:52px;
+    height:52px;
+    border:none;
+    border-radius:50%;
+    background:rgba(255,255,255,.95);
+    color:#111;
+    font-size:30px;
+    cursor:pointer;
+    z-index:20;
+    transition:.25s;
+}
+
+.risona-lightbox__arrow:hover{
+    background:#fff;
+    transform:translateY(-50%) scale(1.08);
+}
+
+.risona-lightbox__prev{
+    left:-70px;
+}
+
+.risona-lightbox__next{
+    right:-70px;
+}
+
+.risona-lightbox__toolbar{
+    display:flex;
+    justify-content:center;
+    gap:12px;
+    margin-top:18px;
+}
+
+.risona-lightbox__toolbar button{
+    width:44px;
+    height:44px;
+    border:none;
+    border-radius:50%;
+    background:#fff;
+    cursor:pointer;
+    font-size:18px;
+    transition:.25s;
+}
+
+.risona-lightbox__toolbar button:hover{
+    transform:scale(1.08);
+}
+
+.risona-lightbox__counter{
+    position:absolute;
+    left:50%;
+    transform:translateX(-50%);
+    top:20px;
+    color:#fff;
+    font-size:16px;
+    font-weight:600;
+    z-index:25;
+    letter-spacing:.5px;
+}
+
+.risona-lightbox__thumbnails{
+    display:flex;
+    justify-content:center;
+    gap:12px;
+    margin-top:20px;
+    overflow-x:auto;
+    scrollbar-width:none;
+}
+
+.risona-lightbox__thumbnails::-webkit-scrollbar{
+    display:none;
+}
+
+.risona-lightbox__thumbnail{
+    width:74px;
+    height:74px;
+    border:2px solid transparent;
+    background:#fff;
+    padding:0;
+    cursor:pointer;
+    transition:.25s;
+    flex:0 0 auto;
+}
+
+.risona-lightbox__thumbnail.is-active{
+    border-color:#111;
+}
+
+.risona-lightbox__thumbnail-image{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    display:block;
+}
+
+body.risona-lightbox-open{
+    overflow:hidden;
+}
+
+@media (max-width:1024px){
+
+    .risona-lightbox__container{
+        width:100vw;
+        height:100vh;
+    }
+
+    .risona-lightbox__viewer{
+        border-radius:0;
+    }
+
+    .risona-lightbox__prev{
+        left:15px;
+    }
+
+    .risona-lightbox__next{
+        right:15px;
+    }
+
+}
+
+@media (max-width:768px){
+
+    .risona-lightbox__thumbnail{
+        width:58px;
+        height:58px;
+    }
+
+    .risona-lightbox__close{
+        top:12px;
+        right:12px;
+    }
+
+    .risona-lightbox__toolbar{
+        gap:8px;
+    }
+
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
+    const lightbox = document.getElementById('RisonaLightbox');
+    if (!lightbox) return;
+
+    const body = document.body;
+
+    const backdrop = lightbox.querySelector('.risona-lightbox__backdrop');
+
+    const track = lightbox.querySelector('.risona-lightbox__track');
+
+    const slides = [...lightbox.querySelectorAll('.risona-lightbox__slide')];
+
+    const thumbs = [...lightbox.querySelectorAll('.risona-lightbox__thumbnail')];
+
+    const closeBtn = lightbox.querySelector('.risona-lightbox__close');
+
+    const prevBtn = lightbox.querySelector('.risona-lightbox__prev');
+
+    const nextBtn = lightbox.querySelector('.risona-lightbox__next');
+
+    const currentCounter = lightbox.querySelector('.risona-lightbox__current');
+
+    const totalCounter = lightbox.querySelector('.risona-lightbox__total');
+
+    const galleryImages = document.querySelectorAll('.risona-gallery__slide img');
+
+    let currentIndex = 0;
+
+    totalCounter.textContent = slides.length;
+
+
+
+    function updateViewer(){
+
+        track.style.transform =
+            `translateX(-${currentIndex * 100}%)`;
+
+        currentCounter.textContent = currentIndex + 1;
+
+        thumbs.forEach((thumb,i)=>{
+
+            thumb.classList.toggle(
+                'is-active',
+                i===currentIndex
+            );
+
+        });
+
+    }
+
+
+
+    function openLightbox(index){
+
+        currentIndex=index;
+
+        updateViewer();
+
+        lightbox.classList.add('is-open');
+
+        body.classList.add('risona-lightbox-open');
+
+    }
+
+
+
+    function closeLightbox(){
+
+        lightbox.classList.remove('is-open');
+
+        body.classList.remove('risona-lightbox-open');
+
+    }
+
+
+
+    function nextSlide(){
+
+        currentIndex++;
+
+        if(currentIndex>=slides.length){
+
+            currentIndex=0;
+
+        }
+
+        updateViewer();
+
+    }
+
+
+
+    function prevSlide(){
+
+        currentIndex--;
+
+        if(currentIndex<0){
+
+            currentIndex=slides.length-1;
+
+        }
+
+        updateViewer();
+
+    }
+
+
+
+    galleryImages.forEach((img,index)=>{
+
+        img.addEventListener('click',()=>{
+
+            openLightbox(index);
+
+        });
+
+    });
+
+
+
+    closeBtn.addEventListener('click',closeLightbox);
+
+    backdrop.addEventListener('click',closeLightbox);
+
+
+
+    nextBtn.addEventListener('click',nextSlide);
+
+    prevBtn.addEventListener('click',prevSlide);
+
+
+
+    thumbs.forEach((thumb,index)=>{
+
+        thumb.addEventListener('click',()=>{
+
+            currentIndex=index;
+
+            updateViewer();
+
+        });
+
+    });
+
+
+
+    document.addEventListener('keydown',(e)=>{
+
+        if(!lightbox.classList.contains('is-open'))
+            return;
+
+        switch(e.key){
+
+            case 'Escape':
+
+                closeLightbox();
+
+                break;
+
+            case 'ArrowRight':
+
+                nextSlide();
+
+                break;
+
+            case 'ArrowLeft':
+
+                prevSlide();
+
+                break;
+
+        }
+
+    });
+
+
+
+    let startX=0;
+
+    let endX=0;
+
+
+
+    track.addEventListener('touchstart',(e)=>{
+
+        startX=e.changedTouches[0].clientX;
+
+    },{passive:true});
+
+
+
+    track.addEventListener('touchend',(e)=>{
+
+        endX=e.changedTouches[0].clientX;
+
+        let distance=startX-endX;
+
+        if(Math.abs(distance)<60) return;
+
+        if(distance>0){
+
+            nextSlide();
+
+        }else{
+
+            prevSlide();
+
+        }
+
+    },{passive:true});
+
+});
+</script>

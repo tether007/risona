@@ -38,22 +38,6 @@
         "cta2_link": ""
       }
     },
-    "custom_banner_JtWrmp": {
-      "type": "custom-banner",
-      "name": "Custom Banner",
-      "settings": {
-        "image": "shopify://shop_images/i_don_t_chase_i_attract___transparent_banner.png",
-        "image_fit": "cover",
-        "image_position": "center center",
-        "overlay_color": "#000000",
-        "overlay_opacity": 0,
-        "height_desktop": 120,
-        "height_mobile": 60,
-        "margin_top": 0,
-        "margin_bottom": 0,
-        "background_color": "rgba(0,0,0,0)"
-      }
-    },
     "risona_card_stack_Mj7RX7": {
       "type": "risona-card-stack",
       "blocks": {
@@ -117,11 +101,11 @@
       ],
       "name": "Risona Card Stack",
       "settings": {
-        "max_visible": 7,
-        "card_width": 520,
-        "card_height": 320,
+        "max_visible": 5,
+        "card_width": 640,
+        "card_height": 480,
         "overlap": 48,
-        "spread_deg": 48,
+        "spread_deg": 42,
         "perspective_px": 1100,
         "depth_px": 140,
         "tilt_x_deg": 12,
@@ -132,22 +116,66 @@
         "autoplay": false,
         "interval_ms": 2800,
         "pause_on_hover": true,
-        "show_dots": true
+        "show_dots": true,
+        "mobile_columns": 5,
+        "mobile_gap": 2,
+        "mobile_label_size": 12
       }
     },
-    "custom_banner_64h4Jf": {
-      "type": "custom-banner",
-      "name": "Custom Banner",
+    "risona_top_styles_EKyQER": {
+      "type": "risona-top-styles",
+      "blocks": {
+        "tab_MQTh9B": {
+          "type": "tab",
+          "settings": {
+            "label": "Necklaces",
+            "collection": "necklaces",
+            "view_all_url": ""
+          }
+        },
+        "tab_8NrPQB": {
+          "type": "tab",
+          "settings": {
+            "label": "Bracelets",
+            "collection": "bracelets",
+            "view_all_url": ""
+          }
+        },
+        "tab_3Emrax": {
+          "type": "tab",
+          "settings": {
+            "label": "Earrings",
+            "collection": "earrings",
+            "view_all_url": ""
+          }
+        },
+        "tab_KPQDLr": {
+          "type": "tab",
+          "settings": {
+            "label": "Rings",
+            "collection": "rings",
+            "view_all_url": ""
+          }
+        }
+      },
+      "block_order": [
+        "tab_MQTh9B",
+        "tab_8NrPQB",
+        "tab_3Emrax",
+        "tab_KPQDLr"
+      ],
+      "name": "PM Top Styles",
       "settings": {
-        "image_fit": "cover",
-        "image_position": "center center",
-        "overlay_color": "#000000",
-        "overlay_opacity": 0,
-        "height_desktop": 120,
-        "height_mobile": 60,
-        "margin_top": 0,
-        "margin_bottom": 0,
-        "background_color": "rgba(0,0,0,0)"
+        "heading": "Top Styles",
+        "show_all_tab": false,
+        "all_tab_label": "All",
+        "all_tab_url": "shopify://collections/jewellery",
+        "all_tab_products_per_block": 4,
+        "products_per_tab": 4,
+        "columns_desktop": 4,
+        "columns_tablet": 3,
+        "columns_mobile": 2,
+        "mobile_layout": "grid"
       }
     },
     "custom_banner_ahpCae": {
@@ -191,10 +219,10 @@
     "risona_collection_marque_bMPyDF": {
       "type": "risona-collection-marque",
       "blocks": {
-        "card_zDnD43": {
+        "card_LVEwRh": {
           "type": "card",
           "settings": {
-            "title": "Premium",
+            "title": "Rings",
             "collection_link": "",
             "link": ""
           }
@@ -206,51 +234,28 @@
             "collection_link": "",
             "link": ""
           }
-        },
-        "card_8wEJDn": {
-          "type": "card",
-          "settings": {
-            "title": "Rings",
-            "collection_link": "",
-            "link": ""
-          }
         }
       },
       "block_order": [
-        "card_zDnD43",
-        "card_kMBAt8",
-        "card_8wEJDn"
+        "card_LVEwRh",
+        "card_kMBAt8"
       ],
       "name": "Collection Marquee",
       "settings": {
         "heading": "",
-        "speed": 35,
+        "speed": 85,
         "card_width": 250,
         "gap": 18,
         "pause_hover": true
-      }
-    },
-    "bestseller_q9DgFB": {
-      "type": "bestseller",
-      "name": "Bestsellers Grid",
-      "settings": {
-        "heading": "Bestsellers",
-        "collection": "bracelets",
-        "products_to_show": 4,
-        "columns_desktop": 4,
-        "bg_color": "#fbf3e7",
-        "view_more_url": "shopify://collections/bracelets"
       }
     }
   },
   "order": [
     "risona_video_banner_AqBiRz",
-    "custom_banner_JtWrmp",
     "risona_card_stack_Mj7RX7",
-    "custom_banner_64h4Jf",
+    "risona_top_styles_EKyQER",
     "custom_banner_ahpCae",
     "risona_slim_banner_mpeRBf",
-    "risona_collection_marque_bMPyDF",
-    "bestseller_q9DgFB"
+    "risona_collection_marque_bMPyDF"
   ]
 }

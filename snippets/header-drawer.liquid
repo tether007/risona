@@ -89,8 +89,8 @@
                     {{ link.title | escape }}
                   </button>
                 {%- else -%}
-                  <a
-                    id="HeaderDrawer-{{ link.handle }}"
+                  
+                    <a id="HeaderDrawer-{{ link.handle }}"
                     href="{{ link.url }}"
                     class="menu-drawer__tab menu-drawer__tab--link list-menu__item link link--text focus-inset{% if link.current %} menu-drawer__menu-item--active{% endif %}"
                     role="tab"
@@ -144,7 +144,7 @@
                           <li
                             class="menu-drawer__sidebar-item{% if childlink.links != blank %}{% if childlink.handle == active_sub_handle %} is-active{% endif %}{% endif %}{% if childlink.current or childlink.child_active %} menu-drawer__menu-item--active{% endif %}"
                             {%- if childlink.links != blank %}
-                              id="HeaderDrawer-{{ link.handle }}-{{ childlink.handle }}"
+                              <a id="HeaderDrawer-{{ link.handle }}-{{ childlink.handle }}"
                               data-subtab="{{ childlink.handle }}"
                               data-children="{{ childlink.links.size }}"
                               role="tab"
@@ -153,7 +153,7 @@
                             {%- endif %}
                           >
                             {%- if childlink.links == blank -%}
-                              <a
+                              
                                 id="HeaderDrawer-{{ link.handle }}-{{ childlink.handle }}"
                                 href="{{ childlink.url }}"
                                 class="link link--text focus-inset"
@@ -185,8 +185,8 @@
                               <div class="menu-drawer__grid">
                                 {%- for grandchildlink in childlink.links -%}
                                   {%- assign nav_image = grandchildlink.object.image -%}
-                                  <a
-                                    id="HeaderDrawer-{{ link.handle }}-{{ childlink.handle }}-{{ grandchildlink.handle }}"
+                                  
+                                    <a id="HeaderDrawer-{{ link.handle }}-{{ childlink.handle }}-{{ grandchildlink.handle }}"
                                     href="{{ grandchildlink.url }}"
                                     class="menu-drawer__card link link--text focus-inset{% if grandchildlink.current %} menu-drawer__menu-item--active{% endif %}"
                                     {% if grandchildlink.current %}
@@ -215,7 +215,7 @@
                       <ul class="menu-drawer__flat-list list-menu" role="list">
                         {%- for childlink in link.links -%}
                           <li class="menu-drawer__flat-item{% if childlink.current %} menu-drawer__menu-item--active{% endif %}">
-                            <a
+                            
                               id="HeaderDrawer-{{ link.handle }}-{{ childlink.handle }}"
                               href="{{ childlink.url }}"
                               class="link link--text focus-inset"
@@ -236,11 +236,10 @@
           </nav>
           <div class="menu-drawer__utility-links">
             {%- if shop.customer_accounts_enabled -%}
-              <a
-                href="{%- if customer -%}{{ routes.account_url }}{%- else -%}{{ routes.account_login_url }}{%- endif -%}"
+              
+              <a href="{%- if customer -%}{{ routes.account_url }}{%- else -%}{{ routes.account_login_url }}{%- endif -%}"
                 class="menu-drawer__account link focus-inset h5 medium-hide large-up-hide"
-                rel="nofollow"
-              >
+                rel="nofollow">
                 {%- if section.settings.enable_customer_avatar -%}
                   <account-icon>
                     {%- if customer and customer.has_avatar? -%}
@@ -647,14 +646,6 @@
     var drawer = document.getElementById('menu-drawer');
     if (!drawer) return;
 
-    var closeBtn = document.getElementById('MenuDrawerCloseBtn');
-    var detailsEl = document.getElementById('Details-menu-drawer-container');
-    if (closeBtn && detailsEl) {
-      closeBtn.addEventListener('click', function () {
-        detailsEl.removeAttribute('open');
-      });
-    }
-
     /* level 1: main tabs */
     var tabs = drawer.querySelectorAll('.menu-drawer__tab[data-tab]');
     var panels = drawer.querySelectorAll('.menu-drawer__panel[data-panel]');
@@ -698,5 +689,37 @@
         });
       });
     });
+
+    /* ---- close button fix ----
+       global.js's MenuDrawer.bindEvents() attaches onCloseButtonClick to
+       every <button> inside this component that isn't explicitly excluded
+       (localization / country selector buttons). That handler calls
+       closeSubmenu(), which is meant for nested submenu back-buttons: it
+       removes `menu-opening` and eventually `open` via closeAnimation(),
+       but it NEVER removes `overflow-hidden-{breakpoint}` from <body>,
+       never removes `menu-open` from the header, and never removes the
+       resize listener HeaderDrawer sets up. Since our close button is a
+       plain <button>, it silently got routed through that wrong path,
+       which is why the body stayed scroll-locked / unresponsive after
+       closing even though the `open` attribute eventually disappeared.
+
+       Fix: clone the button to strip that incorrect listener, then wire
+       it to click the <summary> instead. That re-enters
+       HeaderDrawer/MenuDrawer's onSummaryClick, which correctly calls
+       closeMenuDrawer() with a real event + elementToFocus - the same
+       path the hamburger icon itself uses to close - so all the cleanup
+       (body class, header class, resize listener) actually runs. */
+    var oldCloseBtn = document.getElementById('MenuDrawerCloseBtn');
+    if (oldCloseBtn) {
+      var newCloseBtn = oldCloseBtn.cloneNode(true);
+      oldCloseBtn.parentNode.replaceChild(newCloseBtn, oldCloseBtn);
+
+      newCloseBtn.addEventListener('click', function (event) {
+        event.preventDefault();
+        var headerDrawer = newCloseBtn.closest('header-drawer');
+        var summary = headerDrawer && headerDrawer.querySelector('summary');
+        if (summary) summary.click();
+      });
+    }
   })();
 </script>

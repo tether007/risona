@@ -1,0 +1,452 @@
+{% liquid
+  assign featured_media = product.selected_or_first_available_variant.featured_media
+  if featured_media == blank
+    assign featured_media = product.featured_media
+  endif
+%}
+
+<div class="risona-gallery">
+
+  <div class="risona-gallery__viewer">
+
+    <button
+      type="button"
+      class="risona-gallery__arrow risona-gallery__prev"
+      aria-label="Previous Image"
+    >
+      &#10094;
+    </button>
+
+    <div class="risona-gallery__track">
+
+      {% for media in product.media %}
+        <div
+          class="risona-gallery__slide{% if media.id == featured_media.id %} is-active{% endif %}"
+          data-media-id="{{ media.id }}"
+          data-position="{{ forloop.index0 }}"
+        >
+
+          {% case media.media_type %}
+
+            {% when 'image' %}
+
+              {{
+                media
+                | image_url: width: 2200
+                | image_tag:
+                    loading: 'lazy',
+                    class: 'risona-gallery__image'
+              }}
+
+            {% when 'external_video' %}
+              {{ media | external_video_tag }}
+
+            {% when 'video' %}
+              {{ media | video_tag: controls: true }}
+
+            {% when 'model' %}
+              {{ media | model_viewer_tag }}
+
+          {% endcase %}
+
+        </div>
+      {% endfor %}
+
+    </div>
+
+    <button
+      type="button"
+      class="risona-gallery__arrow risona-gallery__next"
+      aria-label="Next Image"
+    >
+      &#10095;
+    </button>
+
+  </div>
+
+  <div class="risona-gallery__pagination">
+
+    {% for media in product.media %}
+      <button
+        class="risona-gallery__dot{% if media.id == featured_media.id %} is-active{% endif %}"
+        data-index="{{ forloop.index0 }}"
+      ></button>
+    {% endfor %}
+
+  </div>
+
+  <div class="risona-gallery__thumbnails">
+
+    {% for media in product.media %}
+
+      <button
+        class="risona-gallery__thumbnail{% if media.id == featured_media.id %} is-active{% endif %}"
+        data-index="{{ forloop.index0 }}"
+        data-media-id="{{ media.id }}"
+      >
+
+        {{
+          media
+          | image_url: width: 300
+          | image_tag:
+              loading: 'lazy',
+              class: 'risona-gallery__thumbnail-image',
+              media_fit: section.settings.media_fit
+        }}
+
+      </button>
+
+    {% endfor %}
+
+  </div>
+
+</div>
+
+<style>
+.risona-gallery{
+    width:100%;
+    position:relative;
+}
+
+.risona-gallery__viewer{
+    position:relative;
+    width:60%;
+    aspect-ratio:1 / 1;
+    overflow:hidden;
+    background:#faf9f7;
+}
+
+.risona-gallery__track{
+    display:flex;
+    transition:transform .45s ease;
+    will-change:transform;
+}
+
+.risona-gallery__slide{
+    flex:0 0 100%;
+    width:100%;
+    height:100%;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background:#faf9f7;
+    overflow:hidden;
+    cursor:zoom-in;
+}
+
+
+.risona-gallery__slide img{
+    width:100%;
+    height:auto;
+    display:block;
+    object-fit:contain;
+    user-select:none;
+    -webkit-user-drag:none;
+}
+
+.risona-gallery__image,
+.risona-gallery__slide img{
+    width:100%;
+    height:100%;
+    object-fit:contain;
+    object-position:center;
+    display:block;
+}
+
+.risona-gallery__arrow{
+    position:absolute;
+    top:50%;
+    transform:translateY(-50%);
+    width:44px;
+    height:44px;
+    border:none;
+    border-radius:50%;
+    background:rgba(255,255,255,.92);
+    color:#111;
+    font-size:26px;
+    cursor:pointer;
+    z-index:20;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    transition:.25s;
+    box-shadow:0 4px 15px rgba(0,0,0,.12);
+}
+
+.risona-gallery__arrow:hover{
+    background:#fff;
+    transform:translateY(-50%) scale(1.08);
+}
+
+.risona-gallery__prev{
+    left:18px;
+}
+
+.risona-gallery__next{
+    right:18px;
+}
+
+.risona-gallery__pagination{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    gap:8px;
+    margin:18px 0;
+}
+
+.risona-gallery__dot{
+    width:8px;
+    height:8px;
+    border-radius:50%;
+    border:none;
+    background:#cfcfcf;
+    cursor:pointer;
+    transition:.25s;
+    padding:0;
+}
+
+.risona-gallery__dot:hover{
+    transform:scale(1.25);
+}
+
+.risona-gallery__dot.is-active{
+    width:24px;
+    border-radius:999px;
+    background:#111;
+}
+
+.risona-gallery__thumbnails{
+    display:flex;
+    max-width: 1000px
+    gap:12px;
+    overflow-x:auto;
+    overflow-y:hidden;
+    padding:8px 0;
+    scrollbar-width:none;
+    -ms-overflow-style:none;
+}
+
+.risona-gallery__thumbnails::-webkit-scrollbar{
+    display:none;
+}
+
+.risona-gallery__thumbnail{
+    flex:0 0 auto;
+    width:88px;
+    height:88px;
+    border:1px solid #ddd;
+    background:#fff;
+    padding:0;
+    cursor:pointer;
+    transition:.25s;
+}
+
+.risona-gallery__thumbnail:hover{
+    border-color:#111;
+}
+
+.risona-gallery__thumbnail.is-active{
+    border:2px solid #111;
+}
+
+.risona-gallery__thumbnail-image{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    display:block;
+}
+
+@media screen and (max-width:990px){
+
+    .risona-gallery__arrow{
+        width:38px;
+        height:38px;
+        font-size:22px;
+    }
+
+    .risona-gallery__thumbnail{
+        width:72px;
+        height:72px;
+    }
+
+    .risona-gallery__viewer {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    background: #faf9f7;
+}
+
+}
+.risona-gallery button{
+    outline:none;
+    z-index:1; 
+}
+
+.risona-gallery button:focus{
+    outline:none;
+}
+
+.risona-gallery button:focus-visible{
+    outline:2px solid #111;
+    outline-offset:2px;
+}
+
+@media screen and (max-width:749px){
+
+    .risona-gallery__pagination{
+        margin:12px 0;
+    }
+
+    .risona-gallery__thumbnail{
+        width:64px;
+        height:64px;
+    }
+
+    .risona-gallery__prev{
+        left:10px;
+    }
+
+    .risona-gallery__next{
+        right:10px;
+    }
+
+}
+</style>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+  const gallery = document.querySelector(".risona-gallery");
+  if (!gallery) return;
+
+  const track = gallery.querySelector(".risona-gallery__track");
+  const slides = [...gallery.querySelectorAll(".risona-gallery__slide")];
+  const dots = [...gallery.querySelectorAll(".risona-gallery__dot")];
+  const thumbs = [...gallery.querySelectorAll(".risona-gallery__thumbnail")];
+
+  const prevBtn = gallery.querySelector(".risona-gallery__prev");
+  const nextBtn = gallery.querySelector(".risona-gallery__next");
+
+  let current = slides.findIndex(slide =>
+    slide.classList.contains("is-active")
+  );
+
+  if (current < 0) current = 0;
+
+  function updateGallery(index, animate = true) {
+
+    if (index < 0) index = slides.length - 1;
+    if (index >= slides.length) index = 0;
+
+    current = index;
+
+    if (!animate)
+      track.style.transition = "none";
+    else
+      track.style.transition = "transform .45s ease";
+
+    track.style.transform = `translateX(-${current * 100}%)`;
+
+    slides.forEach((slide, i) => {
+      slide.classList.toggle("is-active", i === current);
+    });
+
+    dots.forEach((dot, i) => {
+      dot.classList.toggle("is-active", i === current);
+    });
+
+    thumbs.forEach((thumb, i) => {
+      thumb.classList.toggle("is-active", i === current);
+
+      if (i === current) {
+        thumb.parentElement.scrollTo({
+        left: thumb.offsetLeft - thumb.parentElement.clientWidth / 2 + thumb.clientWidth / 2,
+        behavior: "smooth"
+    });
+      }
+    });
+
+  }
+
+  prevBtn.addEventListener("click", () => {
+    updateGallery(current - 1);
+  });
+
+  nextBtn.addEventListener("click", () => {
+    updateGallery(current + 1);
+  });
+
+  dots.forEach((dot, index) => {
+    dot.addEventListener("click", () => {
+      updateGallery(index);
+    });
+  });
+
+  thumbs.forEach((thumb, index) => {
+    thumb.addEventListener("click", () => {
+      updateGallery(index);
+    });
+  });
+
+  document.addEventListener("keydown", e => {
+
+    if (e.key === "ArrowRight")
+      updateGallery(current + 1);
+
+    if (e.key === "ArrowLeft")
+      updateGallery(current - 1);
+
+  });
+
+  let startX = 0;
+  let endX = 0;
+
+  track.addEventListener("touchstart", e => {
+    startX = e.changedTouches[0].clientX;
+  }, { passive: true });
+
+  track.addEventListener("touchend", e => {
+
+    endX = e.changedTouches[0].clientX;
+
+    const distance = startX - endX;
+
+    if (Math.abs(distance) < 60) return;
+
+    if (distance > 0)
+      updateGallery(current + 1);
+    else
+      updateGallery(current - 1);
+
+  }, { passive: true });
+
+  let mouseDown = false;
+
+  track.addEventListener("mousedown", e => {
+    mouseDown = true;
+    startX = e.clientX;
+  });
+
+  window.addEventListener("mouseup", e => {
+
+    if (!mouseDown) return;
+
+    mouseDown = false;
+
+    endX = e.clientX;
+
+    const distance = startX - endX;
+
+    if (Math.abs(distance) < 80) return;
+
+    if (distance > 0)
+      updateGallery(current + 1);
+    else
+      updateGallery(current - 1);
+
+  });
+
+  updateGallery(current, false);
+
+});
+</script>

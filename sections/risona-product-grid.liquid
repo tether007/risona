@@ -183,7 +183,8 @@
     margin-bottom: 0.2rem;
   }
   #risona-grid-{{ section.id }} .risona-card__price {
-    font-size: 15px;
+    font-size: 14.5px;
+    font-family: "Cormorant Garamond", serif;
     font-weight: 600;
     color: #1a0808;
   }
@@ -195,11 +196,13 @@
 
   #risona-grid-{{ section.id }} .risona-card__title {
     display: block;
-    font-size: 13px;
-    color: #4a4a4a;
+    font-size: 14px;
+    font-family: "Nunito Sans", sans-serif;
+    font-weight: 200;
+    color: #070202;
     text-decoration: none;
     line-height: 1.4;
-    margin-bottom: 0.75rem;
+    margin-bottom: 6px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -211,19 +214,19 @@
   #risona-grid-{{ section.id }} .risona-card__add {
     width: 100%;
     padding: 0.7rem 1rem;
-    background: #F6E9E4;
+    background: rgba(228, 213, 210, 1);
     color: #1a0808;
     border: none;
     border-radius: 3px;
-    font-family: 'Outfit', sans-serif;
-    font-size: 12.5px;
-    font-weight: 600;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 13.5px;
+    font-weight: 700;
     letter-spacing: 0.02em;
     cursor: pointer;
     transition: background 0.2s;
   }
   #risona-grid-{{ section.id }} .risona-card__add:hover:not(:disabled) {
-    background: #C9A96E;
+    background: #6b1212;
     color: #fff;
   }
   #risona-grid-{{ section.id }} .risona-card__add:disabled {
@@ -305,6 +308,11 @@
 
           {%- comment -%} ── Info row ── {%- endcomment -%}
           <div class="risona-card__info">
+            
+            <a href="{{ product.url }}" class="risona-card__title">
+              {{ product.title }}
+            </a>
+
             <div class="risona-card__price-row">
               <span class="risona-card__price">{{ current_variant.price | money }}</span>
               {%- if current_variant.compare_at_price > current_variant.price -%}
@@ -312,7 +320,6 @@
               {%- endif -%}
             </div>
 
-            <a href="{{ product.url }}" class="risona-card__title">{{ product.title }}</a>
 
             <form action="/cart/add" method="post" class="risona-card__form">
               <input type="hidden" name="id" value="{{ current_variant.id }}">

@@ -1,0 +1,67 @@
+{%- comment -%}
+  Renders a single product card for the "pm-top-styles" tabbed grid.
+  Usage: {% render 'pm-product-card', product: product %}
+{%- endcomment -%}
+
+{%- liquid
+  assign variant = product.selected_or_first_available_variant
+  assign has_discount = false
+  if product.compare_at_price > product.price
+    assign has_discount = true
+  endif
+
+  assign badge_text = ''
+  assign badge_style = 'flat'
+  if product.metafields.custom.badge_text != blank
+    assign badge_text = product.metafields.custom.badge_text
+  elsif product.tags contains 'bogo'
+    assign badge_text = 'Buy 1 Get 1'
+    assign badge_style = 'bogo'
+  elsif has_discount
+    assign badge_text = 'Flat ' | append: product.price | money_without_trailing_zeros
+  endif
+-%}
+
+<div class="pm-card" data-product-id="{{ product.id }}">
+  <a href="{{ product.url }}" class="pm-card__media">
+    {% if badge_text != blank %}
+      <span class="pm-badge pm-badge--{{ badge_style }}">{{ badge_text }}</span>
+    {% endif %}
+
+    {% if product.featured_media %}
+      {{
+        product.featured_media
+        | image_url: width: 700
+        | image_tag:
+          loading: 'lazy',
+          class: 'pm-card__img',
+          alt: product.featured_image.alt | default: product.title,
+          widths: '200,400,600,700'
+      }}
+    {% else %}
+      <div class="pm-card__img pm-card__img--placeholder">{{ 'product-1' | placeholder_svg_tag }}</div>
+    {% endif %}
+
+
+    <button
+      type="button"
+      class="pm-atc-btn"
+      data-variant-id="{{ variant.id }}"
+      {% unless variant.available %}disabled{% endunless %}
+    >
+      {% if variant.available %}Add to bag{% else %}Sold out{% endif %}
+    </button>
+  </a>
+
+  <div class="pm-card__info">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <a href="{{ product.url }}" class="pm-card__title">{{ product.title }}</a>
+      </div>
+      <div class="pm-card__price">
+        <span class="pm-price">{{ product.price | money }}</span>
+        {% if has_discount %}
+        <span class="pm-price pm-price--compare">{{ product.compare_at_price | money }}</span>
+      {% endif %}
+    </div>
+  </div>
+</div>
