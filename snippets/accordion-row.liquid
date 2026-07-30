@@ -1,0 +1,79 @@
+{%- comment -%}
+  snippets/accordion-row.liquid
+  Renders ONE black-square accordion row. Add this snippet's block multiple times
+  at the section level (sibling blocks) to build a stacked list — no nesting needed.
+
+  Usage: {% render 'accordion-row', block: block %}
+{%- endcomment -%}
+
+<details class="custom-accordion__row" {{ block.shopify_attributes }}>
+  <summary class="custom-accordion__row-summary">
+    <span class="custom-accordion__row-title">{{ block.settings.heading | escape }}</span>
+    <span class="custom-accordion__toggle" aria-hidden="true">
+      <span class="custom-accordion__toggle-icon"></span>
+    </span>
+  </summary>
+  <div class="custom-accordion__row-content rte">
+    {{ block.settings.content }}
+  </div>
+</details>
+
+<style>
+  .custom-accordion__row {
+    background: transparent;
+    border-bottom: 2px solid #fff;
+  }
+  .custom-accordion__row-summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    list-style: none;
+    cursor: pointer;
+    padding: 16px 18px;
+    background: #f2f2f2;
+  }
+  .custom-accordion__row-summary::-webkit-details-marker {
+    display: none;
+  }
+  .custom-accordion__row-title {
+    font-weight: 600;
+    font-size: 16px;
+  }
+  .custom-accordion__toggle {
+    width: 32px;
+    height: 32px;
+    background: #000;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    position: relative;
+  }
+  .custom-accordion__toggle-icon,
+  .custom-accordion__toggle-icon::after {
+    content: '';
+    position: absolute;
+    background: #fff;
+  }
+  .custom-accordion__toggle-icon {
+    width: 12px;
+    height: 2px;
+  }
+  .custom-accordion__toggle-icon::after {
+    width: 2px;
+    height: 12px;
+    left: 5px;
+    top: -5px;
+    transition: transform 0.15s ease;
+  }
+  .custom-accordion__row[open] .custom-accordion__toggle-icon::after {
+    transform: scaleY(0);
+  }
+  .custom-accordion__row-content {
+    padding: 16px 18px;
+    font-size: 14px;
+    line-height: 1.5;
+    background: #fafafa;
+  }
+</style>

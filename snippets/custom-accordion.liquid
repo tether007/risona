@@ -1,0 +1,182 @@
+{%- comment -%}
+  snippets/custom-accordion.liquid
+  Renders a delivery-estimate bar + a stacked accordion list with black square "+" toggles,
+  matching the reference screenshot. Include from main-product.liquid inside the block loop,
+  or as its own {% render %} call.
+
+  Usage:
+    {% render 'custom-accordion', block: block %}
+
+  Expects the block to be of type "custom_accordion" with settings:
+    - show_delivery_estimate (checkbox)
+    - delivery_days (number of days to add for the estimate)
+    - accordion items are added as nested settings (see schema note below)
+{%- endcomment -%}
+
+<div class="custom-accordion-wrapper" {{ block.shopify_attributes }}>
+
+  {%- if block.settings.show_delivery_estimate -%}
+    <div class="custom-accordion__delivery">
+      <div class="custom-accordion__delivery-row">
+        <span class="custom-accordion__delivery-label">
+          Deliver To&nbsp;<strong>{{ block.settings.pincode | default: customer.default_address.zip }}</strong>
+        </span>
+        <button type="button" class="custom-accordion__change-btn" data-change-pincode>Change</button>
+      </div>
+      <div class="custom-accordion__delivery-estimate">
+        {%- assign delivery_date = 'now' | date: '%s' | plus: 0 -%}
+        Free delivery by
+        <strong>
+          {{- block.settings.delivery_days | default: 4 | times: 86400 | plus: 'now' | date: '%s' | date: '%s' -}}
+        </strong>
+      </div>
+    </div>
+  {%- endif -%}
+
+  <div class="custom-accordion__list">
+    {%- for item in block.settings.accordion_items -%}
+      {%- comment -%} placeholder if you use a list/array setting or metaobject {%- endcomment -%}
+    {%- endfor -%}
+
+    {%- comment -%}
+      Since Shopify section schema doesn't support arrays of free text out of the box,
+      the simplest real-world approach is to add repeatable BLOCKS (see schema snippet below)
+      of type "accordion_row", each with heading + richtext content, and render them here:
+    {%- endcomment -%}
+
+    {%- for child in block.blocks -%}
+      {%- if child.type == 'accordion_row' -%}
+        <details class="custom-accordion__row" {{ child.shopify_attributes }}>
+          <summary class="custom-accordion__row-summary">
+            <span class="custom-accordion__row-title">{{ child.settings.heading | escape }}</span>
+            <span class="custom-accordion__toggle" aria-hidden="true">
+              <span class="custom-accordion__toggle-icon"></span>
+            </span>
+          </summary>
+          <div class="custom-accordion__row-content rte">
+            {{ child.settings.content }}
+          </div>
+        </details>
+      {%- endif -%}
+    {%- endfor -%}
+  </div>
+</div>
+
+<style>
+  .custom-accordion-wrapper {
+    width: 100%;
+    font-family: inherit;
+  }
+
+  .custom-accordion__delivery {
+    border: 1px solid #e5e0d8;
+    border-radius: 4px;
+    margin-bottom: 16px;
+    overflow: hidden;
+  }
+
+  .custom-accordion__delivery-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    font-weight: 600;
+    font-size: 14px;
+    border-bottom: 1px solid #f0ece4;
+  }
+
+  .custom-accordion__change-btn {
+    background: none;
+    border: none;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    text-decoration: underline;
+  }
+
+  .custom-accordion__delivery-estimate {
+    padding: 12px 16px;
+    font-size: 14px;
+  }
+
+  .custom-accordion__list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .custom-accordion__row {
+    background: transparent;
+  }
+
+  .custom-accordion__row-summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    list-style: none;
+    cursor: pointer;
+    padding: 16px 18px;
+    background: #f2f2f2;
+  }
+
+  .custom-accordion__row-summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .custom-accordion__row-title {
+    font-weight: 600;
+    font-size: 16px;
+  }
+
+  .custom-accordion__toggle {
+    width: 32px;
+    height: 32px;
+    background: #000;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    position: relative;
+  }
+
+  .custom-accordion__toggle-icon,
+  .custom-accordion__toggle-icon::before,
+  .custom-accordion__toggle-icon::after {
+    content: '';
+    position: absolute;
+    background: #fff;
+  }
+
+  .custom-accordion__toggle-icon {
+    width: 12px;
+    height: 2px;
+  }
+
+  .custom-accordion__toggle-icon::after {
+    width: 2px;
+    height: 12px;
+    left: 5px;
+    top: -5px;
+    transition: transform 0.15s ease;
+  }
+
+  .custom-accordion__row[open] .custom-accordion__toggle-icon::after {
+    transform: scaleY(0);
+  }
+
+  .custom-accordion__row-content {
+    padding: 16px 18px;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+</style>
+
+<script>
+  // Optional: hook up "Change" button to open a pincode/location modal if you have one
+  document.querySelectorAll('[data-change-pincode]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      document.dispatchEvent(new CustomEvent('open:pincode-modal'));
+    });
+  });
+</script>

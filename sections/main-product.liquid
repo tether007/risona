@@ -480,8 +480,11 @@
                   section_id: section.id,
                   show_pickup_availability: true
                 -%}
-        
 
+              {%- when 'custom_accordion' -%}
+                {% render 'custom-accordion', block: block %}
+              {%- when 'accordion_row' -%}
+                {% render 'accordion-row', block: block %}
               {%- when 'rating' -%}
                 {%- if product.metafields.reviews.rating.value != blank -%}
                   <div class="rating-wrapper">
@@ -741,6 +744,7 @@
   "tag": "section",
   "class": "section",
   "blocks": [
+    
     {
       "type": "@app"
     },
@@ -1175,6 +1179,47 @@
           "id": "page",
           "type": "page",
           "label": "t:sections.main-product.blocks.popup.settings.page.label"
+        }
+      ]
+    },
+    {
+      "type": "custom_accordion",
+      "name": "Custom Accordion",
+      "settings": [
+        {
+          "type": "checkbox",
+          "id": "show_delivery_estimate",
+          "label": "Show delivery estimate bar",
+          "default": true
+        },
+        {
+          "type": "text",
+          "id": "pincode",
+          "label": "Fallback pincode (if no customer address)",
+          "default": "560064"
+        },
+        {
+          "type": "number",
+          "id": "delivery_days",
+          "label": "Delivery estimate (days from today)",
+          "default": 4
+        }
+      ]
+    },
+    {
+      "type": "accordion_row",
+      "name": "Accordion Row",
+      "settings": [
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "Heading",
+          "default": "Description"
+        },
+        {
+          "type": "richtext",
+          "id": "content",
+          "label": "Content"
         }
       ]
     },

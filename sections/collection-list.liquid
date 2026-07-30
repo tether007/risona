@@ -14,6 +14,88 @@
       padding-bottom: {{ section.settings.padding_bottom }}px;
     }
   }
+
+  /* ── RISONA: Cormorant Garamond everywhere in this section ── */
+  #shopify-section-{{ section.id }} .collection-list-wrapper,
+  #shopify-section-{{ section.id }} .collection-list-wrapper * {
+    font-family: 'Cormorant Garamond', serif;
+  }
+
+  /* ── RISONA: custom banner card + hover animation ── */
+  #shopify-section-{{ section.id }} .risona-collection-card {
+    display: block;
+    position: relative;
+  }
+  #shopify-section-{{ section.id }} .risona-collection-card__link {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+  }
+  #shopify-section-{{ section.id }} .risona-collection-card__media {
+    position: relative;
+    overflow: hidden;
+    border-radius: 4px;
+    background: #f5f3f1;
+    aspect-ratio: 1 / 1;
+  }
+  #shopify-section-{{ section.id }} .risona-collection-card__media--portrait {
+    aspect-ratio: 4 / 5;
+  }
+  #shopify-section-{{ section.id }} .risona-collection-card__media--adapt {
+    aspect-ratio: auto;
+  }
+  #shopify-section-{{ section.id }} .risona-collection-card__img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  #shopify-section-{{ section.id }} .risona-collection-card__media::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0);
+    transition: background 0.4s ease;
+    pointer-events: none;
+  }
+  #shopify-section-{{ section.id }} .risona-collection-card:hover .risona-collection-card__img {
+    transform: scale(1.06);
+  }
+  #shopify-section-{{ section.id }} .risona-collection-card:hover .risona-collection-card__media::after {
+    background: rgba(0, 0, 0, 0.08);
+  }
+  #shopify-section-{{ section.id }} .risona-collection-card__title {
+    margin: 1.2rem 0 0;
+    font-size: 1.8rem;
+    font-weight: 500;
+    letter-spacing: 0.03em;
+    text-align: center;
+    position: relative;
+    display: inline-block;
+    width: 100%;
+  }
+  #shopify-section-{{ section.id }} .risona-collection-card__title::after {
+    content: '';
+    display: block;
+    margin: 0.4rem auto 0;
+    width: 0;
+    height: 1px;
+    background: currentColor;
+    transition: width 0.35s ease;
+  }
+  #shopify-section-{{ section.id }} .risona-collection-card:hover .risona-collection-card__title::after {
+    width: 3.2rem;
+  }
+
+  /* ── RISONA: fade-in on scroll (uses the theme's existing scroll-trigger engine) ── */
+  #shopify-section-{{ section.id }} .scroll-trigger.animate--fade-in {
+    opacity: 0.01;
+  }
+  #shopify-section-{{ section.id }} .scroll-trigger:not(.scroll-trigger--offscreen).animate--fade-in {
+    opacity: 1;
+    animation: var(--animation-fade-in);
+  }
 {%- endstyle -%}
 
 {%- liquid
@@ -30,16 +112,15 @@
       <div class="title-wrapper-with-link{% if show_mobile_slider %} title-wrapper--self-padded-tablet-down{% else %} title-wrapper--self-padded-mobile{% endif %} title-wrapper--no-top-margin">
         <h2
           id="SectionHeading-{{ section.id }}"
-          class="collection-list-title inline-richtext {{ section.settings.heading_size }}{% if settings.animations_reveal_on_scroll %} scroll-trigger animate--slide-in{% endif %}"
+          class="collection-list-title inline-richtext {{ section.settings.heading_size }} scroll-trigger animate--fade-in"
         >
           {{ section.settings.title }}
         </h2>
-
         {%- if section.settings.show_view_all and show_mobile_slider -%}
           <a
             href="{{ routes.collections_url }}"
             id="ViewAll-{{ section.id }}"
-            class="link underlined-link large-up-hide{% if settings.animations_reveal_on_scroll %} scroll-trigger animate--slide-in{% endif %}"
+            class="link underlined-link large-up-hide scroll-trigger animate--fade-in"
             aria-labelledby="ViewAll-{{ section.id }} SectionHeading-{{ section.id }}"
           >
             {{- 'sections.collection_list.view_all' | t -}}
@@ -48,7 +129,7 @@
       </div>
     {%- endunless -%}
 
-    <slider-component class="slider-mobile-gutter{% if settings.animations_reveal_on_scroll %} scroll-trigger animate--slide-in{% endif %}">
+    <slider-component class="slider-mobile-gutter">
       <ul
         class="collection-list contains-card contains-card--collection{% if settings.card_style == 'standard' %} contains-card--standard{% endif %} grid grid--{{ section.settings.columns_desktop }}-col-desktop grid--{{ section.settings.columns_mobile }}-col-tablet-down{% if section.settings.swipe_on_mobile %} slider slider--tablet grid--peek{% endif %} collection-list--{{ section.blocks.size }}-items"
         id="Slider-{{ section.id }}"
@@ -63,21 +144,44 @@
         {%- for block in section.blocks -%}
           <li
             id="Slide-{{ section.id }}-{{ forloop.index }}"
-            class="collection-list__item grid__item{% if show_mobile_slider %} slider__slide{% endif %}{% if block.settings.collection.featured_image == nil %} collection-list__item--no-media{% endif %}{% if settings.animations_reveal_on_scroll %} scroll-trigger animate--slide-in{% endif %}"
+            class="collection-list__item grid__item{% if show_mobile_slider %} slider__slide{% endif %}{% if block.settings.collection.featured_image == nil and block.settings.image == blank %} collection-list__item--no-media{% endif %} scroll-trigger animate--fade-in"
             {{ block.shopify_attributes }}
-            {% if settings.animations_reveal_on_scroll %}
-              data-cascade
-              style="--animation-order: {{ forloop.index }};"
-            {% endif %}
+            data-cascade
+            style="--animation-order: {{ forloop.index }};"
           >
-            {%- assign placeholder_image_index = forloop.index0 | modulo: 4 | plus: 1 -%}
-            {%- assign placeholder_image = 'collection-apparel-' | append: placeholder_image_index -%}
-            {% render 'card-collection',
-              card_collection: block.settings.collection,
-              media_aspect_ratio: section.settings.image_ratio,
-              columns: columns,
-              placeholder_image: placeholder_image
-            %}
+            {%- if block.settings.image != blank -%}
+              {%- comment -%} RISONA: custom banner image set on this block — use it instead of the collection's own image {%- endcomment -%}
+              <div class="risona-collection-card">
+                <a
+                  href="{{ block.settings.collection.url }}"
+                  class="risona-collection-card__link full-unstyled-link"
+                  aria-label="{{ block.settings.collection.title | escape }}"
+                >
+                  <div class="risona-collection-card__media risona-collection-card__media--{{ section.settings.image_ratio }}">
+                    {{
+                      block.settings.image
+                      | image_url: width: 1200
+                      | image_tag:
+                        loading: 'lazy',
+                        class: 'risona-collection-card__img',
+                        widths: '400,600,800,1200',
+                        alt: block.settings.image.alt | default: block.settings.collection.title,
+                        sizes: '(min-width: 990px) 33vw, (min-width: 750px) 50vw, 100vw'
+                    }}
+                  </div>
+                  <h3 class="risona-collection-card__title">{{ block.settings.collection.title | escape }}</h3>
+                </a>
+              </div>
+            {%- else -%}
+              {%- assign placeholder_image_index = forloop.index0 | modulo: 4 | plus: 1 -%}
+              {%- assign placeholder_image = 'collection-apparel-' | append: placeholder_image_index -%}
+              {% render 'card-collection',
+                card_collection: block.settings.collection,
+                media_aspect_ratio: section.settings.image_ratio,
+                columns: columns,
+                placeholder_image: placeholder_image
+              %}
+            {%- endif -%}
           </li>
         {%- endfor -%}
       </ul>
@@ -115,10 +219,8 @@
 
     {%- if section.settings.show_view_all and section.blocks.size < collections.size -%}
       <div
-        class="center collection-list-view-all{% if show_mobile_slider %} small-hide medium-hide{% endif %}{% if settings.animations_reveal_on_scroll %} scroll-trigger animate--slide-in{% endif %}"
-        {% if settings.animations_reveal_on_scroll %}
-          data-cascade
-        {% endif %}
+        class="center collection-list-view-all{% if show_mobile_slider %} small-hide medium-hide{% endif %} scroll-trigger animate--fade-in"
+        data-cascade
       >
         <a
           href="{{ routes.collections_url }}"
@@ -284,6 +386,12 @@
           "type": "collection",
           "id": "collection",
           "label": "t:sections.collection-list.blocks.featured_collection.settings.collection.label"
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Banner image",
+          "info": "Every card needs its own banner image — this is used instead of the collection's own image."
         }
       ]
     }

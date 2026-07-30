@@ -13,11 +13,13 @@
       "type": "custom-banner",
       "name": "Custom Banner",
       "settings": {
+        "image": "shopify://shop_images/Premium_banner__royal_blue.png",
+        "image_mobile": "shopify://shop_images/Premium_banner__royal_blue.png",
         "image_fit": "cover",
         "image_position": "center center",
         "overlay_color": "#000000",
         "overlay_opacity": 25,
-        "height_desktop": 368,
+        "height_desktop": 312,
         "height_mobile": 60,
         "margin_top": 0,
         "margin_bottom": 0,
@@ -45,10 +47,47 @@
         "padding_bottom": 36
       }
     },
+    "collection_list_WpYbhQ": {
+      "type": "collection-list",
+      "blocks": {
+        "featured_collection_DzDXBg": {
+          "type": "featured_collection",
+          "settings": {
+            "collection": "premium-necklaces"
+          }
+        },
+        "featured_collection_fjDkM6": {
+          "type": "featured_collection",
+          "settings": {
+            "collection": ""
+          }
+        }
+      },
+      "block_order": [
+        "featured_collection_DzDXBg",
+        "featured_collection_fjDkM6"
+      ],
+      "name": "t:sections.collection-list.presets.name",
+      "settings": {
+        "title": "Collections",
+        "heading_size": "h2",
+        "image_ratio": "square",
+        "columns_desktop": 2,
+        "color_scheme": "",
+        "show_view_all": false,
+        "columns_mobile": "2",
+        "swipe_on_mobile": false,
+        "padding_top": 36,
+        "padding_bottom": 36
+      }
+    },
     "risona_product_grid_H88awK": {
       "type": "risona-product-grid",
       "name": "Risona Product Grid",
       "settings": {
+        "collection": "",
+        "heading": "",
+        "show_view_all": false,
         "product_limit": 8,
         "columns_desktop": 4,
         "columns_tablet": 3,
@@ -67,6 +106,7 @@
   "order": [
     "custom_banner_7waPnj",
     "product-grid",
+    "collection_list_WpYbhQ",
     "risona_product_grid_H88awK",
     "banner"
   ]

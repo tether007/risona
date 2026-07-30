@@ -188,7 +188,7 @@
         "overlay_color": "#000000",
         "overlay_opacity": 25,
         "height_desktop": 368,
-        "height_mobile": 60,
+        "height_mobile": 126,
         "margin_top": 0,
         "margin_bottom": 0,
         "background_color": "rgba(0,0,0,0)"
@@ -205,14 +205,14 @@
         "letter_spacing": 0.4,
         "text_transform": "uppercase",
         "text_color": "#1a0808",
-        "text_glow": false,
-        "border_color": "#c9a96e",
-        "border_color_light": "#e8c98a",
+        "text_glow": true,
+        "border_color": "#6b1212",
+        "border_color_light": "#6b1212",
         "border_thickness": 1,
         "show_ornaments": true,
         "ornament_line_width": 80,
         "gap": 24,
-        "bg_color": "#fdf7f0",
+        "bg_color": "#ffffff",
         "padding_vertical": 16
       }
     },
@@ -243,7 +243,7 @@
       "name": "Collection Marquee",
       "settings": {
         "heading": "",
-        "speed": 85,
+        "speed": 15,
         "card_width": 250,
         "gap": 18,
         "pause_hover": true
